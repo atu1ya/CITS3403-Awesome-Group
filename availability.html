@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartMeet – Join Room</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --p1: #6d28d9; --p2: #7c3aed; --p3: #a78bfa; --p4: #ede9fe;
+      --pink: #f472b6; --cyan: #22d3ee; --green: #4ade80;
+      --bg: #f5f3ff; --card: #ffffff; --text: #1e1b4b; --muted: #6b7280;
+
+      /* tile states */
+      --tile-empty:  #f3f4f6;
+      --tile-free:   #bbf7d0;
+      --tile-maybe:  #fef08a;
+      --tile-busy:   #fecaca;
+      --tile-best:   #6d28d9;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+
+    /* Navbar */
+    .sm-navbar {
+      background: linear-gradient(90deg, #1e1b4b 0%, #4c1d95 60%, #6d28d9 100%);
+      padding: .6rem 0; box-shadow: 0 2px 16px rgba(109,40,217,.4);
+    }
+    .sm-navbar .navbar-brand {
+      font-family: 'Press Start 2P', monospace; font-size: .9rem;
+      color: #fff; letter-spacing: 1px;
+    }
+    .sm-navbar .navbar-brand span { color: var(--cyan); }
+    .sm-navbar .nav-link {
+      color: rgba(255,255,255,.8) !important; font-weight: 700; font-size: .85rem;
+      padding: 6px 14px !important; border-radius: 20px; transition: background .2s;
+    }
+    .sm-navbar .nav-link:hover, .sm-navbar .nav-link.active {
+      background: rgba(255,255,255,.15); color: #fff !important;
+    }
+    .btn-nav-pink {
+      background: var(--pink); color: #fff; border: none; border-radius: 20px;
+      font-weight: 700; font-size: .82rem; padding: 6px 16px; transition: transform .15s;
+    }
+    .btn-nav-pink:hover { transform: translateY(-2px); color: #fff; }
+    .btn-nav-outline {
+      background: transparent; color: #fff;
+      border: 2px solid rgba(255,255,255,.4); border-radius: 20px;
+      font-weight: 700; font-size: .82rem; padding: 5px 16px; transition: background .2s;
+    }
+    .btn-nav-outline:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+    /* Room Banner */
+    .room-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%);
+      color: #fff; padding: 40px 0 32px;
+      position: relative; overflow: hidden;
+    }
+    .room-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(34,211,238,.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 10% 80%, rgba(244,114,182,.1) 0%, transparent 50%);
+    }
+    .room-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px; padding: 4px 16px;
+      font-size: .78rem; font-weight: 800; letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    .pixel-sm { font-family: 'Press Start 2P', monospace; font-size: clamp(.8rem, 2vw, 1.1rem); line-height: 1.6; }
+
+    /* Participant avatars */
+    .part-avatar {
+      display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .part-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      border: 3px solid rgba(255,255,255,.35);
+      transition: transform .2s;
+    }
+    .part-circle:hover { transform: scale(1.12); }
+    .part-name { font-size: .7rem; font-weight: 700; opacity: .9; }
+    .online-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--green); border: 2px solid rgba(255,255,255,.4);
+      box-shadow: 0 0 5px var(--green);
+      display: inline-block;
+    }
+
+    /* Main layout card */
+    .room-card {
+      background: var(--card); border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(109,40,217,.1);
+      border: 2px solid var(--p4);
+      overflow: hidden;
+    }
+    .room-card-header {
+      background: linear-gradient(90deg, var(--p4), #fce7f3);
+      padding: 14px 24px;
+      border-bottom: 2px solid #ede9fe;
+      font-weight: 900; font-size: .82rem;
+      text-transform: uppercase; letter-spacing: .08em; color: var(--p2);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .room-card-body { padding: 24px; }
+
+    /* ── Grid ── */
+    .grid-outer { overflow-x: auto; padding-bottom: 4px; }
+    #avGrid {
+      border-collapse: separate;
+      border-spacing: 4px;
+      min-width: 480px;
+    }
+
+    /* Column headers */
+    #avGrid thead th {
+      padding: 10px 6px; text-align: center;
+      font-size: .78rem; font-weight: 900;
+      color: var(--p1); background: var(--p4);
+      border-radius: 10px; white-space: nowrap;
+      border: none;
+    }
+    #avGrid thead th:first-child {
+      background: transparent; min-width: 72px;
+    }
+
+    /* Time label cells */
+    #avGrid td.time-lbl {
+      font-size: .72rem; font-weight: 800; color: var(--muted);
+      text-align: right; padding-right: 8px; white-space: nowrap;
+      background: transparent; border: none;
+    }
+
+    /* Tile cells */
+    #avGrid td.tile {
+      width: 54px; height: 40px;
+      border-radius: 10px; border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform .12s, box-shadow .12s, filter .12s;
+      position: relative;
+    }
+    #avGrid td.tile:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      filter: brightness(1.05);
+    }
+
+    .t-empty  { background: var(--tile-empty);  border-color: #e5e7eb; }
+    .t-free   { background: var(--tile-free);   border-color: #86efac; }
+    .t-maybe  { background: var(--tile-maybe);  border-color: #fde047; }
+    .t-busy   { background: var(--tile-busy);   border-color: #fca5a5; }
+    .t-best   {
+      background: var(--tile-best) !important;
+      border-color: #a78bfa !important;
+      box-shadow: 0 0 0 2px rgba(109,40,217,.25), 0 0 10px rgba(109,40,217,.35) !important;
+    }
+    .t-best::after {
+      content: '★';
+      position: absolute; top: 2px; right: 4px;
+      font-size: 9px; color: #c4b5fd;
+    }
+
+    /* Legend */
+    .legend-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .78rem; font-weight: 700;
+    }
+    .legend-swatch {
+      width: 20px; height: 20px; border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Name input area */
+    .name-box {
+      background: var(--p4); border-radius: 16px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+    }
+    .name-avatar-placeholder {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--p2), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+
+    /* Submit button */
+    .btn-join {
+      background: linear-gradient(135deg, var(--p2), var(--pink));
+      color: #fff; border: none; border-radius: 50px;
+      font-weight: 900; font-size: 1rem; padding: 14px 40px;
+      box-shadow: 0 4px 20px rgba(124,58,237,.35);
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-join:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124,58,237,.45);
+      color: #fff;
+    }
+
+    footer { background: #0f0e1a; color: rgba(255,255,255,.4); }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg sm-navbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
+          <li class="nav-item"><a class="nav-link active" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
+        </ul>
+        <div class="d-flex gap-2 mt-2 mt-lg-0">
+          <a href="#" class="btn-nav-outline">Login</a>
+          <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Room Banner -->
+  <div class="room-banner">
+    <div class="container position-relative text-center">
+      <div class="room-badge">🚪 Room · Team Sprint Planning</div>
+      <h2 class="pixel-sm mb-2">Mark Your Availability</h2>
+      <p style="opacity:.8;font-size:.95rem;margin-bottom:24px;">Tap the tiles to show when you're free. Let's find the perfect time! 🎯</p>
+
+      <!-- Participant avatars -->
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <div class="part-avatar">
+          <div style="position:relative;display:inline-block;">
+            <div class="part-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</div>
+            <span class="online-dot" style="position:absolute;bottom:2px;right:2px;"></span>
+          </div>
+          <span class="part-name">MiaW</span>
+        </div>
+        <div class="part-avatar">
+          <div style="position:relative;display:inline-block;">
+            <div class="part-circle" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</div>
+            <span class="online-dot" style="position:absolute;bottom:2px;right:2px;"></span>
+          </div>
+          <span class="part-name">FoxDev</span>
+        </div>
+        <div class="part-avatar">
+          <div style="position:relative;display:inline-block;">
+            <div class="part-circle" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</div>
+            <span class="online-dot" style="position:absolute;bottom:2px;right:2px;background:#fbbf24;box-shadow:0 0 5px #fbbf24;"></span>
+          </div>
+          <span class="part-name">BearCo</span>
+        </div>
+        <div class="part-avatar">
+          <div style="position:relative;display:inline-block;">
+            <div class="part-circle" style="background:linear-gradient(135deg,#fbbf24,#f472b6);">🐼</div>
+            <span class="online-dot" style="position:absolute;bottom:2px;right:2px;"></span>
+          </div>
+          <span class="part-name">PandaX</span>
+        </div>
+        <!-- "You" slot -->
+        <div class="part-avatar" style="opacity:.5;">
+          <div class="part-circle" style="background:rgba(255,255,255,.1);border-style:dashed;">
+            <i class="bi bi-plus" style="color:#fff;font-size:1.1rem;"></i>
+          </div>
+          <span class="part-name">You?</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width:900px;">
+
+    <!-- Name input -->
+    <div class="name-box mb-4">
+      <div class="name-avatar-placeholder">🧑</div>
+      <div class="flex-grow-1">
+        <label class="form-label mb-1" style="font-weight:900;font-size:.78rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Your Name</label>
+        <input type="text" class="form-control" placeholder="Enter your name to get started…" value="Alex Johnson" style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+      </div>
+    </div>
+
+    <!-- Grid Card -->
+    <div class="room-card mb-4">
+      <div class="room-card-header">
+        <span>🎮 Availability Grid</span>
+        <!-- Legend -->
+        <div class="d-flex gap-3 flex-wrap">
+          <span class="legend-chip">
+            <span class="legend-swatch t-free" style="border:2px solid #86efac;"></span> Free
+          </span>
+          <span class="legend-chip">
+            <span class="legend-swatch t-maybe" style="border:2px solid #fde047;"></span> Maybe
+          </span>
+          <span class="legend-chip">
+            <span class="legend-swatch t-busy" style="border:2px solid #fca5a5;"></span> Busy
+          </span>
+          <span class="legend-chip">
+            <span class="legend-swatch t-best"></span> Best
+          </span>
+          <span class="legend-chip">
+            <span class="legend-swatch t-empty" style="border:2px solid #e5e7eb;"></span> Not set
+          </span>
+        </div>
+      </div>
+      <div class="room-card-body">
+        <p class="text-muted small mb-3">
+          <i class="bi bi-hand-index me-1"></i>
+          Tap a tile to cycle through: <strong>Free → Maybe → Busy → Clear</strong>
+        </p>
+        <div class="grid-outer">
+          <table id="avGrid">
+            <thead>
+              <tr>
+                <th></th>
+                <th>
+                  <div>Mon</div>
+                  <div style="opacity:.65;font-weight:600;">6 May</div>
+                </th>
+                <th>
+                  <div>Tue</div>
+                  <div style="opacity:.65;font-weight:600;">7 May</div>
+                </th>
+                <th>
+                  <div>Wed</div>
+                  <div style="opacity:.65;font-weight:600;">8 May</div>
+                </th>
+                <th>
+                  <div>Thu</div>
+                  <div style="opacity:.65;font-weight:600;">9 May</div>
+                </th>
+                <th>
+                  <div>Fri</div>
+                  <div style="opacity:.65;font-weight:600;">10 May</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="time-lbl">9:00 AM</td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-maybe"></td> <td class="tile t-free"></td>  <td class="tile t-empty"></td></tr>
+              <tr><td class="time-lbl">9:30 AM</td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-maybe"></td> <td class="tile t-empty"></td></tr>
+              <tr><td class="time-lbl">10:00 AM</td> <td class="tile t-free"></td>  <td class="tile t-busy"></td>  <td class="tile t-best"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">10:30 AM</td> <td class="tile t-maybe"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">11:00 AM</td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-busy"></td>  <td class="tile t-maybe"></td></tr>
+              <tr><td class="time-lbl">11:30 AM</td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-busy"></td>  <td class="tile t-maybe"></td></tr>
+              <tr><td class="time-lbl">12:00 PM</td> <td class="tile t-empty"></td> <td class="tile t-maybe"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">12:30 PM</td> <td class="tile t-empty"></td> <td class="tile t-maybe"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">1:00 PM</td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-maybe"></td> <td class="tile t-empty"></td> <td class="tile t-busy"></td></tr>
+              <tr><td class="time-lbl">1:30 PM</td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td> <td class="tile t-busy"></td></tr>
+              <tr><td class="time-lbl">2:00 PM</td>  <td class="tile t-maybe"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td></tr>
+              <tr><td class="time-lbl">2:30 PM</td>  <td class="tile t-empty"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td></tr>
+              <tr><td class="time-lbl">3:00 PM</td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td> <td class="tile t-maybe"></td> <td class="tile t-maybe"></td> <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">3:30 PM</td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td> <td class="tile t-maybe"></td> <td class="tile t-busy"></td>  <td class="tile t-free"></td></tr>
+              <tr><td class="time-lbl">4:00 PM</td>  <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-busy"></td>  <td class="tile t-maybe"></td></tr>
+              <tr><td class="time-lbl">4:30 PM</td>  <td class="tile t-busy"></td>  <td class="tile t-free"></td>  <td class="tile t-free"></td>  <td class="tile t-empty"></td> <td class="tile t-maybe"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="d-flex flex-column flex-sm-row gap-3 align-items-center justify-content-between">
+      <p class="text-muted small mb-0">
+        <i class="bi bi-info-circle me-1 text-primary"></i>
+        4 of 5 participants have responded so far.
+      </p>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary rounded-pill fw-700 px-4">Clear All</button>
+        <a href="results.html" class="btn-join">
+          🎯 Submit Availability
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center">
+    <div class="container">
+      <p class="mb-0 small">© 2024 SmartMeet · CITS3403 Project · University of Western Australia</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Minimal tile-cycle interaction (vanilla JS, no frameworks) -->
+  <script>
+    const states = ['t-empty', 't-free', 't-maybe', 't-busy'];
+    document.querySelectorAll('#avGrid td.tile').forEach(td => {
+      // skip best tiles so the demo star stays visible
+      if (td.classList.contains('t-best')) return;
+      td.addEventListener('click', () => {
+        const cur = states.find(s => td.classList.contains(s)) || 't-empty';
+        const next = states[(states.indexOf(cur) + 1) % states.length];
+        td.classList.remove(...states);
+        td.classList.add(next);
+      });
+    });
+  </script>
+</body>
+</html>
