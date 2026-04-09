@@ -1,433 +1,791 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartMeet – My Mini Space</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --p1: #6d28d9; --p2: #7c3aed; --p3: #a78bfa; --p4: #ede9fe;
-      --pink: #f472b6; --cyan: #22d3ee; --green: #4ade80; --yellow: #fbbf24;
-      --bg: #f5f3ff; --card: #ffffff; --text: #1e1b4b; --muted: #6b7280;
-    }
-    * { box-sizing: border-box; }
-    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – My Space</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"
+                ><i class="bi bi-house-fill me-1"></i>Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="dashboard.html"
+                ><i class="bi bi-grid-fill me-1"></i>My Space</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="schedule.html"
+                ><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="create-event.html"
+                ><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a
+              >
+            </li>
+          </ul>
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="#" class="btn-nav-outline">Login</a>
+            <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-    /* Navbar */
-    .sm-navbar {
-      background: linear-gradient(90deg, #1e1b4b 0%, #4c1d95 60%, #6d28d9 100%);
-      padding: .6rem 0; box-shadow: 0 2px 16px rgba(109,40,217,.4);
-    }
-    .sm-navbar .navbar-brand {
-      font-family: 'Press Start 2P', monospace; font-size: .9rem;
-      color: #fff; letter-spacing: 1px;
-    }
-    .sm-navbar .navbar-brand span { color: var(--cyan); }
-    .sm-navbar .nav-link {
-      color: rgba(255,255,255,.8) !important; font-weight: 700; font-size: .85rem;
-      padding: 6px 14px !important; border-radius: 20px; transition: background .2s;
-    }
-    .sm-navbar .nav-link:hover, .sm-navbar .nav-link.active {
-      background: rgba(255,255,255,.15); color: #fff !important;
-    }
-    .btn-nav-pink {
-      background: var(--pink); color: #fff; border: none; border-radius: 20px;
-      font-weight: 700; font-size: .82rem; padding: 6px 16px; transition: transform .15s;
-    }
-    .btn-nav-pink:hover { transform: translateY(-2px); color: #fff; }
-    .btn-nav-outline {
-      background: transparent; color: #fff;
-      border: 2px solid rgba(255,255,255,.4); border-radius: 20px;
-      font-weight: 700; font-size: .82rem; padding: 5px 16px; transition: background .2s;
-    }
-    .btn-nav-outline:hover { background: rgba(255,255,255,.15); color: #fff; }
+    <div class="space-bg">
+      <div class="container">
+        <div class="row g-4">
+          <!-- Sidebar -->
+          <div class="col-lg-3">
+            <div class="profile-card">
+              <div class="profile-card-banner">
+                <span class="deco" style="top: 10px; left: 20px">⭐</span>
+                <span class="deco" style="top: 20px; right: 40px">🌙</span>
+                <span class="deco" style="bottom: 8px; left: 60px">✨</span>
+              </div>
+              <div
+                style="
+                  position: relative;
+                  display: inline-block;
+                  left: 50%;
+                  transform: translateX(-50%);
+                "
+              >
+                <div class="profile-avatar">🐱</div>
+                <span class="online-badge"></span>
+              </div>
+              <div class="profile-card-body mt-2">
+                <div class="fw-900 fs-5">Jane Smith</div>
+                <div class="text-muted small fw-600 mb-1">@janesmeet</div>
+                <div
+                  class="d-inline-block px-3 py-1 rounded-pill mb-3"
+                  style="
+                    background: linear-gradient(90deg, #ede9fe, #fce7f3);
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    color: var(--p2);
+                  "
+                >
+                  ✨ Organizing wizard
+                </div>
+                <div class="text-muted small fst-italic mb-3">
+                  "Life's too short for bad meeting times 🕐"
+                </div>
+                <div
+                  class="d-flex justify-content-between mb-1"
+                  style="
+                    font-size: 0.72rem;
+                    font-weight: 800;
+                    color: var(--muted);
+                  "
+                >
+                  <span>LEVEL 7 · PLANNER</span><span>640 / 1000 XP</span>
+                </div>
+                <div class="xp-bar mb-3">
+                  <div class="xp-fill" style="width: 64%"></div>
+                </div>
+                <div class="d-flex gap-2 mb-4">
+                  <div class="stat-pill">
+                    <div class="val">5</div>
+                    <div class="lbl">Rooms</div>
+                  </div>
+                  <div class="stat-pill">
+                    <div class="val">12</div>
+                    <div class="lbl">Friends</div>
+                  </div>
+                  <div class="stat-pill">
+                    <div class="val">28</div>
+                    <div class="lbl">Meets</div>
+                  </div>
+                </div>
+                <a href="dashboard.html" class="side-menu-item active"
+                  ><span class="side-icon">🏠</span> My Rooms</a
+                >
+                <a href="schedule.html" class="side-menu-item"
+                  ><span class="side-icon">🗓️</span> My Schedule</a
+                >
+                <a href="#" class="side-menu-item"
+                  ><span class="side-icon">👥</span> Friends</a
+                >
+                <a href="#" class="side-menu-item">
+                  <span class="side-icon">🔔</span> Notifications
+                  <span
+                    class="badge ms-auto"
+                    style="background: var(--pink); font-size: 0.65rem"
+                    >3</span
+                  >
+                </a>
+                <a href="#" class="side-menu-item"
+                  ><span class="side-icon">⚙️</span> Settings</a
+                >
+              </div>
+            </div>
+          </div>
 
-    /* Space background */
-    .space-bg {
-      background:
-        radial-gradient(ellipse at 15% 40%, rgba(124,58,237,.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 70%, rgba(244,114,182,.07) 0%, transparent 50%),
-        var(--bg);
-      min-height: calc(100vh - 60px);
-      padding: 40px 0 60px;
-    }
+          <!-- Main Content -->
+          <div class="col-lg-9">
+            <div
+              class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+            >
+              <div>
+                <p class="section-sub">My Mini Space</p>
+                <h2 class="fw-900 mb-0" style="font-size: 1.6rem">
+                  Hey Jane, welcome back! 🌟
+                </h2>
+              </div>
+              <a
+                href="create-event.html"
+                class="btn-room py-2 px-4"
+                style="font-size: 0.9rem"
+                >✨ Create New Room</a
+              >
+            </div>
 
-    /* Profile card */
-    .profile-card {
-      background: var(--card);
-      border-radius: 24px;
-      border: 2px solid var(--p4);
-      box-shadow: 0 8px 32px rgba(109,40,217,.1);
-      overflow: hidden;
-      position: sticky; top: 24px;
-    }
-    .profile-card-banner {
-      height: 80px;
-      background: linear-gradient(135deg, #4c1d95, var(--pink));
-      position: relative;
-    }
-    .profile-card-banner .deco {
-      position: absolute; font-size: 1.4rem; opacity: .25;
-    }
-    .profile-avatar {
-      width: 76px; height: 76px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--p2), var(--pink));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem;
-      border: 4px solid var(--card);
-      margin: -38px auto 0;
-      position: relative; z-index: 1;
-    }
-    .online-badge {
-      position: absolute; bottom: 4px; right: 4px;
-      width: 14px; height: 14px; border-radius: 50%;
-      background: var(--green);
-      border: 3px solid var(--card);
-      box-shadow: 0 0 6px var(--green);
-    }
-    .profile-card-body { padding: 0 20px 20px; text-align: center; }
-    .xp-bar {
-      height: 8px; border-radius: 20px;
-      background: var(--p4); overflow: hidden; margin-top: 4px;
-    }
-    .xp-fill {
-      height: 100%; border-radius: 20px;
-      background: linear-gradient(90deg, var(--p2), var(--cyan));
-    }
-    .stat-pill {
-      background: var(--p4); border-radius: 12px;
-      padding: 8px 12px; text-align: center; flex: 1;
-    }
-    .stat-pill .val { font-weight: 900; font-size: 1.1rem; color: var(--p2); }
-    .stat-pill .lbl { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+            <div class="notif-bar mb-4">
+              <span style="font-size: 1.4rem">🔔</span>
+              <div class="flex-grow-1">
+                <span class="fw-800">PandaX</span> just submitted their
+                availability for
+                <span class="fw-800">Team Sprint Planning</span>.
+                <a
+                  href="results.html"
+                  class="ms-2 fw-700"
+                  style="color: var(--p2); text-decoration: none"
+                  >View Results →</a
+                >
+              </div>
+            </div>
 
-    /* Nav menu inside profile */
-    .side-menu-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 12px;
-      font-weight: 700; font-size: .9rem; color: var(--text);
-      text-decoration: none; transition: background .2s;
-      cursor: pointer;
-    }
-    .side-menu-item:hover { background: var(--p4); color: var(--p2); }
-    .side-menu-item.active { background: var(--p4); color: var(--p2); }
-    .side-icon { font-size: 1.1rem; width: 28px; text-align: center; }
+            <p class="section-sub">Active Rooms</p>
+            <div class="section-header">
+              Rooms You Created
+              <span
+                class="badge rounded-pill ms-2"
+                style="
+                  background: var(--p4);
+                  color: var(--p2);
+                  font-size: 0.75rem;
+                "
+                >4</span
+              >
+            </div>
 
-    /* Room cards */
-    .room-card {
-      background: var(--card); border-radius: 20px;
-      border: 2px solid var(--p4);
-      box-shadow: 0 4px 18px rgba(109,40,217,.07);
-      transition: transform .18s, box-shadow .18s, border-color .18s;
-      overflow: hidden; height: 100%;
-    }
-    .room-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 32px rgba(109,40,217,.16);
-      border-color: var(--p3);
-    }
-    .room-card-top {
-      height: 56px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 18px;
-    }
-    .room-card-body { padding: 14px 18px 18px; }
-    .status-chip {
-      display: inline-block; font-size: .7rem; font-weight: 800;
-      padding: 3px 10px; border-radius: 20px;
-    }
-    .chip-waiting  { background: #fef3c7; color: #92400e; }
-    .chip-done     { background: #d1fae5; color: #065f46; }
-    .chip-new      { background: #e0e7ff; color: #3730a3; }
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #4c1d95, #7c3aed)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >🚀 Team Sprint Planning</span
+                    >
+                    <span class="status-chip chip-waiting">Awaiting</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">6–10 May 2024</p>
+                      <span class="deadline-badge deadline-soon"
+                        ><i class="bi bi-clock me-1"></i>Closes 5 May</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #f472b6,
+                              #a78bfa
+                            );
+                          "
+                          >🐱</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #22d3ee,
+                              #6d28d9
+                            );
+                          "
+                          >🦊</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #4ade80,
+                              #0ea5e9
+                            );
+                          "
+                          >🐻</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >3 / 5 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-3">
+                      <div
+                        class="progress-bar"
+                        style="width: 60%; background: var(--yellow)"
+                      ></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="availability.html"
+                        class="btn btn-outline-primary btn-sm rounded-pill fw-700 flex-grow-1"
+                        >View Grid</a
+                      >
+                      <a
+                        href="results.html"
+                        class="btn-room flex-grow-1 text-center py-1"
+                        >Results</a
+                      >
+                      <button
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        title="Copy share link"
+                      >
+                        <i class="bi bi-share"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    /* Tiny avatars for cards */
-    .mini-avatar {
-      width: 26px; height: 26px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: .9rem; border: 2px solid #fff; margin-left: -6px;
-    }
-    .mini-avatar:first-child { margin-left: 0; }
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #065f46, #059669)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >🎯 Project Kickoff</span
+                    >
+                    <span class="status-chip chip-done">Confirmed!</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">1–3 May 2024</p>
+                      <span class="deadline-badge deadline-closed"
+                        ><i class="bi bi-lock me-1"></i>Closed</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #f472b6,
+                              #a78bfa
+                            );
+                          "
+                          >🐱</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #22d3ee,
+                              #6d28d9
+                            );
+                          "
+                          >🦊</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #4ade80,
+                              #0ea5e9
+                            );
+                          "
+                          >🐻</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #fbbf24,
+                              #f472b6
+                            );
+                          "
+                          >🐼</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >4 / 4 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-3">
+                      <div
+                        class="progress-bar bg-success"
+                        style="width: 100%"
+                      ></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="availability.html"
+                        class="btn btn-outline-success btn-sm rounded-pill fw-700 flex-grow-1"
+                        >View Grid</a
+                      >
+                      <a
+                        href="results.html"
+                        class="btn-room flex-grow-1 text-center py-1"
+                        >Results</a
+                      >
+                      <button
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        title="Copy share link"
+                      >
+                        <i class="bi bi-share"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    .progress { height: 6px; border-radius: 20px; }
-    .progress-bar { border-radius: 20px; }
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #1e3a5f, #0ea5e9)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >🎨 Design Review</span
+                    >
+                    <span class="status-chip chip-done">Confirmed!</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">15–17 Apr 2024</p>
+                      <span class="deadline-badge deadline-closed"
+                        ><i class="bi bi-lock me-1"></i>Closed</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #f472b6,
+                              #a78bfa
+                            );
+                          "
+                          >🐱</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #22d3ee,
+                              #6d28d9
+                            );
+                          "
+                          >🦊</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #a78bfa,
+                              #22d3ee
+                            );
+                          "
+                          >🦋</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #4ade80,
+                              #0ea5e9
+                            );
+                          "
+                          >🐻</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #fbbf24,
+                              #f472b6
+                            );
+                          "
+                          >🐼</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >5 / 5 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-3">
+                      <div
+                        class="progress-bar bg-info"
+                        style="width: 100%"
+                      ></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="availability.html"
+                        class="btn btn-outline-info btn-sm rounded-pill fw-700 flex-grow-1"
+                        >View Grid</a
+                      >
+                      <a
+                        href="results.html"
+                        class="btn-room flex-grow-1 text-center py-1"
+                        >Results</a
+                      >
+                      <button
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        title="Copy share link"
+                      >
+                        <i class="bi bi-share"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    .btn-room {
-      background: linear-gradient(135deg, var(--p2), var(--pink));
-      color: #fff; border: none; border-radius: 50px;
-      font-weight: 800; font-size: .82rem; padding: 7px 18px;
-      transition: transform .15s, box-shadow .15s;
-      text-decoration: none;
-    }
-    .btn-room:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(124,58,237,.35); color: #fff; }
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #4a1942, #a855f7)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >🔄 Q2 Retrospective</span
+                    >
+                    <span class="status-chip chip-waiting">Awaiting</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">20–24 May 2024</p>
+                      <span class="deadline-badge deadline-ok"
+                        ><i class="bi bi-clock me-1"></i>Closes 19 May</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #f472b6,
+                              #a78bfa
+                            );
+                          "
+                          >🐱</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >1 / 6 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-3">
+                      <div
+                        class="progress-bar"
+                        style="width: 17%; background: var(--yellow)"
+                      ></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="availability.html"
+                        class="btn btn-outline-primary btn-sm rounded-pill fw-700 flex-grow-1"
+                        >View Grid</a
+                      >
+                      <a
+                        href="results.html"
+                        class="btn-room flex-grow-1 text-center py-1"
+                        >Results</a
+                      >
+                      <button
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        title="Copy share link"
+                      >
+                        <i class="bi bi-share"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    .section-header { font-weight: 900; font-size: 1.1rem; color: var(--text); margin-bottom: 16px; }
-    .section-sub { font-size: .78rem; font-weight: 800; color: var(--p2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+              <div class="col-md-6">
+                <a href="create-event.html" class="text-decoration-none">
+                  <div
+                    class="room-card d-flex flex-column align-items-center justify-content-center py-5"
+                    style="
+                      border-style: dashed;
+                      border-color: #c4b5fd;
+                      background: transparent;
+                      min-height: 200px;
+                      cursor: pointer;
+                    "
+                  >
+                    <div style="font-size: 2.5rem; margin-bottom: 12px">➕</div>
+                    <div class="fw-800" style="color: var(--p2)">
+                      Create New Room
+                    </div>
+                    <div class="text-muted small mt-1">
+                      Start planning your next meeting
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
 
-    footer { background: #0f0e1a; color: rgba(255,255,255,.4); }
-  </style>
-</head>
-<body>
+            <hr class="section-divider" />
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg sm-navbar">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav me-auto gap-1">
-          <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
-          <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
-          <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
-        </ul>
-        <div class="d-flex gap-2 mt-2 mt-lg-0">
-          <a href="#" class="btn-nav-outline">Login</a>
-          <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+            <p class="section-sub">Invited Rooms</p>
+            <div class="section-header">
+              Rooms You're Invited To
+              <span
+                class="badge rounded-pill ms-2"
+                style="
+                  background: var(--p4);
+                  color: var(--p2);
+                  font-size: 0.75rem;
+                "
+                >2</span
+              >
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #134e4a, #0d9488)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >📚 Study Group Finals</span
+                    >
+                    <span class="status-chip chip-invited">Invited</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">12–16 May 2024</p>
+                      <span class="deadline-badge deadline-soon"
+                        ><i class="bi bi-clock me-1"></i>Closes 11 May</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #22d3ee,
+                              #6d28d9
+                            );
+                          "
+                          >🦊</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #4ade80,
+                              #0ea5e9
+                            );
+                          "
+                          >🐻</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >2 / 4 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-1">
+                      <div
+                        class="progress-bar"
+                        style="width: 50%; background: var(--yellow)"
+                      ></div>
+                    </div>
+                    <p class="text-muted small mb-3 mt-2">
+                      <i class="bi bi-person me-1"></i>Organised by
+                      <strong>FoxDev</strong>
+                    </p>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="availability.html"
+                        class="btn-room flex-grow-1 text-center py-2"
+                        >✏️ Mark My Availability</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="room-card">
+                  <div
+                    class="room-card-top"
+                    style="background: linear-gradient(90deg, #7f1d1d, #dc2626)"
+                  >
+                    <span
+                      style="color: #fff; font-weight: 800; font-size: 0.9rem"
+                      >🍕 Team Lunch</span
+                    >
+                    <span class="status-chip chip-done">Confirmed!</span>
+                  </div>
+                  <div class="room-card-body">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <p class="text-muted small mb-0">3 May 2024</p>
+                      <span class="deadline-badge deadline-closed"
+                        ><i class="bi bi-lock me-1"></i>Closed</span
+                      >
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                      <div>
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #f472b6,
+                              #a78bfa
+                            );
+                          "
+                          >🐱</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #22d3ee,
+                              #6d28d9
+                            );
+                          "
+                          >🦊</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #4ade80,
+                              #0ea5e9
+                            );
+                          "
+                          >🐻</span
+                        >
+                        <span
+                          class="mini-avatar"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              #fbbf24,
+                              #f472b6
+                            );
+                          "
+                          >🐼</span
+                        >
+                      </div>
+                      <span class="text-muted small fw-700"
+                        >4 / 4 responded</span
+                      >
+                    </div>
+                    <div class="progress mb-1">
+                      <div
+                        class="progress-bar bg-success"
+                        style="width: 100%"
+                      ></div>
+                    </div>
+                    <p class="text-muted small mb-3 mt-2">
+                      <i class="bi bi-person me-1"></i>Organised by
+                      <strong>BearCo</strong>
+                    </p>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="results.html"
+                        class="btn btn-outline-success btn-sm rounded-pill fw-700 flex-grow-1"
+                        >View Results</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </nav>
 
-  <div class="space-bg">
-    <div class="container">
-      <div class="row g-4">
-
-        <!-- Sidebar: Profile Card -->
-        <div class="col-lg-3">
-          <div class="profile-card">
-            <div class="profile-card-banner">
-              <span class="deco" style="top:10px;left:20px;">⭐</span>
-              <span class="deco" style="top:20px;right:40px;">🌙</span>
-              <span class="deco" style="bottom:8px;left:60px;">✨</span>
-            </div>
-            <div style="position:relative;display:inline-block;left:50%;transform:translateX(-50%);">
-              <div class="profile-avatar">🐱</div>
-              <span class="online-badge"></span>
-            </div>
-            <div class="profile-card-body mt-2">
-              <div class="fw-900 fs-5">Jane Smith</div>
-              <div class="text-muted small fw-600 mb-1">@janesmeet</div>
-              <div class="d-inline-block px-3 py-1 rounded-pill mb-3" style="background:linear-gradient(90deg,#ede9fe,#fce7f3);font-size:.78rem;font-weight:700;color:var(--p2);">
-                ✨ Organizing wizard
-              </div>
-              <div class="text-muted small fst-italic mb-3">"Life's too short for bad meeting times 🕐"</div>
-
-              <!-- XP -->
-              <div class="d-flex justify-content-between mb-1" style="font-size:.72rem;font-weight:800;color:var(--muted);">
-                <span>LEVEL 7 · PLANNER</span><span>640 / 1000 XP</span>
-              </div>
-              <div class="xp-bar mb-3">
-                <div class="xp-fill" style="width:64%;"></div>
-              </div>
-
-              <!-- Stats -->
-              <div class="d-flex gap-2 mb-4">
-                <div class="stat-pill">
-                  <div class="val">5</div>
-                  <div class="lbl">Rooms</div>
-                </div>
-                <div class="stat-pill">
-                  <div class="val">12</div>
-                  <div class="lbl">Friends</div>
-                </div>
-                <div class="stat-pill">
-                  <div class="val">28</div>
-                  <div class="lbl">Meets</div>
-                </div>
-              </div>
-
-              <!-- Side menu -->
-              <a href="dashboard.html" class="side-menu-item active">
-                <span class="side-icon">🏠</span> My Rooms
-              </a>
-              <a href="#" class="side-menu-item">
-                <span class="side-icon">👥</span> Friends
-              </a>
-              <a href="#" class="side-menu-item">
-                <span class="side-icon">🔔</span> Notifications
-                <span class="badge ms-auto" style="background:var(--pink);font-size:.65rem;">3</span>
-              </a>
-              <a href="#" class="side-menu-item">
-                <span class="side-icon">⚙️</span> Settings
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-lg-9">
-
-          <!-- Greeting -->
-          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div>
-              <p class="section-sub">My Mini Space</p>
-              <h2 class="fw-900 mb-0" style="font-size:1.6rem;">Hey Jane, welcome back! 🌟</h2>
-            </div>
-            <a href="create-event.html" class="btn-room py-2 px-4" style="font-size:.9rem;">
-              ✨ Create New Room
-            </a>
-          </div>
-
-          <!-- Notification bar -->
-          <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-4" style="background:linear-gradient(90deg,#ede9fe,#fce7f3);border:2px solid #ddd6fe;">
-            <span style="font-size:1.4rem;">🔔</span>
-            <div class="flex-grow-1">
-              <span class="fw-800">PandaX</span> just submitted their availability for <span class="fw-800">Team Sprint Planning</span>.
-              <a href="results.html" class="ms-2 fw-700" style="color:var(--p2);text-decoration:none;">View Results →</a>
-            </div>
-          </div>
-
-          <!-- Active Rooms -->
-          <p class="section-sub">Active Rooms</p>
-          <div class="section-header">Your Rooms <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">5</span></div>
-
-          <div class="row g-3">
-
-            <!-- Card 1 -->
-            <div class="col-md-6">
-              <div class="room-card">
-                <div class="room-card-top" style="background:linear-gradient(90deg,#4c1d95,#7c3aed);">
-                  <span style="color:#fff;font-weight:800;font-size:.9rem;">🚀 Team Sprint Planning</span>
-                  <span class="status-chip chip-waiting">Awaiting</span>
-                </div>
-                <div class="room-card-body">
-                  <p class="text-muted small mb-2">Weekly planning — 6–10 May 2024</p>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <div>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</span>
-                    </div>
-                    <span class="text-muted small fw-700">3 / 5 responded</span>
-                  </div>
-                  <div class="progress mb-3">
-                    <div class="progress-bar" style="width:60%;background:var(--yellow);"></div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <a href="availability.html" class="btn btn-outline-primary btn-sm rounded-pill fw-700 flex-grow-1">View Grid</a>
-                    <a href="results.html" class="btn-room flex-grow-1 text-center py-1">Results</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="col-md-6">
-              <div class="room-card">
-                <div class="room-card-top" style="background:linear-gradient(90deg,#065f46,#059669);">
-                  <span style="color:#fff;font-weight:800;font-size:.9rem;">🎯 Project Kickoff</span>
-                  <span class="status-chip chip-done">Confirmed!</span>
-                </div>
-                <div class="room-card-body">
-                  <p class="text-muted small mb-2">Initial alignment — 1–3 May 2024</p>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <div>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#fbbf24,#f472b6);">🐼</span>
-                    </div>
-                    <span class="text-muted small fw-700">4 / 4 responded</span>
-                  </div>
-                  <div class="progress mb-3">
-                    <div class="progress-bar bg-success" style="width:100%;"></div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <a href="availability.html" class="btn btn-outline-success btn-sm rounded-pill fw-700 flex-grow-1">View Grid</a>
-                    <a href="results.html" class="btn-room flex-grow-1 text-center py-1">Results</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="col-md-6">
-              <div class="room-card">
-                <div class="room-card-top" style="background:linear-gradient(90deg,#1e3a5f,#0ea5e9);">
-                  <span style="color:#fff;font-weight:800;font-size:.9rem;">🎨 Design Review</span>
-                  <span class="status-chip chip-done">Confirmed!</span>
-                </div>
-                <div class="room-card-body">
-                  <p class="text-muted small mb-2">Wireframe review — 15–17 Apr 2024</p>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <div>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#a78bfa,#22d3ee);">🦋</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</span>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#fbbf24,#f472b6);">🐼</span>
-                    </div>
-                    <span class="text-muted small fw-700">5 / 5 responded</span>
-                  </div>
-                  <div class="progress mb-3">
-                    <div class="progress-bar bg-info" style="width:100%;"></div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <a href="availability.html" class="btn btn-outline-info btn-sm rounded-pill fw-700 flex-grow-1">View Grid</a>
-                    <a href="results.html" class="btn-room flex-grow-1 text-center py-1">Results</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="col-md-6">
-              <div class="room-card">
-                <div class="room-card-top" style="background:linear-gradient(90deg,#4a1942,#a855f7);">
-                  <span style="color:#fff;font-weight:800;font-size:.9rem;">🔄 Q2 Retrospective</span>
-                  <span class="status-chip chip-waiting">Awaiting</span>
-                </div>
-                <div class="room-card-body">
-                  <p class="text-muted small mb-2">End-of-quarter retro — 20–24 May 2024</p>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <div>
-                      <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</span>
-                    </div>
-                    <span class="text-muted small fw-700">1 / 6 responded</span>
-                  </div>
-                  <div class="progress mb-3">
-                    <div class="progress-bar" style="width:17%;background:var(--yellow);"></div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <a href="availability.html" class="btn btn-outline-primary btn-sm rounded-pill fw-700 flex-grow-1">View Grid</a>
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill fw-700 flex-grow-1">
-                      <i class="bi bi-share me-1"></i>Share
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- New Room CTA card -->
-            <div class="col-md-6">
-              <a href="create-event.html" class="text-decoration-none">
-                <div class="room-card d-flex flex-column align-items-center justify-content-center py-5"
-                  style="border-style:dashed;border-color:#c4b5fd;background:transparent;min-height:200px;cursor:pointer;">
-                  <div style="font-size:2.5rem;margin-bottom:12px;">➕</div>
-                  <div class="fw-800" style="color:var(--p2);">Create New Room</div>
-                  <div class="text-muted small mt-1">Start planning your next meeting</div>
-                </div>
-              </a>
-            </div>
-
-          </div>
-        </div>
-
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">
+          © 2026 SmartMeet · CITS3403 Project · University of Western Australia
+        </p>
       </div>
-    </div>
-  </div>
+    </footer>
 
-  <!-- Footer -->
-  <footer class="py-4 text-center">
-    <div class="container">
-      <p class="mb-0 small">© 2024 SmartMeet · CITS3403 Project · University of Western Australia</p>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
