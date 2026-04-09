@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartMeet – Best Time Found!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --p1: #6d28d9; --p2: #7c3aed; --p3: #a78bfa; --p4: #ede9fe;
+      --pink: #f472b6; --cyan: #22d3ee; --green: #4ade80; --yellow: #fbbf24;
+      --bg: #f5f3ff; --card: #ffffff; --text: #1e1b4b; --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+
+    /* Navbar */
+    .sm-navbar {
+      background: linear-gradient(90deg, #1e1b4b 0%, #4c1d95 60%, #6d28d9 100%);
+      padding: .6rem 0; box-shadow: 0 2px 16px rgba(109,40,217,.4);
+    }
+    .sm-navbar .navbar-brand {
+      font-family: 'Press Start 2P', monospace; font-size: .9rem;
+      color: #fff; letter-spacing: 1px;
+    }
+    .sm-navbar .navbar-brand span { color: var(--cyan); }
+    .sm-navbar .nav-link {
+      color: rgba(255,255,255,.8) !important; font-weight: 700; font-size: .85rem;
+      padding: 6px 14px !important; border-radius: 20px; transition: background .2s;
+    }
+    .sm-navbar .nav-link:hover, .sm-navbar .nav-link.active {
+      background: rgba(255,255,255,.15); color: #fff !important;
+    }
+    .btn-nav-pink {
+      background: var(--pink); color: #fff; border: none; border-radius: 20px;
+      font-weight: 700; font-size: .82rem; padding: 6px 16px; transition: transform .15s;
+    }
+    .btn-nav-pink:hover { transform: translateY(-2px); color: #fff; }
+    .btn-nav-outline {
+      background: transparent; color: #fff;
+      border: 2px solid rgba(255,255,255,.4); border-radius: 20px;
+      font-weight: 700; font-size: .82rem; padding: 5px 16px; transition: background .2s;
+    }
+    .btn-nav-outline:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+    /* Confetti-style header */
+    .result-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #7c3aed 100%);
+      color: #fff; padding: 56px 0 44px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .result-header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(244,114,182,.2) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 40%, rgba(34,211,238,.15) 0%, transparent 40%);
+    }
+    .confetti-row {
+      display: flex; justify-content: center; gap: 10px; font-size: 1.8rem;
+      margin-bottom: 14px; animation: floatIn .6s ease both;
+    }
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pixel-result {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(.85rem, 2.5vw, 1.4rem);
+      color: #fff; line-height: 1.6;
+      text-shadow: 2px 2px 0 rgba(0,0,0,.3);
+    }
+    .pixel-result span { color: var(--yellow); }
+
+    /* Best time card */
+    .best-card {
+      background: linear-gradient(135deg, #14532d, #16a34a, #4ade80);
+      border-radius: 24px; color: #fff; padding: 32px 36px;
+      box-shadow: 0 8px 40px rgba(74,222,128,.3);
+      border: none; position: relative; overflow: hidden;
+    }
+    .best-card::before {
+      content: '🏆';
+      position: absolute; right: -10px; bottom: -20px;
+      font-size: 8rem; opacity: .1;
+    }
+    .best-time-label {
+      font-size: .75rem; font-weight: 900; letter-spacing: .12em;
+      text-transform: uppercase; opacity: .8; margin-bottom: 6px;
+    }
+    .best-time-main {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(1rem, 3vw, 1.5rem); line-height: 1.5;
+    }
+
+    /* Grouped avatars */
+    .group-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      border: 4px solid #fff;
+      transition: transform .2s;
+    }
+    .group-avatar:hover { transform: scale(1.12) translateY(-4px); }
+
+    /* Heatmap grid */
+    .grid-outer { overflow-x: auto; }
+    #rGrid {
+      border-collapse: separate; border-spacing: 4px; min-width: 480px;
+    }
+    #rGrid thead th {
+      padding: 10px 6px; text-align: center;
+      font-size: .78rem; font-weight: 900; color: var(--p1);
+      background: var(--p4); border-radius: 10px; white-space: nowrap; border: none;
+    }
+    #rGrid thead th:first-child { background: transparent; min-width: 72px; }
+    #rGrid td.time-lbl {
+      font-size: .72rem; font-weight: 800; color: var(--muted);
+      text-align: right; padding-right: 8px; white-space: nowrap;
+      background: transparent; border: none;
+    }
+    #rGrid td.htile {
+      width: 54px; height: 40px; border-radius: 10px; border: 2px solid transparent;
+      transition: transform .12s;
+    }
+    #rGrid td.htile:hover { transform: scale(1.08); }
+
+    .h0 { background: #f3f4f6; border-color: #e5e7eb; }
+    .h1 { background: #dcfce7; border-color: #bbf7d0; }
+    .h2 { background: #86efac; border-color: #4ade80; }
+    .h3 { background: #22c55e; border-color: #16a34a; color:#fff; font-size:.7rem; font-weight:800; text-align:center; line-height:40px; }
+    .h4 {
+      background: var(--p2) !important; border-color: #a78bfa !important;
+      box-shadow: 0 0 0 2px rgba(109,40,217,.25), 0 0 14px rgba(109,40,217,.4) !important;
+      font-size: .65rem; font-weight: 900; color: #fff; text-align: center; line-height: 40px;
+      position: relative;
+    }
+    .h4::after {
+      content: '★';
+      position: absolute; top: 2px; right: 4px; font-size: 9px; color: #c4b5fd;
+    }
+
+    /* Participant table */
+    .part-table th { font-size: .75rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--p4); }
+    .avail-circle { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+
+    /* Action buttons */
+    .btn-confirm {
+      background: linear-gradient(135deg, #16a34a, #4ade80);
+      color: #fff; border: none; border-radius: 50px;
+      font-weight: 900; font-size: 1rem; padding: 14px 32px;
+      box-shadow: 0 4px 20px rgba(74,222,128,.35);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(74,222,128,.45); color:#fff; }
+    .btn-share {
+      background: linear-gradient(135deg, var(--p2), var(--pink));
+      color: #fff; border: none; border-radius: 50px;
+      font-weight: 800; font-size: 1rem; padding: 14px 28px;
+      box-shadow: 0 4px 20px rgba(124,58,237,.3);
+      transition: transform .15s;
+    }
+    .btn-share:hover { transform: translateY(-2px); color: #fff; }
+
+    .res-card {
+      background: var(--card); border-radius: 20px;
+      border: 2px solid var(--p4); box-shadow: 0 4px 20px rgba(109,40,217,.07);
+    }
+    .res-card-hdr {
+      background: linear-gradient(90deg, var(--p4), #fce7f3);
+      padding: 13px 22px; border-bottom: 2px solid #ede9fe;
+      font-weight: 900; font-size: .8rem; color: var(--p2);
+      text-transform: uppercase; letter-spacing: .08em;
+      border-radius: 18px 18px 0 0;
+    }
+    .res-card-body { padding: 22px; }
+
+    footer { background: #0f0e1a; color: rgba(255,255,255,.4); }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg sm-navbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
+          <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
+        </ul>
+        <div class="d-flex gap-2 mt-2 mt-lg-0">
+          <a href="#" class="btn-nav-outline">Login</a>
+          <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Result Header -->
+  <div class="result-header">
+    <div class="container position-relative">
+      <div class="confetti-row">🎉 🏆 ✨ 🎊 ⭐</div>
+      <h2 class="pixel-result mb-2">Best Time <span>Found!</span></h2>
+      <p style="opacity:.8;font-size:.95rem;">SmartMeet has found the perfect slot for your team.</p>
+
+      <!-- Grouped avatars -->
+      <div class="d-flex justify-content-center mt-4 mb-2">
+        <div style="display:flex;align-items:center;">
+          <div class="group-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);z-index:4;">🐱</div>
+          <div class="group-avatar" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);margin-left:-14px;z-index:3;">🦊</div>
+          <div class="group-avatar" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);margin-left:-14px;z-index:2;">🐻</div>
+          <div class="group-avatar" style="background:linear-gradient(135deg,#fbbf24,#f472b6);margin-left:-14px;z-index:1;">🐼</div>
+          <div class="group-avatar" style="background:rgba(255,255,255,.15);border:3px dashed rgba(255,255,255,.4);margin-left:-14px;z-index:0;color:rgba(255,255,255,.6);font-size:1rem;">+1</div>
+        </div>
+      </div>
+      <p style="opacity:.75;font-size:.85rem;font-weight:700;">4 of 5 participants are free! 🎯</p>
+    </div>
+  </div>
+
+  <div class="container py-5" style="max-width:900px;">
+
+    <!-- Best Time Card -->
+    <div class="best-card mb-4">
+      <div class="row align-items-center g-3">
+        <div class="col-md-8">
+          <div class="best-time-label">🏆 Recommended Meeting Time</div>
+          <div class="best-time-main">Wednesday 8 May</div>
+          <div class="best-time-main" style="color:#bbf7d0;">10:00 AM – 11:00 AM</div>
+          <p class="mt-3 mb-0" style="opacity:.9;font-size:.95rem;font-weight:700;">
+            ✅ Everyone is available at this time! &nbsp;·&nbsp; 0 conflicts &nbsp;·&nbsp; 1 hour
+          </p>
+        </div>
+        <div class="col-md-4 d-flex flex-column gap-2">
+          <button class="btn-confirm w-100">📅 Confirm This Time</button>
+          <button class="btn-share w-100">🔗 Share with Team</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Summary -->
+    <div class="res-card mb-4">
+      <div class="res-card-hdr">📋 Event Summary</div>
+      <div class="res-card-body">
+        <div class="row g-3 small">
+          <div class="col-sm-4"><div class="fw-900 mb-1">Event</div><div class="text-muted">Team Sprint Planning 🚀</div></div>
+          <div class="col-sm-4"><div class="fw-900 mb-1">Organiser</div><div class="text-muted">Jane Smith 🐱</div></div>
+          <div class="col-sm-4"><div class="fw-900 mb-1">Duration</div><div class="text-muted">1 hour</div></div>
+          <div class="col-sm-4"><div class="fw-900 mb-1">Date Range</div><div class="text-muted">6–10 May 2024</div></div>
+          <div class="col-sm-4"><div class="fw-900 mb-1">Time Window</div><div class="text-muted">9:00 AM – 5:00 PM</div></div>
+          <div class="col-sm-4"><div class="fw-900 mb-1">Responses</div><div class="text-muted">4 / 5 participants</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="res-card mb-4">
+      <div class="res-card-hdr">🔥 Availability Heatmap</div>
+      <div class="res-card-body">
+        <div class="d-flex gap-3 small text-muted mb-3 flex-wrap align-items-center">
+          <span>Darker = more people free &nbsp;|&nbsp;</span>
+          <span><span style="background:#f3f4f6;display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;"></span> 0</span>
+          <span><span style="background:#dcfce7;display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;"></span> 1</span>
+          <span><span style="background:#86efac;display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;"></span> 2</span>
+          <span><span style="background:#22c55e;display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;"></span> 3</span>
+          <span><span style="background:var(--p2);display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;"></span> Best ★</span>
+        </div>
+        <div class="grid-outer">
+          <table id="rGrid">
+            <thead>
+              <tr>
+                <th></th>
+                <th><div>Mon</div><div style="opacity:.65;font-weight:600;">6 May</div></th>
+                <th><div>Tue</div><div style="opacity:.65;font-weight:600;">7 May</div></th>
+                <th><div>Wed</div><div style="opacity:.65;font-weight:600;">8 May</div></th>
+                <th><div>Thu</div><div style="opacity:.65;font-weight:600;">9 May</div></th>
+                <th><div>Fri</div><div style="opacity:.65;font-weight:600;">10 May</div></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="time-lbl">9:00 AM</td>  <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h2">2</td> <td class="htile h3">3</td> <td class="htile h0"></td></tr>
+              <tr><td class="time-lbl">9:30 AM</td>  <td class="htile h3">3</td> <td class="htile h3">3</td> <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h0"></td></tr>
+              <tr><td class="time-lbl">10:00 AM</td> <td class="htile h2">2</td> <td class="htile h1">1</td> <td class="htile h4">4★</td> <td class="htile h3">3</td> <td class="htile h2">2</td></tr>
+              <tr><td class="time-lbl">10:30 AM</td> <td class="htile h1">1</td> <td class="htile h1">1</td> <td class="htile h3">3</td> <td class="htile h3">3</td> <td class="htile h2">2</td></tr>
+              <tr><td class="time-lbl">11:00 AM</td> <td class="htile h0"></td>  <td class="htile h2">2</td> <td class="htile h3">3</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+              <tr><td class="time-lbl">11:30 AM</td> <td class="htile h0"></td>  <td class="htile h2">2</td> <td class="htile h3">3</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+              <tr><td class="time-lbl">12:00 PM</td> <td class="htile h0"></td>  <td class="htile h1">1</td> <td class="htile h1">1</td> <td class="htile h2">2</td> <td class="htile h2">2</td></tr>
+              <tr><td class="time-lbl">12:30 PM</td> <td class="htile h0"></td>  <td class="htile h1">1</td> <td class="htile h1">1</td> <td class="htile h2">2</td> <td class="htile h2">2</td></tr>
+              <tr><td class="time-lbl">1:00 PM</td>  <td class="htile h2">2</td> <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+              <tr><td class="time-lbl">1:30 PM</td>  <td class="htile h3">3</td> <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+              <tr><td class="time-lbl">2:00 PM</td>  <td class="htile h1">1</td> <td class="htile h0"></td>  <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h0"></td></tr>
+              <tr><td class="time-lbl">2:30 PM</td>  <td class="htile h0"></td>  <td class="htile h0"></td>  <td class="htile h3">3</td> <td class="htile h2">2</td> <td class="htile h0"></td></tr>
+              <tr><td class="time-lbl">3:00 PM</td>  <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td> <td class="htile h1">1</td> <td class="htile h3">3</td></tr>
+              <tr><td class="time-lbl">3:30 PM</td>  <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td> <td class="htile h0"></td>  <td class="htile h3">3</td></tr>
+              <tr><td class="time-lbl">4:00 PM</td>  <td class="htile h0"></td>  <td class="htile h2">2</td> <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+              <tr><td class="time-lbl">4:30 PM</td>  <td class="htile h0"></td>  <td class="htile h2">2</td> <td class="htile h2">2</td> <td class="htile h0"></td>  <td class="htile h1">1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Participant Overview -->
+    <div class="res-card mb-5">
+      <div class="res-card-hdr">👥 Participant Overview</div>
+      <div class="res-card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0 part-table">
+            <thead>
+              <tr>
+                <th class="ps-4">Player</th>
+                <th>Status</th>
+                <th>Wed 8 May · 10 AM</th>
+                <th>Slots Free</th>
+                <th>Responded</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🐱</div>
+                    <div><div class="fw-800">Jane Smith</div><div class="text-muted" style="font-size:.72rem;">Organiser</div></div>
+                  </div>
+                </td>
+                <td><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:.72rem;">✅ Available</span></td>
+                <td><span class="avail-circle" style="background:#4ade80;"></span></td>
+                <td><span class="fw-700">28</span><span class="text-muted small"> / 40</span></td>
+                <td><i class="bi bi-check-circle-fill text-success me-1"></i><span class="fw-700 small">Yes</span></td>
+              </tr>
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#22d3ee,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🦊</div>
+                    <div><div class="fw-800">FoxDev</div><div class="text-muted" style="font-size:.72rem;">Participant</div></div>
+                  </div>
+                </td>
+                <td><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:.72rem;">✅ Available</span></td>
+                <td><span class="avail-circle" style="background:#4ade80;"></span></td>
+                <td><span class="fw-700">22</span><span class="text-muted small"> / 40</span></td>
+                <td><i class="bi bi-check-circle-fill text-success me-1"></i><span class="fw-700 small">Yes</span></td>
+              </tr>
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🐻</div>
+                    <div><div class="fw-800">BearCo</div><div class="text-muted" style="font-size:.72rem;">Participant</div></div>
+                  </div>
+                </td>
+                <td><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:.72rem;">✅ Available</span></td>
+                <td><span class="avail-circle" style="background:#4ade80;"></span></td>
+                <td><span class="fw-700">31</span><span class="text-muted small"> / 40</span></td>
+                <td><i class="bi bi-check-circle-fill text-success me-1"></i><span class="fw-700 small">Yes</span></td>
+              </tr>
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f472b6);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🐼</div>
+                    <div><div class="fw-800">PandaX</div><div class="text-muted" style="font-size:.72rem;">Participant</div></div>
+                  </div>
+                </td>
+                <td><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:.72rem;">✅ Available</span></td>
+                <td><span class="avail-circle" style="background:#4ade80;"></span></td>
+                <td><span class="fw-700">19</span><span class="text-muted small"> / 40</span></td>
+                <td><i class="bi bi-check-circle-fill text-success me-1"></i><span class="fw-700 small">Yes</span></td>
+              </tr>
+              <tr class="table-light">
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">❓</div>
+                    <div><div class="fw-800 text-muted">Sam Patel</div><div class="text-muted" style="font-size:.72rem;">Participant</div></div>
+                  </div>
+                </td>
+                <td><span class="badge rounded-pill" style="background:#fef3c7;color:#92400e;font-size:.72rem;">⏳ Pending</span></td>
+                <td><span class="text-muted">–</span></td>
+                <td><span class="text-muted">–</span></td>
+                <td><i class="bi bi-clock text-warning me-1"></i><span class="fw-700 small text-muted">No</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="d-flex gap-3 flex-wrap justify-content-center">
+      <button class="btn-confirm">🎉 Confirm Wednesday 8 May</button>
+      <button class="btn-share">📩 Notify Participants</button>
+      <a href="dashboard.html" class="btn btn-outline-secondary rounded-pill fw-700 px-4 py-3">
+        <i class="bi bi-arrow-left me-2"></i>Back to My Space
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center">
+    <div class="container">
+      <p class="mb-0 small">© 2024 SmartMeet · CITS3403 Project · University of Western Australia</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
