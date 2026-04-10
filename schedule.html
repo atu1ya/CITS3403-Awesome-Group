@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – My Schedule</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"
+                ><i class="bi bi-house-fill me-1"></i>Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html"
+                ><i class="bi bi-grid-fill me-1"></i>My Space</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="schedule.html"
+                ><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="create-event.html"
+                ><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a
+              >
+            </li>
+          </ul>
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="#" class="btn-nav-outline">Login</a>
+            <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container position-relative text-center">
+        <div class="page-header-icon">🗓️</div>
+        <h2 class="pixel-title mb-2">My Schedule</h2>
+        <p
+          style="
+            opacity: 0.8;
+            font-size: 0.95rem;
+            max-width: 520px;
+            margin: 0 auto;
+          "
+        >
+          Set your general weekly availability. SmartMeet will use this to
+          pre-fill your responses when you're invited to a room.
+        </p>
+      </div>
+    </div>
+
+    <div class="container py-5" style="max-width: 1000px">
+      <div class="row g-4">
+        <!-- Left: main content -->
+        <div class="col-lg-8">
+          <!-- Import Section -->
+          <div class="sm-card mb-4">
+            <div class="sm-card-header">
+              <i class="bi bi-box-arrow-in-down"></i> Import Your Calendar
+            </div>
+            <div class="sm-card-body">
+              <div class="import-note mb-4">
+                <i
+                  class="bi bi-info-circle-fill"
+                  style="font-size: 1.1rem; flex-shrink: 0; margin-top: 1px"
+                ></i>
+                <span
+                  >Importing will auto-fill your schedule below. Your busy times
+                  from the calendar will be marked as <strong>Busy</strong>. You
+                  can always edit them manually afterwards.</span
+                >
+              </div>
+
+              <div class="import-grid">
+                <div class="import-card google">
+                  <div class="import-logo">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg"
+                      width="32"
+                      height="32"
+                      alt="Google Calendar"
+                      onerror="this.replaceWith(document.createTextNode('📅'))"
+                    />
+                  </div>
+                  <div class="import-name">Google Calendar</div>
+                  <div class="import-desc">
+                    Sync from your Google account automatically
+                  </div>
+                  <span class="import-btn">Connect</span>
+                </div>
+                <div class="import-card apple">
+                  <div class="import-logo">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Apple_Calendar_icon.png"
+                      width="32"
+                      height="32"
+                      alt="Apple Calendar"
+                      onerror="this.replaceWith(document.createTextNode('🍎'))"
+                    />
+                  </div>
+                  <div class="import-name">Apple Calendar</div>
+                  <div class="import-desc">
+                    Import via .ics file from iCal or iPhone
+                  </div>
+                  <span class="import-btn">Import .ics</span>
+                </div>
+                <div class="import-card outlook">
+                  <div class="import-logo">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg"
+                      width="32"
+                      height="32"
+                      alt="Outlook"
+                      onerror="this.replaceWith(document.createTextNode('📧'))"
+                    />
+                  </div>
+                  <div class="import-name">Microsoft Outlook</div>
+                  <div class="import-desc">
+                    Sync from your Microsoft 365 account
+                  </div>
+                  <span class="import-btn">Connect</span>
+                </div>
+                <div class="import-card cas">
+                  <div class="import-logo" style="font-size: 1.5rem">🎓</div>
+                  <div class="import-name">UWA CAS</div>
+                  <div class="import-desc">
+                    Import your class timetable from the Class Allocation System
+                  </div>
+                  <span class="import-btn">Import Timetable</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schedule Grid -->
+          <div class="sm-card">
+            <div
+              class="sm-card-header"
+              style="justify-content: space-between; flex-wrap: wrap; gap: 10px"
+            >
+              <span
+                ><i class="bi bi-grid-3x3-gap me-2"></i>Weekly
+                Availability</span
+              >
+              <div class="d-flex gap-3 flex-wrap align-items-center">
+                <span class="legend-chip"
+                  ><span
+                    class="legend-swatch t-free"
+                    style="border: 2px solid #86efac"
+                  ></span
+                  >Free</span
+                >
+                <span class="legend-chip"
+                  ><span
+                    class="legend-swatch t-maybe"
+                    style="border: 2px solid #fde047"
+                  ></span
+                  >Maybe</span
+                >
+                <span class="legend-chip"
+                  ><span
+                    class="legend-swatch t-busy"
+                    style="border: 2px solid #fca5a5"
+                  ></span
+                  >Busy</span
+                >
+                <span class="legend-chip"
+                  ><span
+                    class="legend-swatch t-empty"
+                    style="border: 2px solid #e5e7eb"
+                  ></span
+                  >Not set</span
+                >
+              </div>
+            </div>
+            <div class="sm-card-body">
+              <div class="time-filter mb-3">
+                <span>Show hours:</span>
+                <select>
+                  <option>6:00 AM</option>
+                  <option selected>8:00 AM</option>
+                  <option>9:00 AM</option>
+                </select>
+                <span>to</span>
+                <select>
+                  <option>6:00 PM</option>
+                  <option selected>8:00 PM</option>
+                  <option>10:00 PM</option>
+                </select>
+                <span class="ms-auto text-muted" style="font-size: 0.75rem"
+                  >Click a tile to cycle: Empty → Free → Maybe → Busy →
+                  Empty</span
+                >
+              </div>
+
+              <div class="grid-outer">
+                <table class="av-table" id="schedGrid">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Mon</th>
+                      <th>Tue</th>
+                      <th>Wed</th>
+                      <th>Thu</th>
+                      <th>Fri</th>
+                      <th style="color: var(--pink)">Sat</th>
+                      <th style="color: var(--pink)">Sun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="hour-start">
+                      <td class="time-lbl">8:00 AM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">8:30 AM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">9:00 AM</td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">9:30 AM</td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">10:00 AM</td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">10:30 AM</td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">11:00 AM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">11:30 AM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">12:00 PM</td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-maybe"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">12:30 PM</td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-maybe"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">1:00 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">1:30 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">2:00 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">2:30 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">3:00 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">3:30 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-busy"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">4:00 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">4:30 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">5:00 PM</td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">5:30 PM</td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-maybe"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">6:00 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">6:30 PM</td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr class="hour-start">
+                      <td class="time-lbl">7:00 PM</td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                    <tr>
+                      <td class="time-lbl">7:30 PM</td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-free"></td>
+                      <td class="tile t-empty"></td>
+                      <td class="tile t-empty"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: sidebar -->
+        <div class="col-lg-4">
+          <div class="sm-card mb-4">
+            <div class="sm-card-header">
+              <i class="bi bi-floppy me-2"></i>Save Schedule
+            </div>
+            <div class="sm-card-body">
+              <p class="text-muted small fw-700 mb-3">
+                Your schedule is used to pre-fill your availability when you're
+                invited to a room. Keep it up to date!
+              </p>
+              <div class="mb-3">
+                <span class="saved-badge"
+                  ><i class="bi bi-check-circle-fill"></i> Last saved: Today,
+                  9:14 AM</span
+                >
+              </div>
+              <button class="btn-save w-100">💾 Save Schedule</button>
+              <button
+                class="btn btn-outline-secondary rounded-pill fw-700 w-100 mt-2 py-2"
+              >
+                🧹 Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="tip-card mb-4">
+            <div
+              style="
+                font-weight: 900;
+                font-size: 0.78rem;
+                color: var(--p2);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 14px;
+              "
+            >
+              💡 How it works
+            </div>
+            <div class="tip-row">
+              <span class="tip-icon">🗓️</span
+              ><span>Set your general weekly availability here once.</span>
+            </div>
+            <div class="tip-row">
+              <span class="tip-icon">🚪</span
+              ><span
+                >When invited to a room, your grid is pre-filled
+                automatically.</span
+              >
+            </div>
+            <div class="tip-row">
+              <span class="tip-icon">✏️</span
+              ><span
+                >You can always tweak your availability for a specific
+                event.</span
+              >
+            </div>
+            <div class="tip-row">
+              <span class="tip-icon">🔄</span
+              ><span
+                >Update your schedule any time — it won't affect past
+                submissions.</span
+              >
+            </div>
+          </div>
+
+          <div class="sm-card">
+            <div class="sm-card-header">
+              <i class="bi bi-mortarboard me-2"></i>UWA CAS Import
+            </div>
+            <div class="sm-card-body">
+              <p class="text-muted small fw-700 mb-2">
+                To import from UWA's Class Allocation System:
+              </p>
+              <ol
+                class="small fw-700 text-muted ps-3 mb-3"
+                style="line-height: 2"
+              >
+                <li>
+                  Log in to
+                  <strong style="color: var(--p1)">cas.uwa.edu.au</strong>
+                </li>
+                <li>Go to My Timetable</li>
+                <li>
+                  Export as <strong style="color: var(--p1)">.ics file</strong>
+                </li>
+                <li>
+                  Click
+                  <strong style="color: var(--p1)">Import Timetable</strong>
+                  above
+                </li>
+              </ol>
+              <div
+                style="
+                  background: #fff7ed;
+                  border: 2px solid #fed7aa;
+                  border-radius: 12px;
+                  padding: 10px 14px;
+                  font-size: 0.78rem;
+                  font-weight: 700;
+                  color: #9a3412;
+                "
+              >
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Your CAS login credentials are never stored by SmartMeet.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">
+          © 2026 SmartMeet · CITS3403 Project · University of Western Australia
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
