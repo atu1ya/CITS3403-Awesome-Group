@@ -444,5 +444,19 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Tile-cycle interaction -->
+    <script>
+      const states = ['t-empty', 't-free', 't-maybe', 't-busy'];
+      document.querySelectorAll('#avGrid td.tile').forEach(td => {
+        if (td.classList.contains('t-best')) return;
+        td.addEventListener('click', () => {
+          const cur = states.find(s => td.classList.contains(s)) || 't-empty';
+          const next = states[(states.indexOf(cur) + 1) % states.length];
+          td.classList.remove(...states);
+          td.classList.add(next);
+        });
+      });
+    </script>
   </body>
 </html>

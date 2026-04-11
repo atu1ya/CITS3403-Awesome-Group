@@ -7,218 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --p1: #6d28d9;
-      --p2: #7c3aed;
-      --p3: #a78bfa;
-      --p4: #ede9fe;
-      --pink: #f472b6;
-      --cyan: #22d3ee;
-      --green: #4ade80;
-      --yellow: #fbbf24;
-      --bg: #f5f3ff;
-      --card: #ffffff;
-      --text: #1e1b4b;
-      --muted: #6b7280;
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-    }
-
-    /* ── Navbar ── */
-    .sm-navbar {
-      background: linear-gradient(90deg, #1e1b4b 0%, #4c1d95 60%, #6d28d9 100%);
-      padding: 0.6rem 0;
-      box-shadow: 0 2px 16px rgba(109,40,217,.4);
-    }
-    .sm-navbar .navbar-brand {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 0.9rem;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-    .sm-navbar .navbar-brand span { color: var(--cyan); }
-    .sm-navbar .nav-link {
-      color: rgba(255,255,255,.8) !important;
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 6px 14px !important;
-      border-radius: 20px;
-      transition: background .2s, color .2s;
-    }
-    .sm-navbar .nav-link:hover, .sm-navbar .nav-link.active {
-      background: rgba(255,255,255,.15);
-      color: #fff !important;
-    }
-    .btn-nav-pink {
-      background: var(--pink); color: #fff; border: none;
-      border-radius: 20px; font-weight: 700; font-size: .82rem;
-      padding: 6px 16px;
-      box-shadow: 0 2px 8px rgba(244,114,182,.4);
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn-nav-pink:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(244,114,182,.5); color:#fff; }
-    .btn-nav-outline {
-      background: transparent; color: #fff;
-      border: 2px solid rgba(255,255,255,.4); border-radius: 20px;
-      font-weight: 700; font-size: .82rem; padding: 5px 16px;
-      transition: background .2s, border-color .2s;
-    }
-    .btn-nav-outline:hover { background: rgba(255,255,255,.15); border-color: #fff; color: #fff; }
-
-    /* ── Hero ── */
-    .hero {
-      min-height: 88vh;
-      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #7c3aed 100%);
-      display: flex; align-items: center;
-      position: relative; overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 70% 50%, rgba(34,211,238,.12) 0%, transparent 60%),
-                  radial-gradient(ellipse at 20% 80%, rgba(244,114,182,.1) 0%, transparent 50%);
-    }
-    .hero-pixel-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1.4rem, 4vw, 2.6rem);
-      color: #fff;
-      line-height: 1.5;
-      text-shadow: 4px 4px 0 rgba(0,0,0,.3);
-    }
-    .hero-pixel-title span { color: var(--cyan); }
-    .hero-tagline { font-size: 1.15rem; color: rgba(255,255,255,.85); font-weight: 600; margin: 1.2rem 0 2rem; }
-
-    /* Game-menu buttons */
-    .menu-btn {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(255,255,255,.08);
-      border: 2px solid rgba(255,255,255,.25);
-      color: #fff; font-weight: 800; font-size: 1rem;
-      padding: 14px 24px; border-radius: 14px;
-      text-decoration: none; width: 100%;
-      transition: background .2s, border-color .2s, transform .15s, box-shadow .15s;
-      cursor: pointer;
-    }
-    .menu-btn:hover {
-      background: rgba(255,255,255,.18);
-      border-color: rgba(255,255,255,.7);
-      transform: translateX(6px);
-      box-shadow: -4px 0 0 var(--cyan);
-      color: #fff;
-    }
-    .menu-btn .menu-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-    }
-    .menu-btn .arrow { margin-left: auto; opacity: .5; transition: opacity .2s, margin .2s; }
-    .menu-btn:hover .arrow { opacity: 1; margin-left: auto; margin-right: -4px; }
-
-    /* Floating avatar cards */
-    .avatar-card {
-      background: rgba(255,255,255,.1);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 16px; padding: 14px 18px;
-      display: flex; align-items: center; gap: 12px;
-      color: #fff;
-    }
-    .avatar-circle {
-      width: 44px; height: 44px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,.3);
-    }
-    .online-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--green);
-      border: 2px solid rgba(255,255,255,.3);
-      flex-shrink: 0;
-      box-shadow: 0 0 6px var(--green);
-    }
-    .busy-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--yellow); border: 2px solid rgba(255,255,255,.3);
-      flex-shrink: 0; box-shadow: 0 0 6px var(--yellow);
-    }
-
-    /* Feature tiles */
-    .feature-tile {
-      background: var(--card); border-radius: 20px;
-      padding: 28px 24px;
-      box-shadow: 0 4px 20px rgba(109,40,217,.08);
-      border: 2px solid var(--p4);
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      height: 100%;
-    }
-    .feature-tile:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 32px rgba(109,40,217,.18);
-      border-color: var(--p3);
-    }
-    .tile-icon {
-      width: 56px; height: 56px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; margin-bottom: 1rem;
-    }
-
-    /* Steps */
-    .step-pill {
-      background: var(--card); border-radius: 50px;
-      border: 2px solid var(--p4);
-      padding: 16px 24px;
-      display: flex; align-items: center; gap: 16px;
-      box-shadow: 0 2px 12px rgba(109,40,217,.07);
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .step-pill:hover { border-color: var(--p3); box-shadow: 0 4px 20px rgba(109,40,217,.15); }
-    .step-num {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--p2), var(--pink));
-      color: #fff; font-weight: 900; font-size: .9rem;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-
-    /* Online players section */
-    .online-section {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-      color: #fff;
-    }
-    .player-card {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 16px; padding: 16px;
-      text-align: center;
-      transition: background .2s, transform .15s;
-    }
-    .player-card:hover { background: rgba(255,255,255,.15); transform: translateY(-4px); }
-    .player-avatar {
-      width: 60px; height: 60px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; margin: 0 auto 8px;
-      border: 3px solid rgba(255,255,255,.25);
-    }
-    .status-bar {
-      font-size: .7rem; font-weight: 700; letter-spacing: .05em;
-      padding: 2px 10px; border-radius: 20px;
-      display: inline-block; margin-top: 6px;
-    }
-
-    /* CTA */
-    .cta-section {
-      background: linear-gradient(135deg, var(--p1) 0%, var(--pink) 100%);
-    }
-
-    footer {
-      background: #0f0e1a; color: rgba(255,255,255,.4);
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -233,6 +22,7 @@
         <ul class="navbar-nav me-auto gap-1">
           <li class="nav-item"><a class="nav-link active" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
           <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
+          <li class="nav-item"><a class="nav-link" href="schedule.html"><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a></li>
           <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
         </ul>
         <div class="d-flex gap-2 mt-2 mt-lg-0">
@@ -243,8 +33,36 @@
     </div>
   </nav>
 
+  <!-- ── Ticker (outside hero) ── -->
+  <div class="ticker-wrap" style="background:#1e1b4b;">
+    <div class="ticker-track">
+      <span>🎉 <em>PandaX</em> just found a meeting time!</span>
+      <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
+      <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
+      <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
+      <span>🎯 <em>MiaW</em> submitted their availability!</span>
+      <span>🏆 Best time found for "Project Kickoff" — <em>Tuesday 2:00 PM</em></span>
+      <span>🎉 <em>PandaX</em> just found a meeting time!</span>
+      <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
+      <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
+      <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
+      <span>🎯 <em>MiaW</em> submitted their availability!</span>
+      <span>🏆 Best time found for "Project Kickoff" — <em>Tuesday 2:00 PM</em></span>
+    </div>
+  </div>
+
   <!-- ── Hero ── -->
   <section class="hero">
+    <!-- Floating particles (direct children of hero, positioned absolute) -->
+    <div class="particle" style="width:6px;height:6px;background:var(--cyan);left:8%;top:70%;--dur:5s;--delay:0s;"></div>
+    <div class="particle" style="width:4px;height:4px;background:var(--pink);left:15%;top:80%;--dur:6s;--delay:1.2s;"></div>
+    <div class="particle" style="width:8px;height:8px;background:#a78bfa;left:25%;top:60%;--dur:7s;--delay:0.5s;"></div>
+    <div class="particle" style="width:5px;height:5px;background:var(--yellow);left:40%;top:75%;--dur:5.5s;--delay:2s;"></div>
+    <div class="particle" style="width:6px;height:6px;background:var(--green);left:60%;top:65%;--dur:6.5s;--delay:0.8s;"></div>
+    <div class="particle" style="width:4px;height:4px;background:var(--cyan);left:75%;top:80%;--dur:4.5s;--delay:1.8s;"></div>
+    <div class="particle" style="width:7px;height:7px;background:var(--pink);left:85%;top:70%;--dur:6s;--delay:0.3s;"></div>
+    <div class="particle" style="width:5px;height:5px;background:#a78bfa;left:92%;top:55%;--dur:5s;--delay:2.5s;"></div>
+
     <div class="container position-relative">
       <div class="row align-items-center g-5">
 
@@ -254,7 +72,7 @@
             ★ Now Online: 24 players ★
           </p>
           <h1 class="hero-pixel-title">Smart<span>Meet</span></h1>
-          <p class="hero-tagline">Plan meetings in a fun and social way ✨</p>
+          <p class="hero-tagline"><span id="typingText"></span><span class="typing-cursor"></span></p>
 
           <div class="d-flex flex-column gap-3" style="max-width: 360px;">
             <a href="availability.html" class="menu-btn">
@@ -450,10 +268,34 @@
   <!-- ── Footer ── -->
   <footer class="py-4 text-center">
     <div class="container">
-      <p class="mb-0 small">© 2024 SmartMeet · CITS3403 Project · University of Western Australia</p>
+      <p class="mb-0 small">© 2026 SmartMeet · CITS3403 Project · University of Western Australia</p>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ── Typing effect ──
+    const phrases = [
+      'Plan meetings in a fun and social way ✨',
+      'Find the perfect time for everyone 🎯',
+      'Schedule smarter, meet better 🏆',
+      'Your meeting lobby awaits 🚪'
+    ];
+    let pi = 0, ci = 0, deleting = false;
+    const el = document.getElementById('typingText');
+    function type() {
+      const phrase = phrases[pi];
+      if (!deleting) {
+        el.textContent = phrase.slice(0, ++ci);
+        if (ci === phrase.length) { deleting = true; setTimeout(type, 1800); return; }
+      } else {
+        el.textContent = phrase.slice(0, --ci);
+        if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
+      }
+      setTimeout(type, deleting ? 40 : 65);
+    }
+    type();
+  </script>
 </body>
 </html>
