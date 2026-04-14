@@ -787,5 +787,168 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // ── Dismiss notification bar ──
+      const notifBar = document.querySelector(".notif-bar");
+      if (notifBar) {
+        // Add dismiss button to notification bar
+        const dismissBtn = document.createElement("button");
+        dismissBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        dismissBtn.style.cssText = `
+      background: none; border: none; cursor: pointer;
+      color: var(--p2); font-size: .9rem; padding: 0;
+      margin-left: auto; flex-shrink: 0;
+    `;
+        notifBar.appendChild(dismissBtn);
+        dismissBtn.addEventListener("click", () => {
+          notifBar.style.transition = "opacity .3s";
+          notifBar.style.opacity = "0";
+          setTimeout(() => notifBar.remove(), 300);
+        });
+      }
+
+      // ── Filter tabs ──
+      // Create filter bar and insert before room cards
+      const mainContent = document.querySelector(".col-lg-9");
+      const activeRoomsHeader = document.querySelector(".section-header");
+
+      const filterBar = document.createElement("div");
+      filterBar.style.cssText = `
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  `;
+      filterBar.innerHTML = `
+    <button class="filter-btn active" data-filter="all"
+      style="border:2px solid var(--p2);background:var(--p2);color:#fff;border-radius:20px;
+             font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">
+      All
+    </button>
+    <button class="filter-btn" data-filter="awaiting"
+      style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;
+             font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">
+      Awaiting
+    </button>
+    <button class="filter-btn" data-filter="confirmed"
+      style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;
+             font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">
+      Confirmed
+    </button>
+    <button class="filter-btn" data-filter="invited"
+      style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;
+             font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">
+      Invited
+    </button>
+  `;
+      activeRoomsHeader.parentNode.insertBefore(filterBar, activeRoomsHeader);
+
+      // Filter logic
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          // Update active button styles
+          document.querySelectorAll(".filter-btn").forEach((b) => {
+            b.style.background = "var(--p4)";
+            b.style.color = "var(--p2)";
+            b.style.borderColor = "var(--p4)";
+          });
+          this.style.background = "var(--p2)";
+          this.style.color = "#fff";
+          this.style.borderColor = "var(--p2)";
+
+          const filter = this.dataset.filter;
+          const allCards = document.querySelectorAll(".col-md-6");
+
+          allCards.forEach((col) => {
+            const chip = col.querySelector(".status-chip");
+            const isCtaCard = col.querySelector('.room-card[style*="dashed"]');
+
+            // Always show the Create New Room CTA card
+            if (isCtaCard) {
+              col.style.display = "";
+              return;
+            }
+
+            if (filter === "all") {
+              col.style.display = "";
+              return;
+            }
+
+            if (!chip) {
+              // Invited rooms section
+              if (filter === "invited") {
+                col.style.display = "";
+              } else {
+                col.style.display = "none";
+              }
+              return;
+            }
+
+            const isAwaiting = chip.classList.contains("chip-waiting");
+            const isConfirmed = chip.classList.contains("chip-done");
+            const isInvited = chip.classList.contains("chip-invited");
+
+            if (filter === "awaiting" && isAwaiting) col.style.display = "";
+            else if (filter === "confirmed" && isConfirmed)
+              col.style.display = "";
+            else if (filter === "invited" && isInvited) col.style.display = "";
+            else col.style.display = "none";
+          });
+
+          // Show empty state if no visible cards (except CTA)
+          const visibleCards = [
+            ...document.querySelectorAll(".col-md-6"),
+          ].filter((c) => {
+            return (
+              c.style.display !== "none" &&
+              !c.querySelector('.room-card[style*="dashed"]')
+            );
+          });
+
+          const existingEmpty = document.querySelector("#emptyState");
+          if (existingEmpty) existingEmpty.remove();
+
+          if (visibleCards.length === 0) {
+            const empty = document.createElement("div");
+            empty.id = "emptyState";
+            empty.style.cssText = `
+          text-align: center; padding: 40px 20px;
+          color: var(--muted); font-weight: 700;
+        `;
+            empty.innerHTML = `
+          <div style="font-size:2.5rem;margin-bottom:12px;">🔍</div>
+          <div style="font-size:1rem;">No ${filter} rooms found.</div>
+        `;
+            document.querySelector(".row.g-3").appendChild(empty);
+          }
+        });
+      });
+
+      // ── Share link button ──
+      document.querySelectorAll(".bi-share").forEach((icon) => {
+        icon.closest("button").addEventListener("click", function () {
+          // Copy fake link to clipboard
+          const fakeLink = `https://smartmeet.app/room/${Math.random().toString(36).substr(2, 8)}`;
+          navigator.clipboard
+            .writeText(fakeLink)
+            .then(() => {
+              const original = this.innerHTML;
+              this.innerHTML = '<i class="bi bi-check-lg"></i>';
+              this.style.background = "#d1fae5";
+              this.style.borderColor = "#6ee7b7";
+              setTimeout(() => {
+                this.innerHTML = original;
+                this.style.background = "";
+                this.style.borderColor = "";
+              }, 2000);
+            })
+            .catch(() => {
+              // Fallback if clipboard not available
+              this.innerHTML = '<i class="bi bi-check-lg"></i>';
+              setTimeout(() => {
+                this.innerHTML = '<i class="bi bi-share"></i>';
+              }, 2000);
+            });
+        });
+      });
+    </script>
   </body>
 </html>
