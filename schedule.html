@@ -608,5 +608,159 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Tile states in cycle order
+      const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
+
+      // Drag state
+      let isDragging = false;
+      let dragTargetState = null;
+
+      // Get all tiles
+      const tiles = document.querySelectorAll("#schedGrid td.tile");
+
+      // ── Tile cycling + drag ──
+      tiles.forEach((tile) => {
+        tile.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          isDragging = true;
+          const current =
+            STATES.find((s) => tile.classList.contains(s)) || "t-empty";
+          const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
+          dragTargetState = next;
+          paintTile(tile, next);
+        });
+
+        tile.addEventListener("mouseenter", () => {
+          if (isDragging) paintTile(tile, dragTargetState);
+        });
+
+        // ── Touch support ──
+        tile.addEventListener(
+          "touchstart",
+          (e) => {
+            e.preventDefault();
+            isDragging = true;
+            const current =
+              STATES.find((s) => tile.classList.contains(s)) || "t-empty";
+            const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
+            dragTargetState = next;
+            paintTile(tile, next);
+          },
+          { passive: false },
+        );
+
+        tile.addEventListener(
+          "touchmove",
+          (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (el && el.classList.contains("tile")) {
+              paintTile(el, dragTargetState);
+            }
+          },
+          { passive: false },
+        );
+      });
+
+      // Stop dragging when mouse released
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+        dragTargetState = null;
+      });
+      document.addEventListener("touchend", () => {
+        isDragging = false;
+        dragTargetState = null;
+      });
+
+      // ── Paint a tile ──
+      function paintTile(tile, state) {
+        tile.classList.remove(...STATES);
+        tile.classList.add(state);
+      }
+
+      // ── Clear All button ──
+      document.querySelectorAll(".btn.btn-outline-secondary").forEach((btn) => {
+        if (btn.textContent.includes("Clear")) {
+          btn.addEventListener("click", () => {
+            tiles.forEach((tile) => {
+              tile.classList.remove(...STATES);
+              tile.classList.add("t-empty");
+            });
+          });
+        }
+      });
+
+      // ── Time range filter ──
+      const timeSelects = document.querySelectorAll(".time-filter select");
+      const startSelect = timeSelects[0];
+      const endSelect = timeSelects[1];
+
+      // Map display times to 24h hour numbers for comparison
+      const timeToHour = {
+        "6:00 AM": 6,
+        "8:00 AM": 8,
+        "9:00 AM": 9,
+        "6:00 PM": 18,
+        "8:00 PM": 20,
+        "10:00 PM": 22,
+      };
+
+      function applyTimeFilter() {
+        const startHour = timeToHour[startSelect.value];
+        const endHour = timeToHour[endSelect.value];
+        const rows = document.querySelectorAll("#schedGrid tbody tr");
+
+        rows.forEach((row) => {
+          const label = row.querySelector(".time-lbl");
+          if (!label) return;
+
+          const text = label.textContent.trim();
+          const [time, period] = text.split(" ");
+          const [h, m] = time.split(":").map(Number);
+          let hour = h;
+          if (period === "PM" && h !== 12) hour += 12;
+          if (period === "AM" && h === 12) hour = 0;
+
+          if (hour >= startHour && hour < endHour) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }
+
+      startSelect.addEventListener("change", applyTimeFilter);
+      endSelect.addEventListener("change", applyTimeFilter);
+
+      // Apply filter on page load
+      applyTimeFilter();
+
+      // ── Save button ──
+      document.querySelector(".btn-save").addEventListener("click", () => {
+        const btn = document.querySelector(".btn-save");
+        const originalText = btn.textContent;
+
+        btn.textContent = "✅ Schedule Saved!";
+        btn.style.background = "linear-gradient(135deg, #16a34a, #4ade80)";
+
+        // Update last saved badge
+        const savedBadge = document.querySelector(".saved-badge");
+        if (savedBadge) {
+          const now = new Date();
+          const time = now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          savedBadge.innerHTML = `<i class="bi bi-check-circle-fill"></i> Last saved: Today, ${time}`;
+        }
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = "";
+        }, 2000);
+      });
+    </script>
   </body>
 </html>
