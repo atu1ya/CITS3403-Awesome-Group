@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
+            <li class="nav-item"><a class="nav-link" href="schedule.html"><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a></li>
+            <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
+          </ul>
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="#" class="btn-nav-outline">Login</a>
+            <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="space-bg">
+      <div class="container">
+        <div class="row g-4">
+          <!-- Sidebar -->
+          <div class="col-lg-3">
+            <div class="profile-card">
+              <div class="profile-card-banner">
+                <span class="deco" style="top:10px;left:20px">⭐</span>
+                <span class="deco" style="top:20px;right:40px">🌙</span>
+                <span class="deco" style="bottom:8px;left:60px">✨</span>
+              </div>
+              <div style="position:relative;display:inline-block;left:50%;transform:translateX(-50%);">
+                <div class="profile-avatar">🐱</div>
+                <span class="online-badge"></span>
+              </div>
+              <div class="profile-card-body mt-2">
+                <div class="fw-900 fs-5">Jane Smith</div>
+                <div class="text-muted small fw-600 mb-1">@janesmeet</div>
+                <div class="d-inline-block px-3 py-1 rounded-pill mb-3" style="background:linear-gradient(90deg,#ede9fe,#fce7f3);font-size:.78rem;font-weight:700;color:var(--p2);">
+                  ✨ Organizing wizard
+                </div>
+                <div class="text-muted small fst-italic mb-3">"Life's too short for bad meeting times 🕐"</div>
+                <div class="d-flex justify-content-between mb-1" style="font-size:.72rem;font-weight:800;color:var(--muted);">
+                  <span>LEVEL 7 · PLANNER</span><span>640 / 1000 XP</span>
+                </div>
+                <div class="xp-bar mb-3"><div class="xp-fill" style="width:64%"></div></div>
+                <div class="d-flex gap-2 mb-4">
+                  <div class="stat-pill"><div class="val">5</div><div class="lbl">Rooms</div></div>
+                  <div class="stat-pill"><div class="val">12</div><div class="lbl">Friends</div></div>
+                  <div class="stat-pill"><div class="val">28</div><div class="lbl">Meets</div></div>
+                </div>
+                <a href="dashboard.html" class="side-menu-item"><span class="side-icon">🏠</span> My Rooms</a>
+                <a href="schedule.html" class="side-menu-item"><span class="side-icon">🗓️</span> My Schedule</a>
+                <a href="friends.html" class="side-menu-item"><span class="side-icon">👥</span> Friends</a>
+                <a href="notifications.html" class="side-menu-item">
+                  <span class="side-icon">🔔</span> Notifications
+                  <span class="badge ms-auto" style="background:var(--pink);font-size:.65rem;">3</span>
+                </a>
+                <a href="settings.html" class="side-menu-item active"><span class="side-icon">⚙️</span> Settings</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="col-lg-9">
+            <div class="mb-4">
+              <p class="section-sub">Preferences</p>
+              <h2 class="fw-900 mb-0" style="font-size:1.6rem;">⚙️ Settings</h2>
+            </div>
+
+            <!-- Profile Settings -->
+            <div class="sm-card mb-4">
+              <div class="sm-card-header">👤 Profile</div>
+              <div class="sm-card-body">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <label class="form-label fw-800" style="font-size:.8rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Display Name</label>
+                    <input type="text" class="form-control" value="Jane Smith" style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label fw-800" style="font-size:.8rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Username</label>
+                    <input type="text" class="form-control" value="@janesmeet" style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label fw-800" style="font-size:.8rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Email</label>
+                    <input type="email" class="form-control" value="jane@example.com" style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label fw-800" style="font-size:.8rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Avatar</label>
+                    <div class="d-flex gap-2 flex-wrap mt-1">
+                      <span class="avatar-pick selected">🐱</span>
+                      <span class="avatar-pick">🦊</span>
+                      <span class="avatar-pick">🐻</span>
+                      <span class="avatar-pick">🐼</span>
+                      <span class="avatar-pick">🌙</span>
+                      <span class="avatar-pick">🐸</span>
+                      <span class="avatar-pick">🦄</span>
+                      <span class="avatar-pick">🐧</span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-800" style="font-size:.8rem;color:var(--p2);text-transform:uppercase;letter-spacing:.06em;">Bio</label>
+                    <input type="text" class="form-control" value="Life's too short for bad meeting times 🕐" style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <button class="btn-room px-4" id="saveProfile">💾 Save Profile</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="sm-card mb-4">
+              <div class="sm-card-header">🔔 Notifications</div>
+              <div class="sm-card-body">
+                <div class="d-flex flex-column gap-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Availability submitted</div>
+                      <div class="text-muted small">When someone responds to your room</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Best time found</div>
+                      <div class="text-muted small">When a perfect slot is found for your room</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Room invites</div>
+                      <div class="text-muted small">When a friend invites you to a room</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Friend requests</div>
+                      <div class="text-muted small">When someone sends you a friend request</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Deadline reminders</div>
+                      <div class="text-muted small">Reminder before a room deadline closes</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="sm-card mb-4">
+              <div class="sm-card-header">🔒 Privacy</div>
+              <div class="sm-card-body">
+                <div class="d-flex flex-column gap-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Show online status</div>
+                      <div class="text-muted small">Let friends see when you're active</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Allow friend requests</div>
+                      <div class="text-muted small">Anyone can send you a friend request</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                  <hr class="my-0" style="border-color:#ede9fe;" />
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-800">Public profile</div>
+                      <div class="text-muted small">Your profile is visible to non-friends</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger zone -->
+            <div class="sm-card" style="border:2px solid #fca5a5;">
+              <div class="sm-card-header" style="color:#dc2626;">⚠️ Danger Zone</div>
+              <div class="sm-card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                  <div>
+                    <div class="fw-800">Delete Account</div>
+                    <div class="text-muted small">Permanently delete your account and all your rooms. This cannot be undone.</div>
+                  </div>
+                  <button id="deleteAccountBtn" class="btn btn-outline-danger rounded-pill fw-700 px-4">
+                    <i class="bi bi-trash me-1"></i>Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">© 2026 SmartMeet · CITS3403 Project · University of Western Australia</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Avatar picker
+      document.querySelectorAll('.avatar-pick').forEach(el => {
+        el.addEventListener('click', function () {
+          document.querySelectorAll('.avatar-pick').forEach(a => a.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+
+      // Save profile feedback
+      document.getElementById('saveProfile').addEventListener('click', function () {
+        const original = this.textContent;
+        this.textContent = '✅ Saved!';
+        this.style.background = 'linear-gradient(135deg, #16a34a, #4ade80)';
+        setTimeout(() => {
+          this.textContent = original;
+          this.style.background = '';
+        }, 2000);
+      });
+
+      // Delete account confirmation
+      document.getElementById('deleteAccountBtn').addEventListener('click', function () {
+        if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
+          this.textContent = 'Deleted';
+          this.disabled = true;
+        }
+      });
+    </script>
+  </body>
+</html>
