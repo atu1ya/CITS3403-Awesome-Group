@@ -102,7 +102,6 @@
                   can always edit them manually afterwards.</span
                 >
               </div>
-
               <div class="import-grid">
                 <div class="import-card google">
                   <div class="import-logo">
@@ -208,13 +207,13 @@
             <div class="sm-card-body">
               <div class="time-filter mb-3">
                 <span>Show hours:</span>
-                <select>
+                <select id="startTimeSelect">
                   <option>6:00 AM</option>
                   <option selected>8:00 AM</option>
                   <option>9:00 AM</option>
                 </select>
                 <span>to</span>
-                <select>
+                <select id="endTimeSelect">
                   <option>6:00 PM</option>
                   <option selected>8:00 PM</option>
                   <option>10:00 PM</option>
@@ -507,6 +506,7 @@
               <button class="btn-save w-100">💾 Save Schedule</button>
               <button
                 class="btn btn-outline-secondary rounded-pill fw-700 w-100 mt-2 py-2"
+                id="clearAllBtn"
               >
                 🧹 Clear All
               </button>
@@ -656,9 +656,8 @@
             e.preventDefault();
             const touch = e.touches[0];
             const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (el && el.classList.contains("tile")) {
+            if (el && el.classList.contains("tile"))
               paintTile(el, dragTargetState);
-            }
           },
           { passive: false },
         );
@@ -681,23 +680,17 @@
       }
 
       // ── Clear All button ──
-      document.querySelectorAll(".btn.btn-outline-secondary").forEach((btn) => {
-        if (btn.textContent.includes("Clear")) {
-          btn.addEventListener("click", () => {
-            tiles.forEach((tile) => {
-              tile.classList.remove(...STATES);
-              tile.classList.add("t-empty");
-            });
-          });
-        }
+      document.getElementById("clearAllBtn").addEventListener("click", () => {
+        tiles.forEach((tile) => {
+          tile.classList.remove(...STATES);
+          tile.classList.add("t-empty");
+        });
       });
 
       // ── Time range filter ──
-      const timeSelects = document.querySelectorAll(".time-filter select");
-      const startSelect = timeSelects[0];
-      const endSelect = timeSelects[1];
+      const startSelect = document.getElementById("startTimeSelect");
+      const endSelect = document.getElementById("endTimeSelect");
 
-      // Map display times to 24h hour numbers for comparison
       const timeToHour = {
         "6:00 AM": 6,
         "8:00 AM": 8,
@@ -708,10 +701,11 @@
       };
 
       function applyTimeFilter() {
-        const startHour = timeToHour[startSelect.value];
-        const endHour = timeToHour[endSelect.value];
-        const rows = document.querySelectorAll("#schedGrid tbody tr");
+        // Fallback to 0 and 24 if value not in map
+        const startHour = timeToHour[startSelect.value] ?? 0;
+        const endHour = timeToHour[endSelect.value] ?? 24;
 
+        const rows = document.querySelectorAll("#schedGrid tbody tr");
         rows.forEach((row) => {
           const label = row.querySelector(".time-lbl");
           if (!label) return;
@@ -723,18 +717,12 @@
           if (period === "PM" && h !== 12) hour += 12;
           if (period === "AM" && h === 12) hour = 0;
 
-          if (hour >= startHour && hour < endHour) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
+          row.style.display = hour >= startHour && hour < endHour ? "" : "none";
         });
       }
 
       startSelect.addEventListener("change", applyTimeFilter);
       endSelect.addEventListener("change", applyTimeFilter);
-
-      // Apply filter on page load
       applyTimeFilter();
 
       // ── Save button ──
@@ -745,7 +733,6 @@
         btn.textContent = "✅ Schedule Saved!";
         btn.style.background = "linear-gradient(135deg, #16a34a, #4ade80)";
 
-        // Update last saved badge
         const savedBadge = document.querySelector(".saved-badge");
         if (savedBadge) {
           const now = new Date();
