@@ -161,10 +161,9 @@
         </div>
       </div>
 
-      <!-- All Options (including original best as 1st) -->
+      <!-- All Options -->
       <p class="section-label">🏅 All Options</p>
       <div class="d-flex flex-column gap-3 mb-5" id="allOptions">
-        <!-- 1st — original best, shown here too so it's always selectable -->
         <div
           class="runnerup-card"
           id="slot-1st"
@@ -211,7 +210,6 @@
           </button>
         </div>
 
-        <!-- 2nd -->
         <div class="runnerup-card" id="slot-2nd">
           <div class="runnerup-rank rank-2">2nd</div>
           <div class="flex-grow-1">
@@ -243,7 +241,6 @@
           </button>
         </div>
 
-        <!-- 3rd -->
         <div class="runnerup-card" id="slot-3rd">
           <div class="runnerup-rank rank-3">3rd</div>
           <div class="flex-grow-1">
@@ -957,8 +954,12 @@
           this.textContent = "✅ Selected";
           this.disabled = true;
 
-          // Show brief feedback banner
+          // Remove existing switch banner before inserting new one
+          const existingBanner = document.querySelector("#switchBanner");
+          if (existingBanner) existingBanner.remove();
+
           const banner = document.createElement("div");
+          banner.id = "switchBanner";
           banner.innerHTML = `🔄 Switched to ${time.split("·")[0].trim()}`;
           banner.style.cssText = `
             background: linear-gradient(90deg, #ede9fe, #fce7f3);
