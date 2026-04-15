@@ -247,33 +247,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Avatar picker
-      document.querySelectorAll('.avatar-pick').forEach(el => {
-        el.addEventListener('click', function () {
-          document.querySelectorAll('.avatar-pick').forEach(a => a.classList.remove('selected'));
-          this.classList.add('selected');
-        });
-      });
-
-      // Save profile feedback
-      document.getElementById('saveProfile').addEventListener('click', function () {
-        const original = this.textContent;
-        this.textContent = '✅ Saved!';
-        this.style.background = 'linear-gradient(135deg, #16a34a, #4ade80)';
-        setTimeout(() => {
-          this.textContent = original;
-          this.style.background = '';
-        }, 2000);
-      });
-
-      // Delete account confirmation
-      document.getElementById('deleteAccountBtn').addEventListener('click', function () {
-        if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
-          this.textContent = 'Deleted';
-          this.disabled = true;
-        }
-      });
-    </script>
   </body>
 </html>

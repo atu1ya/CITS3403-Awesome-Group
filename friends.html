@@ -214,51 +214,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Accept / decline pending requests
-      document.querySelectorAll('.accept-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const card = this.closest('.col-md-6');
-          card.style.transition = 'opacity .3s';
-          card.style.opacity = '0';
-          setTimeout(() => card.remove(), 300);
-        });
-      });
-
-      document.querySelectorAll('.decline-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const card = this.closest('.col-md-6');
-          card.style.transition = 'opacity .3s';
-          card.style.opacity = '0';
-          setTimeout(() => card.remove(), 300);
-        });
-      });
-
-      // Filter friends list
-      document.getElementById('filterFriends').addEventListener('input', function () {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('#friendsList .col-md-6').forEach(col => {
-          const name = col.dataset.name || '';
-          col.style.display = name.includes(q) ? '' : 'none';
-        });
-      });
-
-      // Add friend feedback
-      document.getElementById('addFriendBtn').addEventListener('click', () => {
-        const val = document.getElementById('friendSearch').value.trim();
-        const fb = document.getElementById('searchFeedback');
-        if (!val) {
-          fb.style.display = '';
-          fb.style.color = '#fca5a5';
-          fb.textContent = 'Please enter a username to search.';
-          return;
-        }
-        fb.style.display = '';
-        fb.style.color = 'var(--p2)';
-        fb.textContent = `Friend request sent to "${val}"! ✅`;
-        document.getElementById('friendSearch').value = '';
-        setTimeout(() => { fb.style.display = 'none'; }, 3000);
-      });
-    </script>
   </body>
 </html>
