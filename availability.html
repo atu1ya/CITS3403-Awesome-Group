@@ -182,6 +182,7 @@
           <input
             type="text"
             class="form-control"
+            id="participantName"
             placeholder="Enter your name to get started…"
             value="Alex Johnson"
             style="
@@ -427,7 +428,10 @@
           You can update your availability any time before the deadline.
         </p>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary rounded-pill fw-700 px-4">
+          <button
+            class="btn btn-outline-secondary rounded-pill fw-700 px-4"
+            id="clearAllBtn"
+          >
             Clear All
           </button>
           <a href="results.html" class="btn-join">🎯 Submit Availability</a>
@@ -444,7 +448,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
       // Tile states in cycle order
       const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
@@ -456,26 +459,20 @@
       // Get all tiles
       const tiles = document.querySelectorAll("#avGrid td.tile");
 
-      // ── Tile cycling (click) ──
+      // ── Tile cycling + drag ──
       tiles.forEach((tile) => {
         tile.addEventListener("mousedown", (e) => {
           e.preventDefault();
           isDragging = true;
-
-          // Find current state and get next one
           const current =
             STATES.find((s) => tile.classList.contains(s)) || "t-empty";
           const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
-
-          // Set drag target state to whatever this tile cycles to
           dragTargetState = next;
           paintTile(tile, next);
         });
 
         tile.addEventListener("mouseenter", () => {
-          if (isDragging) {
-            paintTile(tile, dragTargetState);
-          }
+          if (isDragging) paintTile(tile, dragTargetState);
         });
 
         // ── Touch support ──
@@ -499,47 +496,41 @@
             e.preventDefault();
             const touch = e.touches[0];
             const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (el && el.classList.contains("tile")) {
+            if (el && el.classList.contains("tile"))
               paintTile(el, dragTargetState);
-            }
           },
           { passive: false },
         );
       });
 
-      // Stop dragging when mouse is released anywhere on page
+      // Stop dragging when mouse released
       document.addEventListener("mouseup", () => {
         isDragging = false;
         dragTargetState = null;
       });
-
       document.addEventListener("touchend", () => {
         isDragging = false;
         dragTargetState = null;
       });
 
-      // ── Paint a tile with a given state ──
+      // ── Paint a tile ──
       function paintTile(tile, state) {
         tile.classList.remove(...STATES);
         tile.classList.add(state);
       }
 
       // ── Clear All button ──
-      document
-        .querySelector(".btn.btn-outline-secondary")
-        .addEventListener("click", () => {
-          tiles.forEach((tile) => {
-            tile.classList.remove(...STATES);
-            tile.classList.add("t-empty");
-          });
+      document.getElementById("clearAllBtn").addEventListener("click", () => {
+        tiles.forEach((tile) => {
+          tile.classList.remove(...STATES);
+          tile.classList.add("t-empty");
         });
+      });
 
       // ── Name validation + submit ──
       document.querySelector(".btn-join").addEventListener("click", (e) => {
         e.preventDefault();
-        const nameInput =
-          document.getElementById("participantName") ||
-          document.querySelector(".name-box input");
+        const nameInput = document.getElementById("participantName");
 
         if (!nameInput || nameInput.value.trim() === "") {
           nameInput.style.borderColor = "#fca5a5";
@@ -548,10 +539,8 @@
           return;
         }
 
-        // Reset border if valid
         nameInput.style.borderColor = "#ddd6fe";
 
-        // Show success message then redirect
         const btn = document.querySelector(".btn-join");
         btn.textContent = "✅ Submitted!";
         btn.style.background = "linear-gradient(135deg, #16a34a, #4ade80)";
