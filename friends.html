@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – Friends</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
+            <li class="nav-item"><a class="nav-link" href="schedule.html"><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a></li>
+            <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
+          </ul>
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="#" class="btn-nav-outline">Login</a>
+            <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="space-bg">
+      <div class="container">
+        <div class="row g-4">
+          <!-- Sidebar -->
+          <div class="col-lg-3">
+            <div class="profile-card">
+              <div class="profile-card-banner">
+                <span class="deco" style="top:10px;left:20px">⭐</span>
+                <span class="deco" style="top:20px;right:40px">🌙</span>
+                <span class="deco" style="bottom:8px;left:60px">✨</span>
+              </div>
+              <div style="position:relative;display:inline-block;left:50%;transform:translateX(-50%);">
+                <div class="profile-avatar">🐱</div>
+                <span class="online-badge"></span>
+              </div>
+              <div class="profile-card-body mt-2">
+                <div class="fw-900 fs-5">Jane Smith</div>
+                <div class="text-muted small fw-600 mb-1">@janesmeet</div>
+                <div class="d-inline-block px-3 py-1 rounded-pill mb-3" style="background:linear-gradient(90deg,#ede9fe,#fce7f3);font-size:.78rem;font-weight:700;color:var(--p2);">
+                  ✨ Organizing wizard
+                </div>
+                <div class="text-muted small fst-italic mb-3">"Life's too short for bad meeting times 🕐"</div>
+                <div class="d-flex justify-content-between mb-1" style="font-size:.72rem;font-weight:800;color:var(--muted);">
+                  <span>LEVEL 7 · PLANNER</span><span>640 / 1000 XP</span>
+                </div>
+                <div class="xp-bar mb-3"><div class="xp-fill" style="width:64%"></div></div>
+                <div class="d-flex gap-2 mb-4">
+                  <div class="stat-pill"><div class="val">5</div><div class="lbl">Rooms</div></div>
+                  <div class="stat-pill"><div class="val">12</div><div class="lbl">Friends</div></div>
+                  <div class="stat-pill"><div class="val">28</div><div class="lbl">Meets</div></div>
+                </div>
+                <a href="dashboard.html" class="side-menu-item"><span class="side-icon">🏠</span> My Rooms</a>
+                <a href="schedule.html" class="side-menu-item"><span class="side-icon">🗓️</span> My Schedule</a>
+                <a href="friends.html" class="side-menu-item active"><span class="side-icon">👥</span> Friends</a>
+                <a href="notifications.html" class="side-menu-item">
+                  <span class="side-icon">🔔</span> Notifications
+                  <span class="badge ms-auto" style="background:var(--pink);font-size:.65rem;">3</span>
+                </a>
+                <a href="settings.html" class="side-menu-item"><span class="side-icon">⚙️</span> Settings</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <div>
+                <p class="section-sub">Social</p>
+                <h2 class="fw-900 mb-0" style="font-size:1.6rem;">👥 Friends</h2>
+              </div>
+            </div>
+
+            <!-- Search + Add -->
+            <div class="sm-card mb-4">
+              <div class="sm-card-body">
+                <label class="fw-800 mb-2" style="font-size:.85rem;color:var(--p2);">ADD A FRIEND</label>
+                <div class="d-flex gap-2">
+                  <input type="text" id="friendSearch" class="form-control" placeholder="Search by username or name…"
+                    style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;" />
+                  <button id="addFriendBtn" class="btn-room px-4" style="white-space:nowrap;">
+                    <i class="bi bi-person-plus-fill me-1"></i>Add
+                  </button>
+                </div>
+                <div id="searchFeedback" class="mt-2" style="font-size:.82rem;font-weight:700;display:none;"></div>
+              </div>
+            </div>
+
+            <!-- Pending requests -->
+            <div class="section-header mb-3">
+              Pending Requests
+              <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">2</span>
+            </div>
+            <div class="row g-3 mb-4" id="pendingList">
+              <div class="col-md-6">
+                <div class="friend-card pending">
+                  <div class="part-circle" style="background:linear-gradient(135deg,#fbbf24,#f472b6);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">🐼</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">PandaX</div>
+                    <div class="text-muted small">@pandax · 3 mutual rooms</div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm rounded-pill fw-700 accept-btn" style="background:var(--p2);color:#fff;border:none;padding:4px 14px;">Accept</button>
+                    <button class="btn btn-sm rounded-pill fw-700 decline-btn" style="background:#f3f4f6;color:var(--muted);border:none;padding:4px 14px;">Decline</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="friend-card pending">
+                  <div class="part-circle" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">🐻</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">BearCo</div>
+                    <div class="text-muted small">@bearco · 1 mutual room</div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm rounded-pill fw-700 accept-btn" style="background:var(--p2);color:#fff;border:none;padding:4px 14px;">Accept</button>
+                    <button class="btn btn-sm rounded-pill fw-700 decline-btn" style="background:#f3f4f6;color:var(--muted);border:none;padding:4px 14px;">Decline</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Friends list -->
+            <div class="section-header mb-3">
+              Your Friends
+              <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">12</span>
+            </div>
+
+            <!-- Search filter -->
+            <div class="mb-3">
+              <input type="text" id="filterFriends" class="form-control" placeholder="Filter friends…"
+                style="border:2px solid #ddd6fe;border-radius:12px;font-weight:700;max-width:320px;" />
+            </div>
+
+            <div class="row g-3" id="friendsList">
+              <div class="col-md-6" data-name="mia whitmore">
+                <div class="friend-card">
+                  <div class="part-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">🐱</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">MiaW</div>
+                    <div class="text-muted small">@miaw · Online now</div>
+                    <div class="text-muted small">5 shared rooms</div>
+                  </div>
+                  <div class="d-flex flex-column gap-1 align-items-end">
+                    <span class="online-dot" style="position:static;display:inline-block;"></span>
+                    <button class="btn btn-sm rounded-pill fw-700" style="font-size:.72rem;background:#f3f4f6;border:none;color:var(--p2);">Invite</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6" data-name="fox developer">
+                <div class="friend-card">
+                  <div class="part-circle" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">🦊</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">FoxDev</div>
+                    <div class="text-muted small">@foxdev · Online now</div>
+                    <div class="text-muted small">3 shared rooms</div>
+                  </div>
+                  <div class="d-flex flex-column gap-1 align-items-end">
+                    <span class="online-dot" style="position:static;display:inline-block;"></span>
+                    <button class="btn btn-sm rounded-pill fw-700" style="font-size:.72rem;background:#f3f4f6;border:none;color:var(--p2);">Invite</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6" data-name="luna bright">
+                <div class="friend-card">
+                  <div class="part-circle" style="background:linear-gradient(135deg,#a78bfa,#ec4899);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">🌙</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">LunaB</div>
+                    <div class="text-muted small">@lunab · Last seen 2h ago</div>
+                    <div class="text-muted small">2 shared rooms</div>
+                  </div>
+                  <div class="d-flex flex-column gap-1 align-items-end">
+                    <button class="btn btn-sm rounded-pill fw-700" style="font-size:.72rem;background:#f3f4f6;border:none;color:var(--p2);">Invite</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6" data-name="sam patel">
+                <div class="friend-card">
+                  <div class="part-circle" style="background:#e5e7eb;width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">😊</div>
+                  <div class="flex-grow-1">
+                    <div class="fw-800">Sam Patel</div>
+                    <div class="text-muted small">@sampatel · Last seen yesterday</div>
+                    <div class="text-muted small">1 shared room</div>
+                  </div>
+                  <div class="d-flex flex-column gap-1 align-items-end">
+                    <button class="btn btn-sm rounded-pill fw-700" style="font-size:.72rem;background:#f3f4f6;border:none;color:var(--p2);">Invite</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">© 2026 SmartMeet · CITS3403 Project · University of Western Australia</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
