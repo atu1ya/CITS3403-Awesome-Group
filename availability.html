@@ -182,6 +182,7 @@
           <input
             type="text"
             class="form-control"
+            id="participantName"
             placeholder="Enter your name to get started…"
             value="Alex Johnson"
             style="
@@ -427,7 +428,10 @@
           You can update your availability any time before the deadline.
         </p>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary rounded-pill fw-700 px-4">
+          <button
+            class="btn btn-outline-secondary rounded-pill fw-700 px-4"
+            id="clearAllBtn"
+          >
             Clear All
           </button>
           <a href="results.html" class="btn-join">🎯 Submit Availability</a>
@@ -444,18 +448,106 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Tile-cycle interaction -->
     <script>
-      const states = ['t-empty', 't-free', 't-maybe', 't-busy'];
-      document.querySelectorAll('#avGrid td.tile').forEach(td => {
-        if (td.classList.contains('t-best')) return;
-        td.addEventListener('click', () => {
-          const cur = states.find(s => td.classList.contains(s)) || 't-empty';
-          const next = states[(states.indexOf(cur) + 1) % states.length];
-          td.classList.remove(...states);
-          td.classList.add(next);
+      // Tile states in cycle order
+      const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
+
+      // Drag state
+      let isDragging = false;
+      let dragTargetState = null;
+
+      // Get all tiles
+      const tiles = document.querySelectorAll("#avGrid td.tile");
+
+      // ── Tile cycling + drag ──
+      tiles.forEach((tile) => {
+        tile.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          isDragging = true;
+          const current =
+            STATES.find((s) => tile.classList.contains(s)) || "t-empty";
+          const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
+          dragTargetState = next;
+          paintTile(tile, next);
         });
+
+        tile.addEventListener("mouseenter", () => {
+          if (isDragging) paintTile(tile, dragTargetState);
+        });
+
+        // ── Touch support ──
+        tile.addEventListener(
+          "touchstart",
+          (e) => {
+            e.preventDefault();
+            isDragging = true;
+            const current =
+              STATES.find((s) => tile.classList.contains(s)) || "t-empty";
+            const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
+            dragTargetState = next;
+            paintTile(tile, next);
+          },
+          { passive: false },
+        );
+
+        tile.addEventListener(
+          "touchmove",
+          (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (el && el.classList.contains("tile"))
+              paintTile(el, dragTargetState);
+          },
+          { passive: false },
+        );
+      });
+
+      // Stop dragging when mouse released
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+        dragTargetState = null;
+      });
+      document.addEventListener("touchend", () => {
+        isDragging = false;
+        dragTargetState = null;
+      });
+
+      // ── Paint a tile ──
+      function paintTile(tile, state) {
+        tile.classList.remove(...STATES);
+        tile.classList.add(state);
+      }
+
+      // ── Clear All button ──
+      document.getElementById("clearAllBtn").addEventListener("click", () => {
+        tiles.forEach((tile) => {
+          tile.classList.remove(...STATES);
+          tile.classList.add("t-empty");
+        });
+      });
+
+      // ── Name validation + submit ──
+      document.querySelector(".btn-join").addEventListener("click", (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById("participantName");
+
+        if (!nameInput || nameInput.value.trim() === "") {
+          nameInput.style.borderColor = "#fca5a5";
+          nameInput.placeholder = "Please enter your name first!";
+          nameInput.focus();
+          return;
+        }
+
+        nameInput.style.borderColor = "#ddd6fe";
+
+        const btn = document.querySelector(".btn-join");
+        btn.textContent = "✅ Submitted!";
+        btn.style.background = "linear-gradient(135deg, #16a34a, #4ade80)";
+
+        setTimeout(() => {
+          window.location.href = "results.html";
+        }, 1000);
       });
     </script>
   </body>

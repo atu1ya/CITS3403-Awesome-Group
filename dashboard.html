@@ -171,7 +171,7 @@
               >
             </div>
 
-            <div class="notif-bar mb-4">
+            <div class="notif-bar mb-4" id="notifBar">
               <span style="font-size: 1.4rem">🔔</span>
               <div class="flex-grow-1">
                 <span class="fw-800">PandaX</span> just submitted their
@@ -187,7 +187,7 @@
             </div>
 
             <p class="section-sub">Active Rooms</p>
-            <div class="section-header">
+            <div class="section-header" id="roomsHeader">
               Rooms You Created
               <span
                 class="badge rounded-pill ms-2"
@@ -200,8 +200,8 @@
               >
             </div>
 
-            <div class="row g-3">
-              <div class="col-md-6">
+            <div class="row g-3" id="roomsGrid">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -280,7 +280,7 @@
                         >Results</a
                       >
                       <button
-                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
                         title="Copy share link"
                       >
                         <i class="bi bi-share"></i>
@@ -290,7 +290,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -380,7 +380,7 @@
                         >Results</a
                       >
                       <button
-                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
                         title="Copy share link"
                       >
                         <i class="bi bi-share"></i>
@@ -390,7 +390,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -491,7 +491,7 @@
                         >Results</a
                       >
                       <button
-                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
                         title="Copy share link"
                       >
                         <i class="bi bi-share"></i>
@@ -501,7 +501,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -558,7 +558,7 @@
                         >Results</a
                       >
                       <button
-                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3"
+                        class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
                         title="Copy share link"
                       >
                         <i class="bi bi-share"></i>
@@ -568,7 +568,8 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <!-- CTA card -->
+              <div class="col-md-6 room-col" id="ctaCard">
                 <a href="create-event.html" class="text-decoration-none">
                   <div
                     class="room-card d-flex flex-column align-items-center justify-content-center py-5"
@@ -609,7 +610,7 @@
             </div>
 
             <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -680,7 +681,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div class="col-md-6 room-col">
                 <div class="room-card">
                   <div
                     class="room-card-top"
@@ -787,5 +788,129 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ── Dismiss notification bar ──
+      const notifBar = document.getElementById("notifBar");
+      if (notifBar) {
+        const dismissBtn = document.createElement("button");
+        dismissBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        dismissBtn.style.cssText = `
+          background: none; border: none; cursor: pointer;
+          color: var(--p2); font-size: .9rem; padding: 0;
+          margin-left: auto; flex-shrink: 0;
+        `;
+        notifBar.appendChild(dismissBtn);
+        dismissBtn.addEventListener("click", () => {
+          notifBar.style.transition = "opacity .3s";
+          notifBar.style.opacity = "0";
+          setTimeout(() => notifBar.remove(), 300);
+        });
+      }
+
+      // ── Filter tabs ──
+      const roomsHeader = document.getElementById("roomsHeader");
+      const filterBar = document.createElement("div");
+      filterBar.style.cssText =
+        "display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;";
+      filterBar.innerHTML = `
+        <button class="filter-btn active" data-filter="all"
+          style="border:2px solid var(--p2);background:var(--p2);color:#fff;border-radius:20px;font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">All</button>
+        <button class="filter-btn" data-filter="awaiting"
+          style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">Awaiting</button>
+        <button class="filter-btn" data-filter="confirmed"
+          style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">Confirmed</button>
+        <button class="filter-btn" data-filter="invited"
+          style="border:2px solid var(--p4);background:var(--p4);color:var(--p2);border-radius:20px;font-weight:800;font-size:.78rem;padding:5px 16px;cursor:pointer;transition:all .2s;">Invited</button>
+      `;
+      roomsHeader.parentNode.insertBefore(filterBar, roomsHeader);
+
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll(".filter-btn").forEach((b) => {
+            b.style.background = "var(--p4)";
+            b.style.color = "var(--p2)";
+            b.style.borderColor = "var(--p4)";
+          });
+          this.style.background = "var(--p2)";
+          this.style.color = "#fff";
+          this.style.borderColor = "var(--p2)";
+
+          const filter = this.dataset.filter;
+          const allCols = document.querySelectorAll(".room-col");
+
+          allCols.forEach((col) => {
+            // Always show CTA card
+            if (col.id === "ctaCard") {
+              col.style.display = "";
+              return;
+            }
+
+            if (filter === "all") {
+              col.style.display = "";
+              return;
+            }
+
+            const chip = col.querySelector(".status-chip");
+            if (!chip) {
+              col.style.display = "none";
+              return;
+            }
+
+            const isAwaiting = chip.classList.contains("chip-waiting");
+            const isConfirmed = chip.classList.contains("chip-done");
+            const isInvited = chip.classList.contains("chip-invited");
+
+            if (filter === "awaiting" && isAwaiting) col.style.display = "";
+            else if (filter === "confirmed" && isConfirmed)
+              col.style.display = "";
+            else if (filter === "invited" && isInvited) col.style.display = "";
+            else col.style.display = "none";
+          });
+
+          // Empty state
+          const existingEmpty = document.querySelector("#emptyState");
+          if (existingEmpty) existingEmpty.remove();
+
+          const visibleCards = [
+            ...document.querySelectorAll(".room-col"),
+          ].filter((c) => c.style.display !== "none" && c.id !== "ctaCard");
+
+          if (visibleCards.length === 0) {
+            const empty = document.createElement("div");
+            empty.id = "emptyState";
+            empty.style.cssText =
+              "text-align:center;padding:40px 20px;color:var(--muted);font-weight:700;";
+            empty.innerHTML = `<div style="font-size:2.5rem;margin-bottom:12px;">🔍</div><div style="font-size:1rem;">No ${filter} rooms found.</div>`;
+            document.getElementById("roomsGrid").appendChild(empty);
+          }
+        });
+      });
+
+      // ── Share link buttons ──
+      document.querySelectorAll(".share-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const fakeLink = `https://smartmeet.app/room/${Math.random().toString(36).substring(2, 10)}`;
+          navigator.clipboard
+            .writeText(fakeLink)
+            .then(() => {
+              const original = this.innerHTML;
+              this.innerHTML = '<i class="bi bi-check-lg"></i>';
+              this.style.background = "#d1fae5";
+              this.style.borderColor = "#6ee7b7";
+              setTimeout(() => {
+                this.innerHTML = original;
+                this.style.background = "";
+                this.style.borderColor = "";
+              }, 2000);
+            })
+            .catch(() => {
+              this.innerHTML = '<i class="bi bi-check-lg"></i>';
+              setTimeout(() => {
+                this.innerHTML = '<i class="bi bi-share"></i>';
+              }, 2000);
+            });
+        });
+      });
+    </script>
   </body>
 </html>

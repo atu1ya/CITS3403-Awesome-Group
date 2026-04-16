@@ -134,32 +134,83 @@
 
     <div class="container py-5" style="max-width: 900px">
       <!-- Best Time Card -->
-      <div class="best-card mb-4">
+      <div class="best-card mb-4" id="bestCard">
         <div class="row align-items-center g-3">
           <div class="col-md-8">
             <div class="best-time-label">🏆 Recommended Meeting Time</div>
-            <div class="best-time-main">Wednesday 8 May</div>
-            <div class="best-time-main" style="color: #bbf7d0">
+            <div class="best-time-main" id="bestDay">Wednesday 8 May</div>
+            <div class="best-time-main" id="bestTime" style="color: #bbf7d0">
               10:00 AM – 11:00 AM
             </div>
             <p
               class="mt-3 mb-0"
+              id="bestMeta"
               style="opacity: 0.9; font-size: 0.95rem; font-weight: 700"
             >
               ✅ 4 of 5 available &nbsp;·&nbsp; 0 conflicts &nbsp;·&nbsp; 1 hour
             </p>
           </div>
           <div class="col-md-4 d-flex flex-column gap-2">
-            <button class="btn-confirm w-100">📅 Confirm This Time</button>
-            <button class="btn-share w-100">🔗 Share with Team</button>
+            <button class="btn-confirm w-100" id="confirmBtn">
+              📅 Confirm This Time
+            </button>
+            <button class="btn-share w-100" id="notifyBtn">
+              📩 Notify Participants
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Runner-up Slots -->
-      <p class="section-label">🥈 Other Good Options</p>
-      <div class="d-flex flex-column gap-3 mb-5">
-        <div class="runnerup-card">
+      <!-- All Options -->
+      <p class="section-label">🏅 All Options</p>
+      <div class="d-flex flex-column gap-3 mb-5" id="allOptions">
+        <div
+          class="runnerup-card"
+          id="slot-1st"
+          style="
+            border: 2px solid #a78bfa;
+            box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+          "
+        >
+          <div
+            class="runnerup-rank rank-1"
+            style="background: #ede9fe; color: var(--p2)"
+          >
+            1st
+          </div>
+          <div class="flex-grow-1">
+            <div class="runnerup-time">
+              Wednesday 8 May · 10:00 AM – 11:00 AM
+            </div>
+            <div class="runnerup-meta">4 of 5 available · 0 conflicts</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div
+              class="d-flex justify-content-between mb-1"
+              style="font-size: 0.72rem; font-weight: 800; color: var(--muted)"
+            >
+              <span>Score</span><span>4 / 5</span>
+            </div>
+            <div class="score-bar-track">
+              <div
+                class="score-bar-fill"
+                style="
+                  width: 100%;
+                  background: linear-gradient(90deg, #16a34a, #4ade80);
+                "
+              ></div>
+            </div>
+          </div>
+          <button
+            class="btn-confirm slot-select-btn"
+            style="font-size: 0.82rem; padding: 8px 18px"
+            disabled
+          >
+            ✅ Selected
+          </button>
+        </div>
+
+        <div class="runnerup-card" id="slot-2nd">
           <div class="runnerup-rank rank-2">2nd</div>
           <div class="flex-grow-1">
             <div class="runnerup-time">Thursday 9 May · 9:00 AM – 10:00 AM</div>
@@ -183,14 +234,14 @@
             </div>
           </div>
           <button
-            class="btn-confirm"
+            class="btn-confirm slot-select-btn"
             style="font-size: 0.82rem; padding: 8px 18px"
           >
             Select
           </button>
         </div>
 
-        <div class="runnerup-card">
+        <div class="runnerup-card" id="slot-3rd">
           <div class="runnerup-rank rank-3">3rd</div>
           <div class="flex-grow-1">
             <div class="runnerup-time">Monday 6 May · 1:00 PM – 2:00 PM</div>
@@ -214,7 +265,7 @@
             </div>
           </div>
           <button
-            class="btn-confirm"
+            class="btn-confirm slot-select-btn"
             style="
               font-size: 0.82rem;
               padding: 8px 18px;
@@ -768,11 +819,7 @@
         </div>
       </div>
 
-      <!-- Action buttons -->
-      <div class="d-flex gap-3 flex-wrap justify-content-center mb-3">
-        <button class="btn-confirm">🎉 Confirm Wednesday 8 May</button>
-        <button class="btn-share">📩 Notify Participants</button>
-      </div>
+      <!-- Back button only -->
       <div class="d-flex justify-content-center">
         <a
           href="dashboard.html"
@@ -792,5 +839,158 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ── Helper: reset confirmed state ──
+      function resetConfirm() {
+        const banner = document.querySelector("#confirmBanner");
+        if (banner) banner.remove();
+
+        const confirmBtn = document.getElementById("confirmBtn");
+        confirmBtn.textContent = "📅 Confirm This Time";
+        confirmBtn.style.background = "";
+        confirmBtn.disabled = false;
+
+        const notifyBtn = document.getElementById("notifyBtn");
+        notifyBtn.textContent = "📩 Notify Participants";
+        notifyBtn.disabled = false;
+        notifyBtn.style.opacity = "";
+        notifyBtn.style.background = "";
+      }
+
+      // ── Helper: reset all slot cards ──
+      function resetAllSlots() {
+        document.querySelectorAll(".runnerup-card").forEach((c) => {
+          c.style.opacity = "1";
+          c.style.border = "2px solid var(--p4)";
+          c.style.boxShadow = "";
+          const btn = c.querySelector(".slot-select-btn");
+          btn.textContent = "Select";
+          btn.disabled = false;
+          btn.style.background = "";
+        });
+      }
+
+      // ── Helper: show confirmed state ──
+      function confirmMeeting() {
+        const confirmBtn = document.getElementById("confirmBtn");
+        confirmBtn.textContent = "✅ Confirmed!";
+        confirmBtn.style.background =
+          "linear-gradient(135deg, #16a34a, #4ade80)";
+        confirmBtn.disabled = true;
+
+        const bestCard = document.querySelector(".best-card");
+        if (!document.querySelector("#confirmBanner")) {
+          const banner = document.createElement("div");
+          banner.id = "confirmBanner";
+          banner.innerHTML =
+            '🎉 Meeting time confirmed! Click "Notify Participants" to inform your team.';
+          banner.style.cssText = `
+            background: linear-gradient(90deg, #d1fae5, #a7f3d0);
+            border: 2px solid #6ee7b7;
+            border-radius: 14px;
+            padding: 14px 20px;
+            font-weight: 800;
+            font-size: .95rem;
+            color: #065f46;
+            margin-bottom: 16px;
+            text-align: center;
+          `;
+          bestCard.parentNode.insertBefore(banner, bestCard);
+        }
+      }
+
+      // ── Confirm button ──
+      document
+        .getElementById("confirmBtn")
+        .addEventListener("click", confirmMeeting);
+
+      // ── Notify Participants button ──
+      document
+        .getElementById("notifyBtn")
+        .addEventListener("click", function () {
+          if (!document.querySelector("#confirmBanner")) {
+            this.textContent = "⚠️ Confirm a time first!";
+            this.style.background = "linear-gradient(135deg, #f59e0b, #fbbf24)";
+            setTimeout(() => {
+              this.textContent = "📩 Notify Participants";
+              this.style.background = "";
+            }, 2000);
+            return;
+          }
+          this.textContent = "📩 Notifications Sent!";
+          this.disabled = true;
+          this.style.opacity = "0.7";
+        });
+
+      // ── Slot select buttons ──
+      document.querySelectorAll(".slot-select-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          if (this.disabled) return;
+
+          const card = this.closest(".runnerup-card");
+          const time = card.querySelector(".runnerup-time").textContent;
+          const meta = card.querySelector(".runnerup-meta").textContent;
+
+          // Reset confirmed state and all slot cards
+          resetConfirm();
+          resetAllSlots();
+
+          // Update best card
+          document.getElementById("bestDay").textContent = time
+            .split("·")[0]
+            .trim();
+          document.getElementById("bestTime").textContent =
+            time.split("·")[1]?.trim() || "";
+          document.getElementById("bestMeta").textContent = `✅ ${meta}`;
+
+          // Highlight selected card, dim others
+          document.querySelectorAll(".runnerup-card").forEach((c) => {
+            c.style.opacity = "0.45";
+            c.style.border = "2px solid var(--p4)";
+          });
+          card.style.opacity = "1";
+          card.style.border = "2px solid #a78bfa";
+          card.style.boxShadow = "0 0 0 3px rgba(109,40,217,.15)";
+          this.textContent = "✅ Selected";
+          this.disabled = true;
+
+          // Remove existing switch banner before inserting new one
+          const existingBanner = document.querySelector("#switchBanner");
+          if (existingBanner) existingBanner.remove();
+
+          const banner = document.createElement("div");
+          banner.id = "switchBanner";
+          banner.innerHTML = `🔄 Switched to ${time.split("·")[0].trim()}`;
+          banner.style.cssText = `
+            background: linear-gradient(90deg, #ede9fe, #fce7f3);
+            border: 2px solid #ddd6fe;
+            border-radius: 14px;
+            padding: 12px 20px;
+            font-weight: 800;
+            font-size: .9rem;
+            color: #6d28d9;
+            margin-bottom: 16px;
+            text-align: center;
+          `;
+          document
+            .querySelector(".best-card")
+            .parentNode.insertBefore(
+              banner,
+              document.querySelector(".best-card"),
+            );
+          setTimeout(() => banner.remove(), 3000);
+        });
+      });
+
+      // ── Remind button ──
+      document.querySelectorAll(".btn-remind").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          this.textContent = "✅ Reminded!";
+          this.disabled = true;
+          this.style.borderColor = "#86efac";
+          this.style.color = "#065f46";
+        });
+      });
+    </script>
   </body>
 </html>
