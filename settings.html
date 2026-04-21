@@ -611,8 +611,7 @@
             document.getElementById("sidebarName").textContent = displayName;
           if (username)
             document.getElementById("sidebarUsername").textContent = username;
-          if (bio)
-            document.getElementById("sidebarBio").textContent = `"${bio}"`;
+          if (bio) document.getElementById("sidebarBio").textContent = bio;
 
           const original = this.textContent;
           this.textContent = "✅ Saved!";
