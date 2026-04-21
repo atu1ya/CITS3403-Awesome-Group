@@ -206,6 +206,7 @@
               Pending Requests
               <span
                 class="badge rounded-pill ms-2"
+                id="pendingBadge"
                 style="
                   background: var(--p4);
                   color: var(--p2);
@@ -310,6 +311,7 @@
               Your Friends
               <span
                 class="badge rounded-pill ms-2"
+                id="friendsBadge"
                 style="
                   background: var(--p4);
                   color: var(--p2);
@@ -510,9 +512,7 @@
           setTimeout(() => card.remove(), 300);
 
           // Update pending badge
-          const pendingBadge = document
-            .querySelector("#pendingList")
-            .previousElementSibling.querySelector(".badge");
+          const pendingBadge = document.getElementById("pendingBadge");
           if (pendingBadge)
             pendingBadge.textContent = Math.max(
               0,
@@ -520,9 +520,7 @@
             );
 
           // Update friends badge
-          const friendsBadge = document
-            .querySelector("#friendsList")
-            .previousElementSibling.querySelector(".badge");
+          const friendsBadge = document.getElementById("friendsBadge");
           if (friendsBadge)
             friendsBadge.textContent = parseInt(friendsBadge.textContent) + 1;
 
@@ -545,9 +543,7 @@
           setTimeout(() => card.remove(), 300);
 
           // Update pending badge
-          const pendingBadge = document
-            .querySelector("#pendingList")
-            .previousElementSibling.querySelector(".badge");
+          const pendingBadge = document.getElementById("pendingBadge");
           if (pendingBadge)
             pendingBadge.textContent = Math.max(
               0,
