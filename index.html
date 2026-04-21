@@ -26,7 +26,7 @@
           <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
         </ul>
         <div class="d-flex gap-2 mt-2 mt-lg-0">
-          <a href="#" class="btn-nav-outline">Login</a>
+          <a href="#" class="btn-nav-outline" id="loginNavBtn">Login</a>
           <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
         </div>
       </div>
@@ -85,7 +85,7 @@
               Create Event
               <span class="arrow"><i class="bi bi-chevron-right"></i></span>
             </a>
-            <a href="#" class="menu-btn">
+            <a href="#" class="menu-btn" id="loginMenuBtn">
               <span class="menu-icon" style="background:linear-gradient(135deg,#4ade80,#06b6d4);">🔑</span>
               Login
               <span class="arrow"><i class="bi bi-chevron-right"></i></span>
@@ -296,6 +296,41 @@
       setTimeout(type, deleting ? 40 : 65);
     }
     type();
+
+    // ── Login button interaction ──
+    function handleLoginClick(e) {
+      e.preventDefault();
+      const btn = e.currentTarget;
+      const original = btn.innerHTML;
+      btn.innerHTML = btn.innerHTML.replace(/Login/, '🔒 Coming Soon!');
+      btn.style.opacity = '0.7';
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.style.opacity = '';
+      }, 2000);
+    }
+    document.getElementById('loginNavBtn').addEventListener('click', handleLoginClick);
+    document.getElementById('loginMenuBtn').addEventListener('click', handleLoginClick);
+
+    // ── Scroll reveal ──
+    const revealEls = document.querySelectorAll('.feature-tile, .step-pill');
+    revealEls.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => observer.observe(el));
   </script>
 </body>
 </html>
