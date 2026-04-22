@@ -434,10 +434,16 @@
       linkBox.innerHTML = `
         🔗 Your room link:<br>
         <span style="font-family:monospace;font-size:.82rem;word-break:break-all;">${link}</span><br>
-        <button id="copyLinkBtn" style="margin-top:8px;background:var(--p2);color:#fff;border:none;
-          border-radius:20px;padding:6px 18px;font-weight:800;font-size:.78rem;cursor:pointer;">
-          Copy Link
-        </button>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+          <button id="copyLinkBtn" style="background:var(--p2);color:#fff;border:none;
+            border-radius:20px;padding:6px 18px;font-weight:800;font-size:.78rem;cursor:pointer;">
+            Copy Link
+          </button>
+          <a href="availability.html" style="display:inline-block;background:#f3f4f6;color:var(--p2);
+            border-radius:20px;padding:6px 18px;font-weight:800;font-size:.78rem;text-decoration:none;">
+            Continue →
+          </a>
+        </div>
       `;
       this.parentNode.insertAdjacentElement('afterend', linkBox);
 
@@ -450,8 +456,6 @@
           setTimeout(() => { this.textContent = 'Copy Link'; }, 2000);
         });
       });
-
-      setTimeout(() => { window.location.href = 'availability.html'; }, 3000);
     });
 
     // ── Initial render ──
