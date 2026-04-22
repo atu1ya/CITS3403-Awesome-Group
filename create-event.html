@@ -106,7 +106,7 @@
                 </div>
               </div>
               <p class="small text-muted mb-2">Selected dates:</p>
-              <div class="d-flex flex-wrap gap-2 mb-4">
+              <div class="d-flex flex-wrap gap-2 mb-4" id="dateTilesContainer">
                 <span class="date-tile">📅 Mon 6 May</span>
                 <span class="date-tile">📅 Tue 7 May</span>
                 <span class="date-tile">📅 Wed 8 May</span>
@@ -140,7 +140,7 @@
                   </select>
                 </div>
               </div>
-              <div class="time-preview">
+              <div class="time-preview" id="timePreviewBox">
                 <p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">
                   ⏰ Slots from <strong>9:00 AM</strong> to <strong>5:00 PM</strong> · <strong>1 hour</strong> blocks
                 </p>
@@ -177,14 +177,14 @@
                 <p class="fw-900 mb-2" style="color:var(--p2);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;">Room Summary</p>
                 <div class="small fw-700">
                   <p class="mb-1">🏠 <span id="summaryName">Team Sprint Planning 🚀</span></p>
-                  <p class="mb-1">📅 6 – 10 May 2024 &nbsp;·&nbsp; 9:00 AM – 5:00 PM</p>
-                  <p class="mb-0">⏱ 1 hour slots &nbsp;·&nbsp; 80 total tiles</p>
+                  <p class="mb-1" id="summaryDates">📅 6 – 10 May 2024 &nbsp;·&nbsp; 9:00 AM – 5:00 PM</p>
+                  <p class="mb-0" id="summaryDuration">⏱ 1 hour slots &nbsp;·&nbsp; 80 total tiles</p>
                 </div>
               </div>
 
               <div class="d-flex justify-content-between gap-2 mb-3">
                 <button class="btn-back" onclick="goToStep(2)">← Back</button>
-                <a href="availability.html" class="btn-create d-inline-block text-center text-decoration-none" style="flex:1;">
+                <a href="availability.html" class="btn-create d-inline-block text-center text-decoration-none" id="createBtn" style="flex:1;">
                   🎉 Create Room &amp; Get Link
                 </a>
               </div>
@@ -214,15 +214,15 @@
             </div>
             <div class="preview-row">
               <span class="preview-icon">📅</span>
-              <span class="preview-val">6 – 10 May 2024</span>
+              <span class="preview-val" id="previewDates">6 – 10 May 2024</span>
             </div>
             <div class="preview-row">
               <span class="preview-icon">⏰</span>
-              <span class="preview-val">9:00 AM – 5:00 PM · 1 hour</span>
+              <span class="preview-val" id="previewTime">9:00 AM – 5:00 PM · 1 hour</span>
             </div>
             <div class="preview-row">
               <span class="preview-icon">👤</span>
-              <span class="preview-val">Jane Smith 🌟</span>
+              <span class="preview-val" id="previewOrg">Jane Smith 🌟</span>
             </div>
           </div>
         </div>
@@ -249,8 +249,139 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ── Multi-step navigation ──
+    // ── Date / time helpers ──
+    const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function parseTimeToHour(str) {
+      const [time, period] = str.split(' ');
+      let h = parseInt(time);
+      if (period === 'PM' && h !== 12) h += 12;
+      if (period === 'AM' && h === 12) h = 0;
+      return h;
+    }
+
+    function parseDurationMins(val) {
+      if (val.includes('30')) return 30;
+      if (val.includes('1.5')) return 90;
+      if (val.includes('2')) return 120;
+      return 60;
+    }
+
+    function formatDateRange(from, to) {
+      if (!from || !to) return '—';
+      const f = new Date(from), t = new Date(to);
+      if (isNaN(f) || isNaN(t)) return '—';
+      if (f.getMonth() === t.getMonth() && f.getFullYear() === t.getFullYear())
+        return `${f.getDate()} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`;
+      return `${f.getDate()} ${MONTH_NAMES[f.getMonth()]} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`;
+    }
+
+    function calcTileStats() {
+      const from = new Date(dateFromEl.value);
+      const to   = new Date(dateToEl.value);
+      if (isNaN(from) || isNaN(to) || from > to) return null;
+      const days = Math.round((to - from) / (1000*60*60*24)) + 1;
+      const slotsPerDay = Math.floor(
+        (parseTimeToHour(timeEndEl.value) - parseTimeToHour(timeStartEl.value)) * 60
+        / parseDurationMins(durationEl.value)
+      );
+      return { days, slotsPerDay, total: days * slotsPerDay };
+    }
+
+    // ── Element refs ──
+    const roomNameEl  = document.getElementById('roomName');
+    const roomDescEl  = document.getElementById('roomDesc');
+    const dateFromEl  = document.getElementById('dateFrom');
+    const dateToEl    = document.getElementById('dateTo');
+    const timeStartEl = document.getElementById('timeStart');
+    const timeEndEl   = document.getElementById('timeEnd');
+    const durationEl  = document.getElementById('duration');
+    const orgNameEl   = document.getElementById('orgName');
+
+    // ── Update date tiles ──
+    function updateDateTiles() {
+      const container = document.getElementById('dateTilesContainer');
+      const from = dateFromEl.value, to = dateToEl.value;
+      if (!from || !to || new Date(from) > new Date(to)) {
+        container.innerHTML = '<span class="text-muted small">Select a valid date range above.</span>';
+        return;
+      }
+      const dates = [];
+      const cur = new Date(from), end = new Date(to);
+      while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+      const shown = dates.slice(0, 14);
+      container.innerHTML = shown.map(d =>
+        `<span class="date-tile">📅 ${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>`
+      ).join('');
+      if (dates.length > 14)
+        container.innerHTML += `<span class="date-tile" style="opacity:.6">+${dates.length - 14} more</span>`;
+    }
+
+    // ── Update time preview box ──
+    function updateTimePreview() {
+      const box = document.getElementById('timePreviewBox');
+      const stats = calcTileStats();
+      const timeText = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+      if (!stats) {
+        box.innerHTML = `<p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">⏰ ${timeText}</p>`;
+        return;
+      }
+      box.innerHTML = `
+        <p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">
+          ⏰ Slots from <strong>${timeStartEl.value}</strong> to <strong>${timeEndEl.value}</strong> · <strong>${durationEl.value}</strong> blocks
+        </p>
+        <p class="mb-0 small text-muted mt-1">${stats.slotsPerDay} time slots over ${stats.days} day${stats.days !== 1 ? 's' : ''} = ${stats.total} total tiles</p>
+      `;
+    }
+
+    // ── Update sidebar preview ──
+    function updatePreview() {
+      const name = roomNameEl.value || 'Untitled Room';
+      const desc = roomDescEl.value || 'No description yet…';
+      const len  = roomDescEl.value.length;
+      document.getElementById('previewTitle').textContent = name;
+      document.getElementById('previewDesc').textContent  = desc;
+      document.getElementById('charCount').textContent    = `${len} / 200`;
+      document.getElementById('charCount').classList.toggle('warn', len > 170);
+      document.getElementById('previewDates').textContent = formatDateRange(dateFromEl.value, dateToEl.value);
+      document.getElementById('previewTime').textContent  = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+      document.getElementById('previewOrg').textContent   = orgNameEl.value || '—';
+    }
+
+    // ── Update step 3 summary ──
+    function updateSummary() {
+      document.getElementById('summaryName').textContent = roomNameEl.value || 'Untitled Room';
+      const stats = calcTileStats();
+      document.getElementById('summaryDates').textContent =
+        `📅 ${formatDateRange(dateFromEl.value, dateToEl.value)} · ${timeStartEl.value} – ${timeEndEl.value}`;
+      document.getElementById('summaryDuration').textContent =
+        stats ? `⏱ ${durationEl.value} slots · ${stats.total} total tiles` : `⏱ ${durationEl.value} slots`;
+    }
+
+    // ── Multi-step navigation with validation ──
     function goToStep(n) {
+      const current = [1,2,3].find(i => document.getElementById('step'+i).classList.contains('active')) || 1;
+
+      if (n > current) {
+        if (current === 1 && !roomNameEl.value.trim()) {
+          roomNameEl.style.borderColor = '#fca5a5';
+          roomNameEl.placeholder = 'Please enter a room name!';
+          roomNameEl.focus();
+          setTimeout(() => { roomNameEl.style.borderColor = ''; }, 2000);
+          return;
+        }
+        if (current === 2) {
+          const from = dateFromEl.value, to = dateToEl.value;
+          if (!from || !to || new Date(from) > new Date(to)) {
+            dateFromEl.style.borderColor = '#fca5a5';
+            dateToEl.style.borderColor   = '#fca5a5';
+            setTimeout(() => { dateFromEl.style.borderColor = ''; dateToEl.style.borderColor = ''; }, 2000);
+            return;
+          }
+        }
+      }
+
       [1,2,3].forEach(i => {
         document.getElementById('step'+i).classList.remove('active');
         const sc = document.getElementById('sc'+i);
@@ -262,35 +393,75 @@
         if (i < 3) document.getElementById('con'+i).classList.toggle('done', i < n);
       });
       document.getElementById('step'+n).classList.add('active');
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       updateSummary();
     }
 
-    // ── Live preview ──
-    const roomNameEl  = document.getElementById('roomName');
-    const roomDescEl  = document.getElementById('roomDesc');
-    const previewTitle = document.getElementById('previewTitle');
-    const previewDesc  = document.getElementById('previewDesc');
-    const charCount    = document.getElementById('charCount');
-    const summaryName  = document.getElementById('summaryName');
-
-    function updatePreview() {
-      const name = roomNameEl.value || 'Untitled Room';
-      const desc = roomDescEl.value || 'No description yet…';
-      const len  = roomDescEl.value.length;
-      previewTitle.textContent = name;
-      previewDesc.textContent  = desc;
-      charCount.textContent    = len + ' / 200';
-      charCount.classList.toggle('warn', len > 170);
-    }
-
-    function updateSummary() {
-      if (summaryName) summaryName.textContent = roomNameEl.value || 'Untitled Room';
-    }
-
+    // ── Event listeners ──
     roomNameEl.addEventListener('input', updatePreview);
     roomDescEl.addEventListener('input', updatePreview);
+    orgNameEl.addEventListener('input', updatePreview);
+    dateFromEl.addEventListener('change', () => { updateDateTiles(); updateTimePreview(); updatePreview(); });
+    dateToEl.addEventListener('change',   () => { updateDateTiles(); updateTimePreview(); updatePreview(); });
+    timeStartEl.addEventListener('change', () => { updateTimePreview(); updatePreview(); });
+    timeEndEl.addEventListener('change',   () => { updateTimePreview(); updatePreview(); });
+    durationEl.addEventListener('change',  () => { updateTimePreview(); updatePreview(); });
+
+    // ── Create Room button ──
+    document.getElementById('createBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (!orgNameEl.value.trim()) {
+        orgNameEl.style.borderColor = '#fca5a5';
+        orgNameEl.focus();
+        setTimeout(() => { orgNameEl.style.borderColor = ''; }, 2000);
+        return;
+      }
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const link = `https://smartmeet.app/room/${code}`;
+
+      this.textContent = '✅ Room Created!';
+      this.style.background = 'linear-gradient(135deg, #16a34a, #4ade80)';
+
+      document.getElementById('generatedLink')?.remove();
+      const linkBox = document.createElement('div');
+      linkBox.id = 'generatedLink';
+      linkBox.style.cssText = `
+        background: linear-gradient(90deg, #ede9fe, #fce7f3);
+        border: 2px solid #ddd6fe; border-radius: 14px;
+        padding: 14px 18px; font-weight: 800; font-size: .88rem;
+        color: #6d28d9; margin-top: 12px; text-align: center;
+      `;
+      linkBox.innerHTML = `
+        🔗 Your room link:<br>
+        <span style="font-family:monospace;font-size:.82rem;word-break:break-all;">${link}</span><br>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+          <button id="copyLinkBtn" style="background:var(--p2);color:#fff;border:none;
+            border-radius:20px;padding:6px 18px;font-weight:800;font-size:.78rem;cursor:pointer;">
+            Copy Link
+          </button>
+          <a href="availability.html" style="display:inline-block;background:#f3f4f6;color:var(--p2);
+            border-radius:20px;padding:6px 18px;font-weight:800;font-size:.78rem;text-decoration:none;">
+            Continue →
+          </a>
+        </div>
+      `;
+      this.parentNode.insertAdjacentElement('afterend', linkBox);
+
+      document.getElementById('copyLinkBtn').addEventListener('click', function() {
+        navigator.clipboard.writeText(link).then(() => {
+          this.textContent = '✅ Copied!';
+          setTimeout(() => { this.textContent = 'Copy Link'; }, 2000);
+        }).catch(() => {
+          this.textContent = '✅ Copied!';
+          setTimeout(() => { this.textContent = 'Copy Link'; }, 2000);
+        });
+      });
+    });
+
+    // ── Initial render ──
     updatePreview();
+    updateDateTiles();
+    updateTimePreview();
   </script>
 </body>
 </html>
