@@ -55,8 +55,7 @@
             </li>
           </ul>
           <div class="d-flex gap-2 mt-2 mt-lg-0">
-            <a href="#" class="btn-nav-outline">Login</a>
-            <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+            <a href="#" class="btn-nav-outline">Logout</a>
           </div>
         </div>
       </div>
@@ -73,68 +72,38 @@
         </p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
           <div class="part-avatar">
-            <div style="position: relative; display: inline-block">
-              <div
-                class="part-circle"
-                style="background: linear-gradient(135deg, #f472b6, #a78bfa)"
-              >
-                🐱
-              </div>
-              <span
-                class="online-dot"
-                style="position: absolute; bottom: 2px; right: 2px"
-              ></span>
+            <div
+              class="part-circle"
+              style="background: linear-gradient(135deg, #f472b6, #a78bfa)"
+            >
+              🐱
             </div>
             <span class="part-name">MiaW</span>
           </div>
           <div class="part-avatar">
-            <div style="position: relative; display: inline-block">
-              <div
-                class="part-circle"
-                style="background: linear-gradient(135deg, #22d3ee, #6d28d9)"
-              >
-                🦊
-              </div>
-              <span
-                class="online-dot"
-                style="position: absolute; bottom: 2px; right: 2px"
-              ></span>
+            <div
+              class="part-circle"
+              style="background: linear-gradient(135deg, #22d3ee, #6d28d9)"
+            >
+              🦊
             </div>
             <span class="part-name">FoxDev</span>
           </div>
           <div class="part-avatar">
-            <div style="position: relative; display: inline-block">
-              <div
-                class="part-circle"
-                style="background: linear-gradient(135deg, #4ade80, #0ea5e9)"
-              >
-                🐻
-              </div>
-              <span
-                class="online-dot"
-                style="
-                  position: absolute;
-                  bottom: 2px;
-                  right: 2px;
-                  background: #fbbf24;
-                  box-shadow: 0 0 5px #fbbf24;
-                "
-              ></span>
+            <div
+              class="part-circle"
+              style="background: linear-gradient(135deg, #4ade80, #0ea5e9)"
+            >
+              🐻
             </div>
             <span class="part-name">BearCo</span>
           </div>
           <div class="part-avatar">
-            <div style="position: relative; display: inline-block">
-              <div
-                class="part-circle"
-                style="background: linear-gradient(135deg, #fbbf24, #f472b6)"
-              >
-                🐼
-              </div>
-              <span
-                class="online-dot"
-                style="position: absolute; bottom: 2px; right: 2px"
-              ></span>
+            <div
+              class="part-circle"
+              style="background: linear-gradient(135deg, #fbbf24, #f472b6)"
+            >
+              🐼
             </div>
             <span class="part-name">PandaX</span>
           </div>
@@ -272,6 +241,22 @@
               </thead>
               <tbody>
                 <tr class="hour-start">
+                  <td class="time-lbl">8:00 AM</td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">8:30 AM</td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                </tr>
+                <tr class="hour-start">
                   <td class="time-lbl">9:00 AM</td>
                   <td class="tile t-free"></td>
                   <td class="tile t-free"></td>
@@ -398,6 +383,30 @@
                   <td class="tile t-free"></td>
                   <td class="tile t-empty"></td>
                   <td class="tile t-maybe"></td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">5:00 PM</td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">5:30 PM</td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">6:00 PM</td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
+                  <td class="tile t-empty"></td>
                 </tr>
               </tbody>
             </table>
@@ -541,13 +550,26 @@
 
         nameInput.style.borderColor = "#ddd6fe";
 
-        const btn = document.querySelector(".btn-join");
-        btn.textContent = "✅ Submitted!";
-        btn.style.background = "linear-gradient(135deg, #16a34a, #4ade80)";
+        // TODO: when Flask is set up, redirect to results.html only if current_user is the room creator
+        // participants should see the popup below instead
 
-        setTimeout(() => {
-          window.location.href = "results.html";
-        }, 1000);
+        const popup = document.createElement("div");
+        popup.classList.add("sm-modal-overlay");
+        popup.innerHTML = `
+    <div class="sm-modal-box">
+      <div class="sm-modal-icon">🎯</div>
+      <div class="sm-modal-title">Submitted!</div>
+      <p class="sm-modal-body">
+        Your availability has been submitted. The organiser will notify you once a meeting time is confirmed.
+      </p>
+      <a href="dashboard.html" class="btn-join">Back to My Space</a>
+    </div>
+  `;
+        document.body.appendChild(popup);
+
+        popup.addEventListener("click", function (e) {
+          if (e.target === popup) popup.remove();
+        });
       });
     </script>
   </body>
