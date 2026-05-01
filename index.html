@@ -1,336 +1,509 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartMeet – Plan Together, Play Together</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-
-  <!-- ── Navbar ── -->
-  <nav class="navbar navbar-expand-lg sm-navbar">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav me-auto gap-1">
-          <li class="nav-item"><a class="nav-link active" href="index.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i>My Space</a></li>
-          <li class="nav-item"><a class="nav-link" href="schedule.html"><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a></li>
-          <li class="nav-item"><a class="nav-link" href="create-event.html"><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a></li>
-        </ul>
-        <div class="d-flex gap-2 mt-2 mt-lg-0">
-          <a href="#" class="btn-nav-outline" id="loginNavBtn">Login</a>
-          <a href="create-event.html" class="btn-nav-pink">▶ Enter</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – Plan Together, Play Together</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html"
+                ><i class="bi bi-house-fill me-1"></i>Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html"
+                ><i class="bi bi-grid-fill me-1"></i>My Space</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="schedule.html"
+                ><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="create-event.html"
+                ><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a
+              >
+            </li>
+          </ul>
+          <!-- TODO: when Flask is set up, show My Space/My Schedule/Create Room only if current_user.is_authenticated -->
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="login.html" class="btn-nav-outline">Login</a>
+            <a href="signup.html" class="btn-nav-pink">Sign Up</a>
+          </div>
         </div>
       </div>
+    </nav>
+
+    <!-- ── Ticker ── -->
+    <div class="ticker-wrap" style="background: #1e1b4b">
+      <div class="ticker-track">
+        <span>🎉 <em>PandaX</em> just found a meeting time!</span>
+        <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
+        <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
+        <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
+        <span>🎯 <em>MiaW</em> submitted their availability!</span>
+        <span
+          >🏆 Best time found for "Project Kickoff" —
+          <em>Tuesday 2:00 PM</em></span
+        >
+        <span>🎉 <em>PandaX</em> just found a meeting time!</span>
+        <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
+        <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
+        <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
+        <span>🎯 <em>MiaW</em> submitted their availability!</span>
+        <span
+          >🏆 Best time found for "Project Kickoff" —
+          <em>Tuesday 2:00 PM</em></span
+        >
+      </div>
     </div>
-  </nav>
 
-  <!-- ── Ticker (outside hero) ── -->
-  <div class="ticker-wrap" style="background:#1e1b4b;">
-    <div class="ticker-track">
-      <span>🎉 <em>PandaX</em> just found a meeting time!</span>
-      <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
-      <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
-      <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
-      <span>🎯 <em>MiaW</em> submitted their availability!</span>
-      <span>🏆 Best time found for "Project Kickoff" — <em>Tuesday 2:00 PM</em></span>
-      <span>🎉 <em>PandaX</em> just found a meeting time!</span>
-      <span>🚀 <em>FoxDev</em> created a new room: "Design Sprint"</span>
-      <span>✅ <em>BearCo</em> confirmed Wednesday 10:00 AM</span>
-      <span>🌟 <em>LunaB</em> joined "Q2 Retrospective"</span>
-      <span>🎯 <em>MiaW</em> submitted their availability!</span>
-      <span>🏆 Best time found for "Project Kickoff" — <em>Tuesday 2:00 PM</em></span>
-    </div>
-  </div>
+    <!-- ── Hero ── -->
+    <section class="hero">
+      <!-- Floating particles -->
+      <div
+        class="particle"
+        style="
+          width: 6px;
+          height: 6px;
+          background: var(--cyan);
+          left: 8%;
+          top: 70%;
+          --dur: 5s;
+          --delay: 0s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 4px;
+          height: 4px;
+          background: var(--pink);
+          left: 15%;
+          top: 80%;
+          --dur: 6s;
+          --delay: 1.2s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 8px;
+          height: 8px;
+          background: #a78bfa;
+          left: 25%;
+          top: 60%;
+          --dur: 7s;
+          --delay: 0.5s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 5px;
+          height: 5px;
+          background: var(--yellow);
+          left: 40%;
+          top: 75%;
+          --dur: 5.5s;
+          --delay: 2s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 6px;
+          height: 6px;
+          background: var(--green);
+          left: 60%;
+          top: 65%;
+          --dur: 6.5s;
+          --delay: 0.8s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 4px;
+          height: 4px;
+          background: var(--cyan);
+          left: 75%;
+          top: 80%;
+          --dur: 4.5s;
+          --delay: 1.8s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 7px;
+          height: 7px;
+          background: var(--pink);
+          left: 85%;
+          top: 70%;
+          --dur: 6s;
+          --delay: 0.3s;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 5px;
+          height: 5px;
+          background: #a78bfa;
+          left: 92%;
+          top: 55%;
+          --dur: 5s;
+          --delay: 2.5s;
+        "
+      ></div>
 
-  <!-- ── Hero ── -->
-  <section class="hero">
-    <!-- Floating particles (direct children of hero, positioned absolute) -->
-    <div class="particle" style="width:6px;height:6px;background:var(--cyan);left:8%;top:70%;--dur:5s;--delay:0s;"></div>
-    <div class="particle" style="width:4px;height:4px;background:var(--pink);left:15%;top:80%;--dur:6s;--delay:1.2s;"></div>
-    <div class="particle" style="width:8px;height:8px;background:#a78bfa;left:25%;top:60%;--dur:7s;--delay:0.5s;"></div>
-    <div class="particle" style="width:5px;height:5px;background:var(--yellow);left:40%;top:75%;--dur:5.5s;--delay:2s;"></div>
-    <div class="particle" style="width:6px;height:6px;background:var(--green);left:60%;top:65%;--dur:6.5s;--delay:0.8s;"></div>
-    <div class="particle" style="width:4px;height:4px;background:var(--cyan);left:75%;top:80%;--dur:4.5s;--delay:1.8s;"></div>
-    <div class="particle" style="width:7px;height:7px;background:var(--pink);left:85%;top:70%;--dur:6s;--delay:0.3s;"></div>
-    <div class="particle" style="width:5px;height:5px;background:#a78bfa;left:92%;top:55%;--dur:5s;--delay:2.5s;"></div>
+      <div class="container position-relative">
+        <div class="row align-items-center g-5">
+          <!-- Left: title + menu -->
+          <div class="col-lg-6">
+            <h1 class="hero-pixel-title">Smart<span>Meet</span></h1>
+            <p class="hero-tagline">
+              <span id="typingText"></span><span class="typing-cursor"></span>
+            </p>
 
-    <div class="container position-relative">
-      <div class="row align-items-center g-5">
+            <!-- TODO: when Flask is set up, show Enter Room and Create Event buttons only if current_user.is_authenticated -->
+            <div class="d-flex flex-column gap-3" style="max-width: 360px">
+              <a href="login.html" class="menu-btn">
+                <span
+                  class="menu-icon"
+                  style="background: linear-gradient(135deg, #4ade80, #06b6d4)"
+                  >🔑</span
+                >
+                Login
+                <span class="arrow"><i class="bi bi-chevron-right"></i></span>
+              </a>
+              <a href="signup.html" class="menu-btn">
+                <span
+                  class="menu-icon"
+                  style="background: linear-gradient(135deg, #f472b6, #a855f7)"
+                  >✨</span
+                >
+                Sign Up
+                <span class="arrow"><i class="bi bi-chevron-right"></i></span>
+              </a>
+            </div>
+          </div>
 
-        <!-- Left: title + menu -->
-        <div class="col-lg-6">
-          <p class="mb-3" style="color:var(--cyan);font-weight:800;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;">
-            ★ Now Online: 24 players ★
+          <!-- Right: floating user cards (status dots removed) -->
+          <div class="col-lg-6 d-none d-lg-block">
+            <div class="d-flex flex-column gap-3">
+              <div
+                class="avatar-card"
+                style="max-width: 280px; margin-left: auto"
+              >
+                <div
+                  class="avatar-circle"
+                  style="background: linear-gradient(135deg, #f472b6, #a78bfa)"
+                >
+                  🐱
+                </div>
+                <div>
+                  <div class="fw-700" style="font-size: 0.9rem">MiaW</div>
+                  <div style="font-size: 0.75rem; opacity: 0.7">
+                    Looking for Thursday slots
+                  </div>
+                </div>
+              </div>
+              <div
+                class="avatar-card"
+                style="max-width: 280px; margin-left: 60px"
+              >
+                <div
+                  class="avatar-circle"
+                  style="background: linear-gradient(135deg, #22d3ee, #6d28d9)"
+                >
+                  🦊
+                </div>
+                <div>
+                  <div class="fw-700" style="font-size: 0.9rem">FoxDev</div>
+                  <div style="font-size: 0.75rem; opacity: 0.7">
+                    Free: Mon &amp; Wed mornings
+                  </div>
+                </div>
+              </div>
+              <div
+                class="avatar-card"
+                style="max-width: 280px; margin-left: 20px"
+              >
+                <div
+                  class="avatar-circle"
+                  style="background: linear-gradient(135deg, #4ade80, #0ea5e9)"
+                >
+                  🐻
+                </div>
+                <div>
+                  <div class="fw-700" style="font-size: 0.9rem">BearCo</div>
+                  <div style="font-size: 0.75rem; opacity: 0.7">
+                    In a meeting room
+                  </div>
+                </div>
+              </div>
+              <div
+                class="avatar-card"
+                style="max-width: 280px; margin-left: 80px"
+              >
+                <div
+                  class="avatar-circle"
+                  style="background: linear-gradient(135deg, #fbbf24, #f472b6)"
+                >
+                  🐼
+                </div>
+                <div>
+                  <div class="fw-700" style="font-size: 0.9rem">PandaX</div>
+                  <div style="font-size: 0.75rem; opacity: 0.7">
+                    Just submitted availability!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Features ── -->
+    <section class="py-5" style="background: var(--bg)">
+      <div class="container">
+        <div class="text-center mb-5">
+          <p
+            class="mb-1"
+            style="
+              color: var(--p2);
+              font-size: 0.8rem;
+              font-weight: 800;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+            "
+          >
+            Why SmartMeet?
           </p>
-          <h1 class="hero-pixel-title">Smart<span>Meet</span></h1>
-          <p class="hero-tagline"><span id="typingText"></span><span class="typing-cursor"></span></p>
-
-          <div class="d-flex flex-column gap-3" style="max-width: 360px;">
-            <a href="availability.html" class="menu-btn">
-              <span class="menu-icon" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🚪</span>
-              Enter Room
-              <span class="arrow"><i class="bi bi-chevron-right"></i></span>
-            </a>
-            <a href="create-event.html" class="menu-btn">
-              <span class="menu-icon" style="background:linear-gradient(135deg,#f472b6,#a855f7);">✨</span>
-              Create Event
-              <span class="arrow"><i class="bi bi-chevron-right"></i></span>
-            </a>
-            <a href="#" class="menu-btn" id="loginMenuBtn">
-              <span class="menu-icon" style="background:linear-gradient(135deg,#4ade80,#06b6d4);">🔑</span>
-              Login
-              <span class="arrow"><i class="bi bi-chevron-right"></i></span>
-            </a>
-          </div>
+          <h2 class="fw-800" style="color: var(--text)">Your Meeting HQ</h2>
         </div>
-
-        <!-- Right: floating user cards -->
-        <div class="col-lg-6 d-none d-lg-block">
-          <div class="d-flex flex-column gap-3">
-            <div class="avatar-card" style="max-width:280px;margin-left:auto;">
-              <div class="avatar-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</div>
-              <div>
-                <div class="fw-700" style="font-size:.9rem;">MiaW</div>
-                <div style="font-size:.75rem;opacity:.7;">Looking for Thursday slots</div>
-              </div>
-              <div class="online-dot ms-auto"></div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="feature-tile">
+              <div class="tile-icon" style="background: #ede9fe">🚀</div>
+              <h5 class="fw-800 mb-2">Fast Room Setup</h5>
+              <p class="text-muted mb-0">
+                Create a meeting room in seconds. Share a link and everyone's in
+                — no sign-up needed to join.
+              </p>
             </div>
-            <div class="avatar-card" style="max-width:280px;margin-left:60px;">
-              <div class="avatar-circle" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</div>
-              <div>
-                <div class="fw-700" style="font-size:.9rem;">FoxDev</div>
-                <div style="font-size:.75rem;opacity:.7;">Free: Mon &amp; Wed mornings</div>
-              </div>
-              <div class="online-dot ms-auto"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-tile">
+              <div class="tile-icon" style="background: #fce7f3">🎮</div>
+              <h5 class="fw-800 mb-2">Game-like Grid</h5>
+              <p class="text-muted mb-0">
+                Tap tiles to mark your availability. It feels like a game, but
+                you're actually scheduling a meeting!
+              </p>
             </div>
-            <div class="avatar-card" style="max-width:280px;margin-left:20px;">
-              <div class="avatar-circle" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</div>
-              <div>
-                <div class="fw-700" style="font-size:.9rem;">BearCo</div>
-                <div style="font-size:.75rem;opacity:.7;">In a meeting room</div>
-              </div>
-              <div class="busy-dot ms-auto"></div>
-            </div>
-            <div class="avatar-card" style="max-width:280px;margin-left:80px;">
-              <div class="avatar-circle" style="background:linear-gradient(135deg,#fbbf24,#f472b6);">🐼</div>
-              <div>
-                <div class="fw-700" style="font-size:.9rem;">PandaX</div>
-                <div style="font-size:.75rem;opacity:.7;">Just submitted availability!</div>
-              </div>
-              <div class="online-dot ms-auto"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-tile">
+              <div class="tile-icon" style="background: #d1fae5">🏆</div>
+              <h5 class="fw-800 mb-2">Best Time Finder</h5>
+              <p class="text-muted mb-0">
+                SmartMeet analyses all responses and crowns the winning time
+                slot for your group.
+              </p>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Online Players ── -->
-  <section class="online-section py-5">
-    <div class="container">
-      <div class="text-center mb-4">
-        <p class="mb-1" style="color:var(--cyan);font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">● Live Now</p>
-        <h3 class="fw-800">Who's Online</h3>
-      </div>
-      <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3 justify-content-center">
-        <div class="col">
-          <div class="player-card">
-            <div class="player-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">🐱</div>
-            <div class="fw-700 small">MiaW</div>
-            <span class="status-bar" style="background:#d1fae5;color:#065f46;">● Online</span>
+    <!-- ── How It Works ── -->
+    <section class="py-5" style="background: #fff">
+      <div class="container" style="max-width: 680px">
+        <div class="text-center mb-5">
+          <p
+            class="mb-1"
+            style="
+              color: var(--p2);
+              font-size: 0.8rem;
+              font-weight: 800;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+            "
+          >
+            Game Guide
+          </p>
+          <h2 class="fw-800">How to Play</h2>
+        </div>
+        <div class="d-flex flex-column gap-3">
+          <div class="step-pill">
+            <div class="step-num">1</div>
+            <div>
+              <div class="fw-800">Create a Room</div>
+              <div class="text-muted small">
+                Name your event, pick candidate dates and time ranges.
+              </div>
+            </div>
+          </div>
+          <div class="step-pill">
+            <div class="step-num">2</div>
+            <div>
+              <div class="fw-800">Invite Your Party</div>
+              <div class="text-muted small">
+                Share your room link. Friends join and tap their available
+                slots.
+              </div>
+            </div>
+          </div>
+          <div class="step-pill">
+            <div class="step-num">3</div>
+            <div>
+              <div class="fw-800">Find the Best Time</div>
+              <div class="text-muted small">
+                SmartMeet highlights the winning time when everyone's free!
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col">
-          <div class="player-card">
-            <div class="player-avatar" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">🦊</div>
-            <div class="fw-700 small">FoxDev</div>
-            <span class="status-bar" style="background:#d1fae5;color:#065f46;">● Online</span>
-          </div>
-        </div>
-        <div class="col">
-          <div class="player-card">
-            <div class="player-avatar" style="background:linear-gradient(135deg,#4ade80,#0ea5e9);">🐻</div>
-            <div class="fw-700 small">BearCo</div>
-            <span class="status-bar" style="background:#fef3c7;color:#92400e;">◉ Busy</span>
-          </div>
-        </div>
-        <div class="col">
-          <div class="player-card">
-            <div class="player-avatar" style="background:linear-gradient(135deg,#fbbf24,#f472b6);">🐼</div>
-            <div class="fw-700 small">PandaX</div>
-            <span class="status-bar" style="background:#d1fae5;color:#065f46;">● Online</span>
-          </div>
-        </div>
-        <div class="col">
-          <div class="player-card">
-            <div class="player-avatar" style="background:linear-gradient(135deg,#a78bfa,#22d3ee);">🦋</div>
-            <div class="fw-700 small">LunaB</div>
-            <span class="status-bar" style="background:#d1fae5;color:#065f46;">● Online</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Features ── -->
-  <section class="py-5" style="background:var(--bg);">
-    <div class="container">
-      <div class="text-center mb-5">
-        <p class="mb-1" style="color:var(--p2);font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">Why SmartMeet?</p>
-        <h2 class="fw-800" style="color:var(--text);">Your Meeting HQ</h2>
-      </div>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="feature-tile">
-            <div class="tile-icon" style="background:#ede9fe;">🚀</div>
-            <h5 class="fw-800 mb-2">Fast Room Setup</h5>
-            <p class="text-muted mb-0">Create a meeting room in seconds. Share a link and everyone's in — no sign-up needed to join.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-tile">
-            <div class="tile-icon" style="background:#fce7f3;">🎮</div>
-            <h5 class="fw-800 mb-2">Game-like Grid</h5>
-            <p class="text-muted mb-0">Tap tiles to mark your availability. It feels like a game, but you're actually scheduling a meeting!</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-tile">
-            <div class="tile-icon" style="background:#d1fae5;">🏆</div>
-            <h5 class="fw-800 mb-2">Best Time Finder</h5>
-            <p class="text-muted mb-0">SmartMeet analyses all responses and crowns the winning time slot for your group.</p>
-          </div>
+        <div class="text-center mt-5">
+          <a
+            href="signup.html"
+            class="btn btn-lg fw-800 px-5 py-3"
+            style="
+              background: linear-gradient(135deg, var(--p2), var(--pink));
+              color: #fff;
+              border-radius: 50px;
+              box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+              text-decoration: none;
+            "
+          >
+            ▶ Get Started
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── How It Works ── -->
-  <section class="py-5" style="background:#fff;">
-    <div class="container" style="max-width:680px;">
-      <div class="text-center mb-5">
-        <p class="mb-1" style="color:var(--p2);font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">Game Guide</p>
-        <h2 class="fw-800">How to Play</h2>
-      </div>
-      <div class="d-flex flex-column gap-3">
-        <div class="step-pill">
-          <div class="step-num">1</div>
-          <div>
-            <div class="fw-800">Create a Room</div>
-            <div class="text-muted small">Name your event, pick candidate dates and time ranges.</div>
-          </div>
-        </div>
-        <div class="step-pill">
-          <div class="step-num">2</div>
-          <div>
-            <div class="fw-800">Invite Your Party</div>
-            <div class="text-muted small">Share your room link. Friends join and tap their available slots.</div>
-          </div>
-        </div>
-        <div class="step-pill">
-          <div class="step-num">3</div>
-          <div>
-            <div class="fw-800">Find the Best Time</div>
-            <div class="text-muted small">SmartMeet highlights the winning time when everyone's free!</div>
-          </div>
+    <!-- ── CTA ── -->
+    <section class="cta-section py-5 text-center text-white">
+      <div class="container">
+        <h2 class="fw-800 mb-2">Ready to meet smarter?</h2>
+        <p class="opacity-90 mb-4">
+          Join thousands of teams scheduling with SmartMeet every day.
+        </p>
+        <!-- TODO: when Flask is set up, show Create a Room and Enter Existing Room only if current_user.is_authenticated -->
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a
+            href="login.html"
+            class="btn btn-light fw-800 px-4 py-2"
+            style="border-radius: 50px; color: var(--p1)"
+            >Login</a
+          >
+          <a
+            href="signup.html"
+            class="btn btn-outline-light fw-700 px-4 py-2"
+            style="border-radius: 50px"
+            >Sign Up</a
+          >
         </div>
       </div>
-      <div class="text-center mt-5">
-        <a href="create-event.html" class="btn btn-lg fw-800 px-5 py-3" style="background:linear-gradient(135deg,var(--p2),var(--pink));color:#fff;border-radius:50px;box-shadow:0 4px 20px rgba(124,58,237,.35);text-decoration:none;">
-          ▶ Start Playing
-        </a>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">
+          © 2026 SmartMeet · CITS3403 Project · University of Western Australia
+        </p>
       </div>
-    </div>
-  </section>
+    </footer>
 
-  <!-- ── CTA ── -->
-  <section class="cta-section py-5 text-center text-white">
-    <div class="container">
-      <h2 class="fw-800 mb-2">Ready to meet smarter?</h2>
-      <p class="opacity-90 mb-4">Join thousands of teams scheduling with SmartMeet every day.</p>
-      <div class="d-flex justify-content-center gap-3 flex-wrap">
-        <a href="create-event.html" class="btn btn-light fw-800 px-4 py-2" style="border-radius:50px;color:var(--p1);">Create a Room</a>
-        <a href="availability.html" class="btn btn-outline-light fw-700 px-4 py-2" style="border-radius:50px;">Enter Existing Room</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ── -->
-  <footer class="py-4 text-center">
-    <div class="container">
-      <p class="mb-0 small">© 2026 SmartMeet · CITS3403 Project · University of Western Australia</p>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // ── Typing effect ──
-    const phrases = [
-      'Plan meetings in a fun and social way ✨',
-      'Find the perfect time for everyone 🎯',
-      'Schedule smarter, meet better 🏆',
-      'Your meeting lobby awaits 🚪'
-    ];
-    let pi = 0, ci = 0, deleting = false;
-    const el = document.getElementById('typingText');
-    function type() {
-      const phrase = phrases[pi];
-      if (!deleting) {
-        el.textContent = phrase.slice(0, ++ci);
-        if (ci === phrase.length) { deleting = true; setTimeout(type, 1800); return; }
-      } else {
-        el.textContent = phrase.slice(0, --ci);
-        if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
-      }
-      setTimeout(type, deleting ? 40 : 65);
-    }
-    type();
-
-    // ── Login button interaction ──
-    function handleLoginClick(e) {
-      e.preventDefault();
-      const btn = e.currentTarget;
-      const original = btn.innerHTML;
-      btn.innerHTML = btn.innerHTML.replace(/Login/, '🔒 Coming Soon!');
-      btn.style.opacity = '0.7';
-      setTimeout(() => {
-        btn.innerHTML = original;
-        btn.style.opacity = '';
-      }, 2000);
-    }
-    document.getElementById('loginNavBtn').addEventListener('click', handleLoginClick);
-    document.getElementById('loginMenuBtn').addEventListener('click', handleLoginClick);
-
-    // ── Scroll reveal ──
-    const revealEls = document.querySelectorAll('.feature-tile, .step-pill');
-    revealEls.forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(24px)';
-      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    });
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-          }, i * 80);
-          observer.unobserve(entry.target);
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ── Typing effect ──
+      const phrases = [
+        "Plan meetings in a fun and social way ✨",
+        "Find the perfect time for everyone 🎯",
+        "Schedule smarter, meet better 🏆",
+        "Your meeting lobby awaits 🚪",
+      ];
+      let pi = 0,
+        ci = 0,
+        deleting = false;
+      const el = document.getElementById("typingText");
+      function type() {
+        const phrase = phrases[pi];
+        if (!deleting) {
+          el.textContent = phrase.slice(0, ++ci);
+          if (ci === phrase.length) {
+            deleting = true;
+            setTimeout(type, 1800);
+            return;
+          }
+        } else {
+          el.textContent = phrase.slice(0, --ci);
+          if (ci === 0) {
+            deleting = false;
+            pi = (pi + 1) % phrases.length;
+          }
         }
+        setTimeout(type, deleting ? 40 : 65);
+      }
+      type();
+
+      // ── Scroll reveal ──
+      const revealEls = document.querySelectorAll(".feature-tile, .step-pill");
+      revealEls.forEach((el) => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(24px)";
+        el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
       });
-    }, { threshold: 0.15 });
-    revealEls.forEach(el => observer.observe(el));
-  </script>
-</body>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0)";
+              }, i * 80);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 },
+      );
+      revealEls.forEach((el) => observer.observe(el));
+    </script>
+  </body>
 </html>
