@@ -18,10 +18,11 @@ This repository hosts the necessary files for the assessed project related to CI
 ## Getting started
 Make sure you have python installed on your machine.
 
-1. Run ``python -m venv venv`` in the project directory. A folder called venv should pop up.
-2. Activate your virtual environment by running ``venv/Scripts/activate`` in the project directory.
-3. Run ``pip install -r requirements.txt`` in the project directory.
-4. You're good to go.
+1. Pull the repository into your local machine and change your working directory inside the folder (or simply open the folder in vscode, and use the vs terminal)
+2. Run ``python -m venv venv`` in the project directory. A folder called venv should pop up.
+3. Activate your virtual environment by running ``venv/Scripts/activate`` in the project directory.
+4. Run ``pip install -r requirements.txt`` in the project directory.
+5. You're good to go.
 
 ### Notes
 To run the server, you can do so by simply running ``python run.py``. The URL you'll need to use will be listed in your terminal (if you're on VSCode, you may simply CTRL + Click the link). The server will indefinitely run until either the terminal is closed, you manually exit, or it crashes. 
