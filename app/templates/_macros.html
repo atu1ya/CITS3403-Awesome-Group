@@ -1,0 +1,79 @@
+{# ── Shared Jinja macros ──
+   Import in templates with:
+     {% from '_macros.html' import tile_drag_js, csrf_input, flash_success, flash_error, flash_info %}
+#}
+
+{# Renders a hidden CSRF input #}
+{% macro csrf_input() %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+{% endmacro %}
+
+{# Flash message helpers #}
+{% macro flash_success(message) %}
+<div class="alert-success">{{ message }}</div>
+{% endmacro %}
+
+{% macro flash_error(message) %}
+<div class="alert-error">⚠️ {{ message }}</div>
+{% endmacro %}
+
+{% macro flash_info(message) %}
+<div class="alert-info">{{ message }}</div>
+{% endmacro %}
+
+{# Tile drag-and-paint interaction — shared between availability.html and schedule.html.
+   gridId: the id of the <table> element containing the tiles
+   readOnly: if true, attaches no event listeners (for viewing another user's schedule)
+#}
+{% macro tile_drag_js(gridId, readOnly=False) %}
+<script>
+(function () {
+  const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
+  const tiles  = document.querySelectorAll("#{{ gridId }} td.tile");
+  {% if not readOnly %}
+  let isDragging      = false;
+  let dragTargetState = null;
+
+  function nextState(tile) {
+    const cur = STATES.find(s => tile.classList.contains(s)) || "t-empty";
+    return STATES[(STATES.indexOf(cur) + 1) % STATES.length];
+  }
+
+  function paintTile(tile, state) {
+    tile.classList.remove(...STATES);
+    tile.classList.add(state);
+  }
+
+  tiles.forEach(tile => {
+    tile.addEventListener("mousedown", e => {
+      e.preventDefault();
+      isDragging      = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("mouseenter", () => {
+      if (isDragging) paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("touchstart", e => {
+      e.preventDefault();
+      isDragging      = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    }, { passive: false });
+    tile.addEventListener("touchmove", e => {
+      e.preventDefault();
+      const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (el && el.classList.contains("tile")) paintTile(el, dragTargetState);
+    }, { passive: false });
+  });
+
+  document.addEventListener("mouseup",  () => { isDragging = false; dragTargetState = null; });
+  document.addEventListener("touchend", () => { isDragging = false; dragTargetState = null; });
+
+  // expose paintTile for pages that need it (availability.html hidden inputs)
+  window.paintTile_{{ gridId }} = paintTile;
+  window.TILE_STATES = STATES;
+  {% endif %}
+})();
+</script>
+{% endmacro %}

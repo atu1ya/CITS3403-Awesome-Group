@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% block modals %}{% endblock %}
+
+<div class="space-bg">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Sidebar -->
+      <div class="col-lg-3">
+        <div class="profile-card">
+          <div class="profile-card-banner">
+            <span class="deco" style="top:10px;left:20px;">⭐</span>
+            <span class="deco" style="top:20px;right:40px;">🌙</span>
+            <span class="deco" style="bottom:8px;left:60px;">✨</span>
+          </div>
+          <div style="position:relative;display:inline-block;left:50%;transform:translateX(-50%);">
+            <div class="profile-avatar" id="sidebarAvatar">{{ user.avatar }}</div>
+            <span class="online-badge"></span>
+          </div>
+          <div class="profile-card-body mt-2">
+            <div class="fw-900 fs-5">{{ user.display_name }}</div>
+            <div class="text-muted small fw-600 mb-1">@{{ user.username }}</div>
+            <div class="d-inline-block px-3 py-1 rounded-pill mb-3 level-badge">
+              ✨ {{ user.level_title }}
+            </div>
+            {% if user.bio %}
+            <div class="text-muted small fst-italic mb-3">"{{ user.bio }}"</div>
+            {% endif %}
+            <div class="d-flex justify-content-between mb-1 xp-label">
+              <span>LEVEL {{ user.level }} · {{ user.level_title }}</span>
+              <span>{{ user.xp }} / {{ user.xp_max }} XP</span>
+            </div>
+            <div class="xp-bar mb-3">
+              <div class="xp-fill" style="width:{{ (user.xp / user.xp_max * 100)|int }}%"></div>
+            </div>
+            <div class="d-flex gap-2 mb-4">
+              <div class="stat-pill">
+                <div class="val">{{ user.total_rooms }}</div>
+                <div class="lbl">Rooms</div>
+              </div>
+              <div class="stat-pill">
+                <div class="val">{{ (user.friendships_sent + user.friendships_recv) | selectattr('status', 'equalto', 'accepted') | list | length }}</div>
+                <div class="lbl">Friends</div>
+              </div>
+              <div class="stat-pill">
+                <div class="val">{{ user.meets_count }}</div>
+                <div class="lbl">Meets</div>
+              </div>
+            </div>
+
+            <a href="{{ url_for('main.dashboard') }}" class="side-menu-item {% block sidebar_rooms %}{% endblock %}">
+              <span class="side-icon">🏠</span> My Rooms
+            </a>
+            <a href="{{ url_for('main.friends') }}" class="side-menu-item {% block sidebar_friends %}{% endblock %}">
+              <span class="side-icon">👥</span> Friends
+              {% set pending = user.friendships_recv | selectattr('status', 'equalto', 'pending') | list | length %}
+              {% if pending > 0 %}
+              <span class="badge ms-auto" style="background:var(--p2);font-size:.65rem;">{{ pending }}</span>
+              {% endif %}
+            </a>
+            <a href="{{ url_for('main.notifications') }}" class="side-menu-item {% block sidebar_notifications %}{% endblock %}">
+              <span class="side-icon">🔔</span> Notifications
+              {% set unread = user.notifications | selectattr('is_read', 'equalto', false) | list | length %}
+              {% if unread > 0 %}
+              <span class="badge ms-auto" style="background:var(--pink);font-size:.65rem;">{{ unread }}</span>
+              {% endif %}
+            </a>
+            <a href="{{ url_for('main.settings') }}" class="side-menu-item {% block sidebar_settings %}{% endblock %}">
+              <span class="side-icon">⚙️</span> Settings
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-lg-9">
+        {% block content %}{% endblock %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
