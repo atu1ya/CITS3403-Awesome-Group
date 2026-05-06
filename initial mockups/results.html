@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMeet – Best Time Found!</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sm-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Smart<span>Meet</span></a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto gap-1">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"
+                ><i class="bi bi-house-fill me-1"></i>Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html"
+                ><i class="bi bi-grid-fill me-1"></i>My Space</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="schedule.html"
+                ><i class="bi bi-calendar-week-fill me-1"></i>My Schedule</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="create-event.html"
+                ><i class="bi bi-plus-circle-fill me-1"></i>Create Room</a
+              >
+            </li>
+          </ul>
+          <div class="d-flex gap-2 mt-2 mt-lg-0">
+            <a href="#" class="btn-nav-outline">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Result Header -->
+    <div class="result-header">
+      <div class="container position-relative">
+        <div class="confetti-row">🎉 🏆 ✨ 🎊 ⭐</div>
+        <h2 class="pixel-result mb-2">Best Time <span>Found!</span></h2>
+        <p style="opacity: 0.8; font-size: 0.95rem">
+          SmartMeet has found the perfect slot for your team.
+        </p>
+        <div class="d-flex justify-content-center mt-4 mb-2">
+          <div style="display: flex; align-items: center">
+            <div
+              class="group-avatar"
+              style="
+                background: linear-gradient(135deg, #f472b6, #a78bfa);
+                z-index: 4;
+              "
+            >
+              🐱
+            </div>
+            <div
+              class="group-avatar"
+              style="
+                background: linear-gradient(135deg, #22d3ee, #6d28d9);
+                margin-left: -14px;
+                z-index: 3;
+              "
+            >
+              🦊
+            </div>
+            <div
+              class="group-avatar"
+              style="
+                background: linear-gradient(135deg, #4ade80, #0ea5e9);
+                margin-left: -14px;
+                z-index: 2;
+              "
+            >
+              🐻
+            </div>
+            <div
+              class="group-avatar"
+              style="
+                background: linear-gradient(135deg, #fbbf24, #f472b6);
+                margin-left: -14px;
+                z-index: 1;
+              "
+            >
+              🐼
+            </div>
+            <div
+              class="group-avatar"
+              style="
+                background: rgba(255, 255, 255, 0.15);
+                border: 3px dashed rgba(255, 255, 255, 0.4);
+                margin-left: -14px;
+                z-index: 0;
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 1rem;
+              "
+            >
+              +1
+            </div>
+          </div>
+        </div>
+        <p style="opacity: 0.75; font-size: 0.85rem; font-weight: 700">
+          4 of 5 participants are free! 🎯
+        </p>
+      </div>
+    </div>
+
+    <div class="container py-5" style="max-width: 900px">
+      <!-- Best Time Card -->
+      <div class="best-card mb-4" id="bestCard">
+        <div class="row align-items-center g-3">
+          <div class="col-md-8">
+            <div class="best-time-label">🏆 Recommended Meeting Time</div>
+            <div class="best-time-main" id="bestDay">Wednesday 8 May</div>
+            <div class="best-time-main" id="bestTime" style="color: #bbf7d0">
+              10:00 AM – 11:00 AM
+            </div>
+            <p
+              class="mt-3 mb-0"
+              id="bestMeta"
+              style="opacity: 0.9; font-size: 0.95rem; font-weight: 700"
+            >
+              ✅ 4 of 5 available &nbsp;·&nbsp; 0 conflicts &nbsp;·&nbsp; 1 hour
+            </p>
+          </div>
+          <div class="col-md-4 d-flex flex-column gap-2">
+            <button class="btn-confirm w-100" id="confirmBtn">
+              📅 Confirm This Time
+            </button>
+            <button class="btn-share w-100" id="notifyBtn">
+              📩 Notify Participants
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Options -->
+      <p class="section-label">🏅 All Options</p>
+      <div class="d-flex flex-column gap-3 mb-5" id="allOptions">
+        <div
+          class="runnerup-card"
+          id="slot-1st"
+          style="
+            border: 2px solid #a78bfa;
+            box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+          "
+        >
+          <div
+            class="runnerup-rank rank-1"
+            style="background: #ede9fe; color: var(--p2)"
+          >
+            1st
+          </div>
+          <div class="flex-grow-1">
+            <div class="runnerup-time">
+              Wednesday 8 May · 10:00 AM – 11:00 AM
+            </div>
+            <div class="runnerup-meta">4 of 5 available · 0 conflicts</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div
+              class="d-flex justify-content-between mb-1"
+              style="font-size: 0.72rem; font-weight: 800; color: var(--muted)"
+            >
+              <span>Score</span><span>4 / 5</span>
+            </div>
+            <div class="score-bar-track">
+              <div
+                class="score-bar-fill"
+                style="
+                  width: 100%;
+                  background: linear-gradient(90deg, #16a34a, #4ade80);
+                "
+              ></div>
+            </div>
+          </div>
+          <button
+            class="btn-confirm slot-select-btn"
+            style="font-size: 0.82rem; padding: 8px 18px"
+            disabled
+          >
+            ✅ Selected
+          </button>
+        </div>
+
+        <div class="runnerup-card" id="slot-2nd">
+          <div class="runnerup-rank rank-2">2nd</div>
+          <div class="flex-grow-1">
+            <div class="runnerup-time">Thursday 9 May · 9:00 AM – 10:00 AM</div>
+            <div class="runnerup-meta">3 of 5 available · 1 conflict</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div
+              class="d-flex justify-content-between mb-1"
+              style="font-size: 0.72rem; font-weight: 800; color: var(--muted)"
+            >
+              <span>Score</span><span>3 / 5</span>
+            </div>
+            <div class="score-bar-track">
+              <div
+                class="score-bar-fill"
+                style="
+                  width: 75%;
+                  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+                "
+              ></div>
+            </div>
+          </div>
+          <button
+            class="btn-confirm slot-select-btn"
+            style="font-size: 0.82rem; padding: 8px 18px"
+          >
+            Select
+          </button>
+        </div>
+
+        <div class="runnerup-card" id="slot-3rd">
+          <div class="runnerup-rank rank-3">3rd</div>
+          <div class="flex-grow-1">
+            <div class="runnerup-time">Monday 6 May · 1:00 PM – 2:00 PM</div>
+            <div class="runnerup-meta">3 of 5 available · 2 conflicts</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div
+              class="d-flex justify-content-between mb-1"
+              style="font-size: 0.72rem; font-weight: 800; color: var(--muted)"
+            >
+              <span>Score</span><span>3 / 5</span>
+            </div>
+            <div class="score-bar-track">
+              <div
+                class="score-bar-fill"
+                style="
+                  width: 60%;
+                  background: linear-gradient(90deg, var(--p2), var(--p3));
+                "
+              ></div>
+            </div>
+          </div>
+          <button
+            class="btn-confirm slot-select-btn"
+            style="
+              font-size: 0.82rem;
+              padding: 8px 18px;
+              background: linear-gradient(135deg, var(--p2), var(--pink));
+              box-shadow: none;
+            "
+          >
+            Select
+          </button>
+        </div>
+      </div>
+
+      <!-- Event Summary -->
+      <div class="res-card mb-4">
+        <div class="res-card-hdr">📋 Event Summary</div>
+        <div class="res-card-body">
+          <div class="row g-3 small">
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Event</div>
+              <div class="text-muted">Team Sprint Planning 🚀</div>
+            </div>
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Organiser</div>
+              <div class="text-muted">Jane Smith 🐱</div>
+            </div>
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Duration</div>
+              <div class="text-muted">1 hour</div>
+            </div>
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Date Range</div>
+              <div class="text-muted">6–10 May 2024</div>
+            </div>
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Time Window</div>
+              <div class="text-muted">9:00 AM – 5:00 PM</div>
+            </div>
+            <div class="col-sm-4">
+              <div class="fw-900 mb-1">Responses</div>
+              <div class="text-muted">4 / 5 participants</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heatmap -->
+      <div class="res-card mb-4">
+        <div class="res-card-hdr">🔥 Availability Heatmap</div>
+        <div class="res-card-body">
+          <div
+            class="d-flex gap-3 small text-muted mb-3 flex-wrap align-items-center"
+          >
+            <span>Darker = more people free &nbsp;|&nbsp;</span>
+            <span
+              ><span
+                style="
+                  background: #f3f4f6;
+                  display: inline-block;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+              ></span>
+              0</span
+            >
+            <span
+              ><span
+                style="
+                  background: #dcfce7;
+                  display: inline-block;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+              ></span>
+              1</span
+            >
+            <span
+              ><span
+                style="
+                  background: #86efac;
+                  display: inline-block;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+              ></span>
+              2</span
+            >
+            <span
+              ><span
+                style="
+                  background: #22c55e;
+                  display: inline-block;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+              ></span>
+              3</span
+            >
+            <span
+              ><span
+                style="
+                  background: var(--p2);
+                  display: inline-block;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+              ></span>
+              Best ★</span
+            >
+          </div>
+          <div class="grid-outer">
+            <table class="av-table" id="rGrid">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>
+                    <div>Mon</div>
+                    <div style="opacity: 0.65; font-weight: 600">6 May</div>
+                  </th>
+                  <th>
+                    <div>Tue</div>
+                    <div style="opacity: 0.65; font-weight: 600">7 May</div>
+                  </th>
+                  <th>
+                    <div>Wed</div>
+                    <div style="opacity: 0.65; font-weight: 600">8 May</div>
+                  </th>
+                  <th>
+                    <div>Thu</div>
+                    <div style="opacity: 0.65; font-weight: 600">9 May</div>
+                  </th>
+                  <th>
+                    <div>Fri</div>
+                    <div style="opacity: 0.65; font-weight: 600">10 May</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="hour-start">
+                  <td class="time-lbl">9:00 AM</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h0"></td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">9:30 AM</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">10:00 AM</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h4">4★</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">10:30 AM</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">11:00 AM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">11:30 AM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">12:00 PM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h2">2</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">12:30 PM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h2">2</td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">1:00 PM</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">1:30 PM</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">2:00 PM</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">2:30 PM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h0"></td>
+                  <td class="htile h3">3</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">3:00 PM</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h3">3</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">3:30 PM</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h3">3</td>
+                </tr>
+                <tr class="hour-start">
+                  <td class="time-lbl">4:00 PM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+                <tr>
+                  <td class="time-lbl">4:30 PM</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h2">2</td>
+                  <td class="htile h0"></td>
+                  <td class="htile h1">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Participant Overview -->
+      <div class="res-card mb-5">
+        <div class="res-card-hdr">👥 Participant Overview</div>
+        <div class="res-card-body p-0">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0 part-table">
+              <thead>
+                <tr>
+                  <th class="ps-4">Player</th>
+                  <th>Status</th>
+                  <th>Wed 8 May · 10 AM</th>
+                  <th>Slots Free</th>
+                  <th>Responded</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <div
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: linear-gradient(135deg, #f472b6, #a78bfa);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 1.1rem;
+                        "
+                      >
+                        🐱
+                      </div>
+                      <div>
+                        <div class="fw-800">Jane Smith</div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          Organiser
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      style="
+                        background: #d1fae5;
+                        color: #065f46;
+                        font-size: 0.72rem;
+                      "
+                      >✅ Available</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="avail-circle"
+                      style="background: #4ade80"
+                    ></span>
+                  </td>
+                  <td>
+                    <span class="fw-700">28</span
+                    ><span class="text-muted small"> / 40</span>
+                  </td>
+                  <td>
+                    <i class="bi bi-check-circle-fill text-success me-1"></i
+                    ><span class="fw-700 small">Yes</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <div
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: linear-gradient(135deg, #22d3ee, #6d28d9);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 1.1rem;
+                        "
+                      >
+                        🦊
+                      </div>
+                      <div>
+                        <div class="fw-800">FoxDev</div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          Participant
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      style="
+                        background: #d1fae5;
+                        color: #065f46;
+                        font-size: 0.72rem;
+                      "
+                      >✅ Available</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="avail-circle"
+                      style="background: #4ade80"
+                    ></span>
+                  </td>
+                  <td>
+                    <span class="fw-700">22</span
+                    ><span class="text-muted small"> / 40</span>
+                  </td>
+                  <td>
+                    <i class="bi bi-check-circle-fill text-success me-1"></i
+                    ><span class="fw-700 small">Yes</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <div
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: linear-gradient(135deg, #4ade80, #0ea5e9);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 1.1rem;
+                        "
+                      >
+                        🐻
+                      </div>
+                      <div>
+                        <div class="fw-800">BearCo</div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          Participant
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      style="
+                        background: #d1fae5;
+                        color: #065f46;
+                        font-size: 0.72rem;
+                      "
+                      >✅ Available</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="avail-circle"
+                      style="background: #4ade80"
+                    ></span>
+                  </td>
+                  <td>
+                    <span class="fw-700">31</span
+                    ><span class="text-muted small"> / 40</span>
+                  </td>
+                  <td>
+                    <i class="bi bi-check-circle-fill text-success me-1"></i
+                    ><span class="fw-700 small">Yes</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <div
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: linear-gradient(135deg, #fbbf24, #f472b6);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 1.1rem;
+                        "
+                      >
+                        🐼
+                      </div>
+                      <div>
+                        <div class="fw-800">PandaX</div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          Participant
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      style="
+                        background: #d1fae5;
+                        color: #065f46;
+                        font-size: 0.72rem;
+                      "
+                      >✅ Available</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="avail-circle"
+                      style="background: #4ade80"
+                    ></span>
+                  </td>
+                  <td>
+                    <span class="fw-700">19</span
+                    ><span class="text-muted small"> / 40</span>
+                  </td>
+                  <td>
+                    <i class="bi bi-check-circle-fill text-success me-1"></i
+                    ><span class="fw-700 small">Yes</span>
+                  </td>
+                </tr>
+                <tr class="table-light">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <div
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: #e5e7eb;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 1.1rem;
+                        "
+                      >
+                        ❓
+                      </div>
+                      <div>
+                        <div class="fw-800 text-muted">Sam Patel</div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          Participant
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      style="
+                        background: #fef3c7;
+                        color: #92400e;
+                        font-size: 0.72rem;
+                      "
+                      >⏳ Pending</span
+                    >
+                  </td>
+                  <td><span class="text-muted">–</span></td>
+                  <td><span class="text-muted">–</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-clock text-warning"></i>
+                      <span class="fw-700 small text-muted">No</span>
+                      <button class="btn-remind">📩 Remind</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back button only -->
+      <div class="d-flex justify-content-center">
+        <a
+          href="dashboard.html"
+          class="btn btn-outline-secondary rounded-pill fw-700 px-4 py-2"
+        >
+          <i class="bi bi-arrow-left me-2"></i>Back to My Space
+        </a>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center">
+      <div class="container">
+        <p class="mb-0 small">
+          © 2026 SmartMeet · CITS3403 Project · University of Western Australia
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ── Helper: reset confirmed state ──
+      function resetConfirm() {
+        const banner = document.querySelector("#confirmBanner");
+        if (banner) banner.remove();
+
+        const confirmBtn = document.getElementById("confirmBtn");
+        confirmBtn.textContent = "📅 Confirm This Time";
+        confirmBtn.style.background = "";
+        confirmBtn.disabled = false;
+
+        const notifyBtn = document.getElementById("notifyBtn");
+        notifyBtn.textContent = "📩 Notify Participants";
+        notifyBtn.disabled = false;
+        notifyBtn.style.opacity = "";
+        notifyBtn.style.background = "";
+      }
+
+      // ── Helper: reset all slot cards ──
+      function resetAllSlots() {
+        document.querySelectorAll(".runnerup-card").forEach((c) => {
+          c.style.opacity = "1";
+          c.style.border = "2px solid var(--p4)";
+          c.style.boxShadow = "";
+          const btn = c.querySelector(".slot-select-btn");
+          btn.textContent = "Select";
+          btn.disabled = false;
+          btn.style.background = "";
+        });
+      }
+
+      // ── Helper: show confirmed state ──
+      function confirmMeeting() {
+        const confirmBtn = document.getElementById("confirmBtn");
+        confirmBtn.textContent = "✅ Confirmed!";
+        confirmBtn.style.background =
+          "linear-gradient(135deg, #16a34a, #4ade80)";
+        confirmBtn.disabled = true;
+
+        const bestCard = document.querySelector(".best-card");
+        if (!document.querySelector("#confirmBanner")) {
+          const banner = document.createElement("div");
+          banner.id = "confirmBanner";
+          banner.innerHTML =
+            '🎉 Meeting time confirmed! Click "Notify Participants" to inform your team.';
+          banner.style.cssText = `
+            background: linear-gradient(90deg, #d1fae5, #a7f3d0);
+            border: 2px solid #6ee7b7;
+            border-radius: 14px;
+            padding: 14px 20px;
+            font-weight: 800;
+            font-size: .95rem;
+            color: #065f46;
+            margin-bottom: 16px;
+            text-align: center;
+          `;
+          bestCard.parentNode.insertBefore(banner, bestCard);
+        }
+      }
+
+      // ── Confirm button ──
+      document
+        .getElementById("confirmBtn")
+        .addEventListener("click", confirmMeeting);
+
+      // ── Notify Participants button ──
+      document
+        .getElementById("notifyBtn")
+        .addEventListener("click", function () {
+          if (!document.querySelector("#confirmBanner")) {
+            this.textContent = "⚠️ Confirm a time first!";
+            this.style.background = "linear-gradient(135deg, #f59e0b, #fbbf24)";
+            setTimeout(() => {
+              this.textContent = "📩 Notify Participants";
+              this.style.background = "";
+            }, 2000);
+            return;
+          }
+          this.textContent = "📩 Notifications Sent!";
+          this.disabled = true;
+          this.style.opacity = "0.7";
+        });
+
+      // ── Slot select buttons ──
+      document.querySelectorAll(".slot-select-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          if (this.disabled) return;
+
+          const card = this.closest(".runnerup-card");
+          const time = card.querySelector(".runnerup-time").textContent;
+          const meta = card.querySelector(".runnerup-meta").textContent;
+
+          // Reset confirmed state and all slot cards
+          resetConfirm();
+          resetAllSlots();
+
+          // Update best card
+          document.getElementById("bestDay").textContent = time
+            .split("·")[0]
+            .trim();
+          document.getElementById("bestTime").textContent =
+            time.split("·")[1]?.trim() || "";
+          document.getElementById("bestMeta").textContent = `✅ ${meta}`;
+
+          // Highlight selected card, dim others
+          document.querySelectorAll(".runnerup-card").forEach((c) => {
+            c.style.opacity = "0.45";
+            c.style.border = "2px solid var(--p4)";
+          });
+          card.style.opacity = "1";
+          card.style.border = "2px solid #a78bfa";
+          card.style.boxShadow = "0 0 0 3px rgba(109,40,217,.15)";
+          this.textContent = "✅ Selected";
+          this.disabled = true;
+
+          // Remove existing switch banner before inserting new one
+          const existingBanner = document.querySelector("#switchBanner");
+          if (existingBanner) existingBanner.remove();
+
+          const banner = document.createElement("div");
+          banner.id = "switchBanner";
+          banner.innerHTML = `🔄 Switched to ${time.split("·")[0].trim()}`;
+          banner.style.cssText = `
+            background: linear-gradient(90deg, #ede9fe, #fce7f3);
+            border: 2px solid #ddd6fe;
+            border-radius: 14px;
+            padding: 12px 20px;
+            font-weight: 800;
+            font-size: .9rem;
+            color: #6d28d9;
+            margin-bottom: 16px;
+            text-align: center;
+          `;
+          document
+            .querySelector(".best-card")
+            .parentNode.insertBefore(
+              banner,
+              document.querySelector(".best-card"),
+            );
+          setTimeout(() => banner.remove(), 3000);
+        });
+      });
+
+      // ── Remind button ──
+      document.querySelectorAll(".btn-remind").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          this.textContent = "✅ Reminded!";
+          this.disabled = true;
+          this.style.borderColor = "#86efac";
+          this.style.color = "#065f46";
+        });
+      });
+    </script>
+  </body>
+</html>
