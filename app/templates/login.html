@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input, flash_error %}
+
+{% block title %}SmartMeet – Login{% endblock %}
+
+{% block body %}
+<div class="space-bg d-flex align-items-center justify-content-center" style="padding:40px 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-sm-10 col-md-7 col-lg-5">
+
+        <div class="text-center mb-4">
+          <div class="page-header-icon mx-auto mb-3">🔑</div>
+          <h2 class="fw-900" style="font-size:1.6rem;">Welcome back!</h2>
+          <p class="text-muted fw-700 small">Log in to your SmartMeet account</p>
+        </div>
+
+        <div class="sm-card">
+          <div class="sm-card-body">
+            <form method="POST" action="{{ url_for('main.login') }}">
+              {{ csrf_input() }}
+
+              <div class="mb-3">
+                <label class="form-label field-label">Username or Email</label>
+                <input type="text" name="identifier" class="form-control form-control-purple fw-700"
+                  placeholder="@username or email@example.com" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label field-label">Password</label>
+                <div style="position:relative;">
+                  <input type="password" id="loginPassword" name="password" class="form-control form-control-purple fw-700"
+                    placeholder="Enter your password" style="padding-right:44px;" />
+                  <button type="button" class="input-eye-toggle" id="togglePassword">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check mb-0">
+                  <input class="form-check-input" type="checkbox" id="rememberMe" name="remember" />
+                  <label class="form-check-label fw-700 small" for="rememberMe">Remember me</label>
+                </div>
+                <a href="{{ url_for('main.forgot_password') }}" class="link-primary-bold" style="font-size:.85rem;">Forgot password?</a>
+              </div>
+
+              {% if error %}{{ flash_error(error) }}{% endif %}
+
+              <button type="submit" class="btn-join w-100 text-center d-block">🔑 Login</button>
+            </form>
+
+            <hr style="border-color:#ede9fe;margin:20px 0;" />
+            <p class="text-center text-muted small fw-700 mb-0">
+              Don't have an account?
+              <a href="{{ url_for('main.signup') }}" class="link-primary-bold">Sign Up</a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const input = document.getElementById('loginPassword');
+    const icon  = this.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    }
+  });
+</script>
+{% endblock %}

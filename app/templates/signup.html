@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input, flash_error %}
+
+{% block title %}SmartMeet – Sign Up{% endblock %}
+
+{% block body %}
+<div class="space-bg d-flex align-items-center justify-content-center" style="padding:40px 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-sm-10 col-md-7 col-lg-5">
+
+        <div class="text-center mb-4">
+          <div class="page-header-icon mx-auto mb-3">✨</div>
+          <h2 class="fw-900" style="font-size:1.6rem;">Create an account</h2>
+          <p class="text-muted fw-700 small">Join SmartMeet and start scheduling smarter</p>
+        </div>
+
+        <div class="sm-card">
+          <div class="sm-card-body">
+            <form method="POST" action="{{ url_for('main.signup') }}">
+              {{ csrf_input() }}
+
+              <div class="mb-3">
+                <label class="form-label field-label">Display Name</label>
+                <input type="text" name="display_name" class="form-control form-control-purple fw-700"
+                  value="{{ display_name or '' }}" placeholder="e.g. Jane Smith" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label field-label">Username</label>
+                <div style="position:relative;">
+                  <span class="input-prefix">@</span>
+                  <input type="text" name="username" class="form-control form-control-purple fw-700"
+                    value="{{ username or '' }}" placeholder="yourname" style="padding-left:28px;" />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label field-label">Email</label>
+                <input type="email" name="email" class="form-control form-control-purple fw-700"
+                  value="{{ email or '' }}" placeholder="email@example.com" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label field-label">Password</label>
+                <div style="position:relative;">
+                  <input type="password" id="signupPassword" name="password" class="form-control form-control-purple fw-700"
+                    placeholder="Choose a strong password" style="padding-right:44px;" />
+                  <button type="button" class="input-eye-toggle" id="togglePassword">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </div>
+                <div class="text-muted mt-1" style="font-size:.75rem;font-weight:700;">
+                  Must be 8+ chars · 1 uppercase · 1 number · 1 special character (!@#$%...)
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label field-label">Confirm Password</label>
+                <div style="position:relative;">
+                  <input type="password" id="confirmInput" name="confirm" class="form-control form-control-purple fw-700"
+                    placeholder="Repeat your password" style="padding-right:44px;" />
+                  <button type="button" class="input-eye-toggle" id="toggleConfirm">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+
+              {% if error %}{{ flash_error(error) }}{% endif %}
+
+              <button type="submit" class="btn-join w-100 text-center d-block">✨ Create Account</button>
+            </form>
+
+            <hr style="border-color:#ede9fe;margin:20px 0;" />
+            <p class="text-center text-muted small fw-700 mb-0">
+              Already have an account?
+              <a href="{{ url_for('main.login') }}" class="link-primary-bold">Login</a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function togglePasswordField(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    }
+  }
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    togglePasswordField('signupPassword', this);
+  });
+  document.getElementById('toggleConfirm').addEventListener('click', function () {
+    togglePasswordField('confirmInput', this);
+  });
+</script>
+{% endblock %}
