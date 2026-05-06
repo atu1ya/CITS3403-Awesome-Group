@@ -1,0 +1,115 @@
+# ⚙️ Project Setup Guide
+
+Follow these steps to set up and run the Flask application locally.
+
+---
+
+## 🐍 1. Create and Activate Virtual Environment
+
+```bash
+python -m venv .venv
+```
+
+**Windows (Command Prompt / PowerShell):**
+```bash
+.venv\Scripts\activate
+```
+
+**Mac/Linux:**
+```bash
+source .venv/bin/activate
+```
+
+---
+
+## 📦 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🔧 3. Configure Flask Application
+
+**Windows (Command Prompt):**
+```bash
+set FLASK_APP=run.py
+```
+
+**Windows (PowerShell):**
+```bash
+$env:FLASK_APP="run.py"
+```
+
+**Mac/Linux:**
+```bash
+export FLASK_APP=run.py
+```
+
+---
+
+## 🗄️ 4. Database Setup
+
+> ⚠️ Only run `flask db init` once per project. If `migrations/` already exists in the repo, skip to the normal setup below.
+
+**First-time setup (Person 1 only):**
+```bash
+flask db init
+flask db migrate -m "initial migration"
+flask db upgrade
+```
+
+**Normal setup (everyone else):**
+```bash
+flask db upgrade
+```
+
+This applies all existing migrations and creates the database tables automatically.
+
+---
+
+## 👤 5. Create Test Account
+
+```bash
+python seed.py
+```
+
+This creates a pre-verified test account. Safe to run multiple times — skips automatically if the account already exists.
+
+```
+Username: testuser
+Password: Test123!
+```
+
+---
+
+## ▶️ 6. Run the Application
+
+```bash
+python run.py
+```
+
+The app will be available at `http://127.0.0.1:5000/`
+
+---
+
+## ⚠️ Important Notes
+
+**Never commit:**
+```
+instance/
+*.db
+.env
+```
+
+**Always commit:**
+```
+migrations/
+```
+
+If you run into issues:
+- Make sure the virtual environment is activated before running any commands
+- Make sure `FLASK_APP` is set correctly before running `flask` commands
+- Always run `flask db upgrade` before `python seed.py`
+- Never delete the `migrations/` folder and reinitialise — pull and run `flask db upgrade` instead
