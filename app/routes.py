@@ -263,7 +263,7 @@ def reset_password():
 @main.route('/create-event')
 @login_required
 def create_event():
-    return redirect(url_for('main.index'))
+    return render_template('create_event.html')
 
 # TODO: Replace with full dashboard route — Person 3 (feature/results)
 @main.route('/dashboard')
