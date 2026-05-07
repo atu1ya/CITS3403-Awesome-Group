@@ -195,3 +195,190 @@
   </div>
 
 {% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const DAY_NAMES   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  const roomNameEl  = document.getElementById("roomName");
+  const roomDescEl  = document.getElementById("roomDesc");
+  const dateFromEl  = document.getElementById("dateFrom");
+  const dateToEl    = document.getElementById("dateTo");
+  const timeStartEl = document.getElementById("timeStart");
+  const timeEndEl   = document.getElementById("timeEnd");
+  const durationEl  = document.getElementById("duration");
+  const orgNameEl   = document.getElementById("orgName");
+  let excludedDates = new Set();
+
+  function parseTimeToHour(str) {
+    const [time, period] = str.split(" ");
+    let h = parseInt(time);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return h;
+  }
+
+  function parseDurationMins(val) {
+    if (val.includes("30"))  return 30;
+    if (val.includes("1.5")) return 90;
+    if (val.includes("2"))   return 120;
+    return 60;
+  }
+
+  function formatDateRange(from, to) {
+    if (!from || !to) return "—";
+    const f = new Date(from), t = new Date(to);
+    if (isNaN(f) || isNaN(t)) return "—";
+    return f.getMonth() === t.getMonth() && f.getFullYear() === t.getFullYear()
+      ? `${f.getDate()} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`
+      : `${f.getDate()} ${MONTH_NAMES[f.getMonth()]} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`;
+  }
+
+  function activeDayCount() {
+    let count = 0;
+    if (dateFromEl.value && dateToEl.value) {
+      const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+      while (cur <= end) {
+        if (!excludedDates.has(cur.toISOString().split('T')[0])) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    return count;
+  }
+
+  function slotsPerDay() {
+    return Math.floor(
+      (parseTimeToHour(timeEndEl.value) - parseTimeToHour(timeStartEl.value)) * 60
+      / parseDurationMins(durationEl.value)
+    );
+  }
+
+  function updateSelectedDatesInput() {
+    if (!dateFromEl.value || !dateToEl.value) return;
+    const dates = [];
+    const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+    while (cur <= end) {
+      const ds = cur.toISOString().split('T')[0];
+      if (!excludedDates.has(ds)) dates.push(ds);
+      cur.setDate(cur.getDate() + 1);
+    }
+    document.getElementById("selectedDates").value = dates.join(',');
+  }
+
+  function updateDateTiles() {
+    const container = document.getElementById("dateTilesContainer");
+    if (!dateFromEl.value || !dateToEl.value || new Date(dateFromEl.value) > new Date(dateToEl.value)) {
+      container.innerHTML = '<span class="text-muted small">Select a valid date range above.</span>';
+      excludedDates.clear();
+      return;
+    }
+    const dates = [];
+    const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+    while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+    const shown = dates.slice(0, 14);
+    container.innerHTML = shown.map(d => {
+      const ds = d.toISOString().split('T')[0];
+      return `<span class="date-tile${excludedDates.has(ds) ? ' excluded' : ''}" data-date="${ds}">📅 ${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>`;
+    }).join("");
+    if (dates.length > 14)
+      container.innerHTML += `<span class="date-tile" style="opacity:.6">+${dates.length - 14} more</span>`;
+    container.querySelectorAll('.date-tile[data-date]').forEach(tile => {
+      tile.addEventListener('click', function () {
+        const ds = this.dataset.date;
+        if (excludedDates.has(ds)) { excludedDates.delete(ds); this.classList.remove('excluded'); }
+        else                        { excludedDates.add(ds);    this.classList.add('excluded'); }
+        updateSelectedDatesInput();
+        updateTimePreview();
+      });
+    });
+    updateSelectedDatesInput();
+  }
+
+  function updateTimePreview() {
+    const box   = document.getElementById("timePreviewBox");
+    const days  = activeDayCount();
+    const spd   = slotsPerDay();
+    const total = days * spd;
+    const timeText = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+    box.innerHTML = days === 0
+      ? `<p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">⏰ ${timeText}</p>`
+      : `<p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">⏰ Slots from <strong>${timeStartEl.value}</strong> to <strong>${timeEndEl.value}</strong> · <strong>${durationEl.value}</strong> blocks</p>
+         <p class="mb-0 small text-muted mt-1">${spd} time slots over ${days} day${days !== 1 ? "s" : ""} = ${total} total tiles</p>`;
+  }
+
+  function updatePreview() {
+    const name = roomNameEl.value || "Untitled Room";
+    const len  = roomDescEl.value.length;
+    document.getElementById("previewTitle").textContent = name;
+    document.getElementById("previewDesc").textContent  = roomDescEl.value || "No description yet…";
+    document.getElementById("charCount").textContent    = `${len} / 200`;
+    document.getElementById("charCount").classList.toggle("warn", len > 170);
+    document.getElementById("previewDates").textContent = formatDateRange(dateFromEl.value, dateToEl.value);
+    document.getElementById("previewTime").textContent  = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+    document.getElementById("previewOrg").textContent   = orgNameEl.value || "—";
+  }
+
+  function updateSummary() {
+    document.getElementById("summaryName").textContent = roomNameEl.value || "Untitled Room";
+    const days = activeDayCount(), spd = slotsPerDay(), total = days * spd;
+    document.getElementById("summaryDates").textContent    = `📅 ${formatDateRange(dateFromEl.value, dateToEl.value)} · ${timeStartEl.value} – ${timeEndEl.value}`;
+    document.getElementById("summaryDuration").textContent = days > 0
+      ? `⏱ ${durationEl.value} slots · ${total} total tiles`
+      : `⏱ ${durationEl.value} slots`;
+  }
+
+  function goToStep(n) {
+    const current = [1,2,3].find(i => document.getElementById("step"+i).classList.contains("active")) || 1;
+    if (n > current) {
+      if (current === 1 && !roomNameEl.value.trim()) {
+        roomNameEl.style.borderColor = "#fca5a5";
+        roomNameEl.placeholder       = "Please enter a room name!";
+        roomNameEl.focus();
+        setTimeout(() => roomNameEl.style.borderColor = "", 2000);
+        return;
+      }
+      if (current === 2) {
+        const from = dateFromEl.value, to = dateToEl.value;
+        if (!from || !to || new Date(from) > new Date(to)) {
+          dateFromEl.style.borderColor = "#fca5a5";
+          dateToEl.style.borderColor   = "#fca5a5";
+          setTimeout(() => { dateFromEl.style.borderColor = ""; dateToEl.style.borderColor = ""; }, 2000);
+          return;
+        }
+      }
+    }
+    [1,2,3].forEach(i => {
+      document.getElementById("step"+i).classList.remove("active");
+      const sc = document.getElementById("sc"+i);
+      sc.classList.remove("active","done");
+      document.getElementById("sl"+i).classList.remove("active");
+      if (i < n)      { sc.classList.add("done"); sc.textContent = "✓"; }
+      else if (i===n) { sc.classList.add("active"); sc.textContent = i; document.getElementById("sl"+i).classList.add("active"); }
+      else             { sc.textContent = i; }
+      if (i < 3) document.getElementById("con"+i).classList.toggle("done", i < n);
+    });
+    document.getElementById("step"+n).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    updateSummary();
+  }
+
+  // Expose goToStep for inline onclick attributes
+  window.goToStep = goToStep;
+
+  roomNameEl.addEventListener("input",   updatePreview);
+  roomDescEl.addEventListener("input",   updatePreview);
+  orgNameEl.addEventListener("input",    updatePreview);
+  dateFromEl.addEventListener("change",  () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
+  dateToEl.addEventListener("change",    () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
+  timeStartEl.addEventListener("change", () => { updateTimePreview(); updatePreview(); });
+  timeEndEl.addEventListener("change",   () => { updateTimePreview(); updatePreview(); });
+  durationEl.addEventListener("change",  () => { updateTimePreview(); updatePreview(); });
+
+  updatePreview();
+  updateDateTiles();
+  updateTimePreview();
+})();
+</script>
+{% endblock %}
