@@ -263,7 +263,45 @@ def reset_password():
 @main.route('/create-event')
 @login_required
 def create_event():
-    return render_template('create_event.html')
+    if request.method == 'POST':
+        title        = request.form.get('roomName', '').strip()
+        description  = request.form.get('roomDesc', '').strip()
+        date_from    = request.form.get('dateFrom')
+        date_to      = request.form.get('dateTo')
+        time_start   = request.form.get('timeStart')
+        time_end     = request.form.get('timeEnd')
+        duration     = request.form.get('duration')
+        deadline_str = request.form.get('deadline')
+        deadline     = (datetime.strptime(deadline_str, '%Y-%m-%d').date()
+                        if deadline_str else None)
+
+        selected_dates = request.form.get('selectedDates', '')
+        if not selected_dates:
+            d, end_d = (datetime.strptime(date_from, '%Y-%m-%d').date(),
+                        datetime.strptime(date_to,   '%Y-%m-%d').date())
+            dates = []
+            while d <= end_d:
+                dates.append(d.strftime('%Y-%m-%d'))
+                d += timedelta(days=1)
+            selected_dates = ','.join(dates)
+
+        room = Room(
+            title          = title,
+            description    = description,
+            date_from      = datetime.strptime(date_from, '%Y-%m-%d').date(),
+            date_to        = datetime.strptime(date_to,   '%Y-%m-%d').date(),
+            time_start     = time_start,
+            time_end       = time_end,
+            duration       = duration,
+            organiser_id   = current_user.id,
+            selected_dates = selected_dates,
+            deadline       = deadline,
+        )
+        db.session.add(room)
+        db.session.commit()
+        return redirect(url_for('main.availability', code=room.code))
+
+    return render_template('create_event.html', user=current_user)
 
 # TODO: Replace with full dashboard route — Person 3 (feature/results)
 @main.route('/dashboard')
