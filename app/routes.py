@@ -260,7 +260,7 @@ def reset_password():
 # ════════════════════════════════════════════════════════════════
 
 # TODO: Replace with full create event + availability routes — Person 2 (feature/rooms)
-@main.route('/create-event')
+@main.route('/create-event', methods=['GET', 'POST'])
 @login_required
 def create_event():
     if request.method == 'POST':
@@ -302,6 +302,123 @@ def create_event():
         return redirect(url_for('main.availability', code=room.code))
 
     return render_template('create_event.html', user=current_user)
+
+@main.route('/availability')
+@main.route('/availability/<code>')
+@login_required
+def availability(code=None):
+    room           = None
+    time_slots     = []
+    existing       = {}
+    selected_dates = []
+
+    if code:
+        room = Room.query.filter_by(code=code).first_or_404()
+
+        if room.confirmed_slot:
+            return redirect(url_for('main.results', code=code))
+
+        if room.organiser_id != current_user.id:
+            existing_participant = RoomParticipant.query.filter_by(
+                room_id=room.id, user_id=current_user.id
+            ).first()
+            if not existing_participant:
+                db.session.add(RoomParticipant(
+                    room_id=room.id, user_id=current_user.id, status='invited'
+                ))
+                if current_user.notif_room_invites:
+                    db.session.add(Notification(
+                        user_id=current_user.id, type='invite',
+                        message=(f'You have been invited to "{room.title}"'
+                                 f' by {room.organiser.display_name}.'),
+                    ))
+                db.session.commit()
+
+        time_slots = generate_time_slots(room.time_start, room.time_end)
+
+        if room.selected_dates:
+            selected_dates = [
+                datetime.strptime(d.strip(), '%Y-%m-%d').date()
+                for d in room.selected_dates.split(',')
+            ]
+
+        existing = {
+            a.time_slot: a.status
+            for a in Availability.query.filter_by(
+                room_id=room.id, user_id=current_user.id
+            ).all()
+        }
+
+    personal_schedule = {
+        f"{ps.day}|{ps.time_slot}": ps.status
+        for ps in current_user.personal_schedule
+    }
+
+    return render_template('availability.html',
+                           user=current_user,
+                           room=room,
+                           time_slots=time_slots,
+                           timedelta=timedelta,
+                           existing=existing,
+                           selected_dates=selected_dates,
+                           personal_schedule=personal_schedule)
+
+@main.route('/availability/<code>/submit', methods=['POST'])
+@login_required
+def submit_availability(code):
+    room = Room.query.filter_by(code=code).first_or_404()
+
+    is_organiser   = room.organiser_id == current_user.id
+    is_participant = RoomParticipant.query.filter_by(
+        room_id=room.id, user_id=current_user.id
+    ).first() is not None
+
+    if not is_organiser and not is_participant:
+        abort(403)
+
+    if room.confirmed_slot:
+        return redirect(url_for('main.results', code=code))
+
+    Availability.query.filter_by(room_id=room.id, user_id=current_user.id).delete()
+
+    for key, value in request.form.items():
+        if key.startswith('tile_') and value in ('free', 'maybe', 'busy'):
+            parts    = key.split('_')
+            date_str = parts[1]
+            hour, minute, period = parts[2], parts[3], parts[4]
+            slot = f"{date_str} {hour}:{minute} {period}"
+            db.session.add(Availability(
+                room_id=room.id, user_id=current_user.id,
+                time_slot=slot, status=value,
+            ))
+
+    db.session.flush()
+    tiles_saved = Availability.query.filter_by(
+        room_id=room.id, user_id=current_user.id
+    ).count()
+
+    if room.organiser_id != current_user.id:
+        participant = RoomParticipant.query.filter_by(
+            room_id=room.id, user_id=current_user.id
+        ).first()
+        if participant:
+            participant.status = 'awaiting' if tiles_saved > 0 else 'invited'
+        elif tiles_saved > 0:
+            db.session.add(RoomParticipant(
+                room_id=room.id, user_id=current_user.id, status='awaiting'
+            ))
+
+    if room.organiser_id != current_user.id and tiles_saved > 0:
+        organiser = User.query.get(room.organiser_id)
+        if organiser.notif_availability:
+            db.session.add(Notification(
+                user_id=room.organiser_id, type='availability',
+                message=(f'{current_user.display_name} has submitted their'
+                         f' availability for "{room.title}".'),
+            ))
+
+    db.session.commit()
+    return redirect(url_for('main.dashboard'))
 
 # TODO: Replace with full dashboard route — Person 3 (feature/results)
 @main.route('/dashboard')
