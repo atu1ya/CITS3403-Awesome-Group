@@ -15,21 +15,41 @@ This repository hosts the necessary files for the assessed project related to CI
 
 *Note that the roles column does not imply the developer has only worked within that role; It outlines which category their most significant contributions fall under.
 
-## Getting started
-Make sure you have python installed on your machine.
+## Getting Started
+Make sure Python 3.10+ is installed on your machine.
 
-1. Pull the repository into your local machine and change your working directory inside the folder (or simply open the folder in vscode, and use the vs terminal)
-2. Run ``python -m venv venv`` in the project directory. A folder called venv should pop up.
-3. Activate your virtual environment by running ``venv/Scripts/activate`` in the project directory.
-4. Run ``pip install -r requirements.txt`` in the project directory.
-5. You're good to go.
+1. Clone this repository and open it in VS Code (or your terminal).
+2. Create and activate a virtual environment.
+3. Install dependencies from `requirements.txt`.
+4. Add environment variables for email + secret key.
+5. Run the app.
+
+### Windows quick setup
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+set SECRET_KEY=replace-with-a-random-secret
+set MAIL_USERNAME=your-email@gmail.com
+set MAIL_PASSWORD=your-app-password
+python run.py
+```
+
+### macOS/Linux quick setup
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export SECRET_KEY='replace-with-a-random-secret'
+export MAIL_USERNAME='your-email@gmail.com'
+export MAIL_PASSWORD='your-app-password'
+python run.py
+```
 
 ### Notes
-To run the server, you can do so by simply running ``python run.py``. The URL you'll need to use will be listed in your terminal (if you're on VSCode, you may simply CTRL + Click the link). The server will indefinitely run until either the terminal is closed, you manually exit, or it crashes. 
-
-The server automatically listens for changes and will restart accordingly after you've saved a file. This allows you to make changes dynamically.
-
-Error logs and tracebacks should already be listed in the terminal when they happen. You may not need to use the developer console on the browser (unless you prefer it).
+- The local server URL is printed in the terminal after startup.
+- In development, the app reloads when files change.
+- Runtime errors and tracebacks are shown in the terminal.
 
 ## Workflow
 The general workflow is outlined in steps below.

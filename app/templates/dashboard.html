@@ -34,10 +34,10 @@
 
 {# ── Filter bar (injected by JS) ── #}
 <div class="d-flex gap-2 mb-3 flex-wrap" id="filterBar">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="awaiting">Awaiting</button>
-  <button class="filter-btn" data-filter="confirmed">Confirmed</button>
-  <button class="filter-btn" data-filter="invited">Invited</button>
+  <button type="button" class="filter-btn active" data-filter="all">All</button>
+  <button type="button" class="filter-btn" data-filter="awaiting">Awaiting</button>
+  <button type="button" class="filter-btn" data-filter="confirmed">Confirmed</button>
+  <button type="button" class="filter-btn" data-filter="invited">Invited</button>
 </div>
 
 <div class="row g-3" id="roomsGrid">
@@ -83,9 +83,10 @@
           {% else %}
             <a href="{{ url_for('main.availability', code=room.code) }}" class="btn-room flex-grow-1 text-center py-1">View Grid</a>
             <a href="{{ url_for('main.results', code=room.code) }}"     class="btn-room flex-grow-1 text-center py-1">Results</a>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
+              aria-label="Copy room share link"
               data-link="{{ request.host_url }}availability/{{ room.code }}" title="Copy share link">
-              <i class="bi bi-share"></i>
+              <i class="bi bi-share" aria-hidden="true"></i>
             </button>
           {% endif %}
         </div>
@@ -193,6 +194,8 @@
   const notifBar = document.getElementById("notifBar");
   if (notifBar) {
     const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Dismiss notifications");
     btn.innerHTML = '<i class="bi bi-x-lg"></i>';
     btn.className = "notif-dismiss-btn";
     notifBar.appendChild(btn);
@@ -242,14 +245,31 @@
   // ── Share link buttons ──
   document.querySelectorAll(".share-btn").forEach(btn => {
     btn.addEventListener("click", function () {
-      navigator.clipboard.writeText(this.dataset.link).then(() => {
+      const link = this.dataset.link || "";
+      const writePromise = navigator.clipboard?.writeText
+        ? navigator.clipboard.writeText(link)
+        : Promise.reject(new Error("Clipboard API unavailable"));
+
+      writePromise.then(() => {
         const orig = this.innerHTML;
         this.innerHTML = '<i class="bi bi-check-lg"></i>';
         this.classList.add("share-btn-success");
         setTimeout(() => { this.innerHTML = orig; this.classList.remove("share-btn-success"); }, 2000);
       }).catch(() => {
-        this.innerHTML = '<i class="bi bi-check-lg"></i>';
-        setTimeout(() => { this.innerHTML = '<i class="bi bi-share"></i>'; }, 2000);
+        const input = document.createElement("input");
+        input.value = link;
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        try {
+          document.execCommand("copy");
+          this.innerHTML = '<i class="bi bi-check-lg"></i>';
+          this.classList.add("share-btn-success");
+          setTimeout(() => { this.innerHTML = '<i class="bi bi-share"></i>'; this.classList.remove("share-btn-success"); }, 2000);
+        } finally {
+          document.body.removeChild(input);
+        }
       });
     });
   });
