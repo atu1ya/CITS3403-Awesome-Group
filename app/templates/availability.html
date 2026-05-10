@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input, flash_info %}
+
+{% block title %}SmartMeet – {{ room.title if room else 'Join Room' }}{% endblock %}
+
+{% block body %}
+
+  {# ── Room share link banner ── #}
+  {% if room %}
+  <div id="roomLinkBanner" class="alert-info d-flex align-items-center gap-2 flex-wrap justify-content-center" style="border-radius:0;margin-bottom:0;">
+    🔗 Share this link with your participants:
+    <span class="font-monospace mx-2">{{ request.host_url }}availability/{{ room.code }}</span>
+    <button
+      onclick="navigator.clipboard.writeText('{{ request.host_url }}availability/{{ room.code }}');this.textContent='✅ Copied!';setTimeout(()=>this.textContent='Copy Link',2000);"
+      type="button" class="btn-room py-1 px-3">
+      Copy Link
+    </button>
+    <button onclick="document.getElementById('roomLinkBanner').remove()" type="button" class="notif-dismiss-btn">✕</button>
+  </div>
+  {% endif %}
+
+  {# ── Room banner ── #}
+  <div class="room-banner">
+    <div class="container position-relative text-center">
+      <div class="room-badge">
+        🚪 Room · {{ room.title if room else 'Team Sprint Planning' }}
+      </div>
+      <h2 class="pixel-sm mb-2">Mark Your Availability</h2>
+      <p class="mb-4" style="opacity:.8;font-size:.95rem;">
+        Tap the tiles to show when you're free. Let's find the perfect time! 🎯
+      </p>
+
+      {# ── Participants ── #}
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        {% if room %}
+        <div class="part-avatar">
+          <div class="part-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">
+            {{ room.organiser.avatar }}
+          </div>
+          <span class="part-name">{{ room.organiser.username }}</span>
+        </div>
+        {% for participant in room.participants %}
+        <div class="part-avatar">
+          <div class="part-circle" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);">
+            {{ participant.user.avatar }}
+          </div>
+          <span class="part-name">{{ participant.user.username }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <div class="part-avatar" style="opacity:.5;">
+          <div class="part-circle" style="background:rgba(255,255,255,.1);border-style:dashed;">
+            <i class="bi bi-plus" style="color:#fff;font-size:1.1rem;"></i>
+          </div>
+          <span class="part-name">You?</span>
+        </div>
+      </div>
+
+      <div class="event-meta">
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="meta-pill">
+            <i class="bi bi-calendar3 me-1"></i>
+            {% if room %}{{ room.date_from.strftime('%d %b') }} – {{ room.date_to.strftime('%d %b %Y') }}{% else %}6 – 10 May 2024{% endif %}
+          </span>
+          <span class="meta-pill">
+            <i class="bi bi-clock me-1"></i>
+            {{ room.time_start + ' – ' + room.time_end if room else '9:00 AM – 5:00 PM' }}
+          </span>
+          <span class="meta-pill">
+            <i class="bi bi-people me-1"></i>
+            {% if room %}
+              {{ room.participants | length }} participant{{ 's' if room.participants | length != 1 else '' }}
+            {% else %}5 participants{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width:900px;">
+
+    {# ── Name box ── #}
+    <div class="name-box mb-4">
+      <div class="name-avatar-placeholder">{{ current_user.avatar }}</div>
+      <div class="flex-grow-1">
+        <label class="form-label field-label mb-1">Your Name</label>
+        <input type="text" class="form-control form-control-purple fw-700" id="participantName"
+          value="{{ current_user.display_name }}" readonly />
+      </div>
+    </div>
+
+    <div class="instruction-bar mb-4">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-hand-index-thumb flex-shrink-0" style="font-size:1.2rem;"></i>
+        <span>Click a tile to cycle: <strong>Empty → Free → Maybe → Busy → Empty</strong></span>
+      </div>
+      <button type="button" id="prefillBtn" class="btn-room py-1 px-3 flex-shrink-0" style="font-size:.78rem;background:var(--p4);color:var(--p2);box-shadow:none;">
+        📅 Pre-fill from Schedule
+      </button>
+    </div>
+
+    {# ── Availability form ── #}
+    <form method="POST" action="{{ url_for('main.submit_availability', code=room.code) if room else '#' }}">
+      {{ csrf_input() }}
+
+      <div class="sm-card mb-4">
+        <div class="sm-card-header" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>🎮 Availability Grid</span>
+          <div class="d-flex gap-3 flex-wrap align-items-center">
+            <span class="legend-chip"><span class="legend-swatch t-free"></span>Free</span>
+            <span class="legend-chip"><span class="legend-swatch t-maybe"></span>Maybe</span>
+            <span class="legend-chip"><span class="legend-swatch t-busy"></span>Busy</span>
+            <span class="legend-chip"><span class="legend-swatch t-empty"></span>Not set</span>
+          </div>
+        </div>
+        <div class="sm-card-body">
+          <div class="grid-outer">
+            <table class="av-table" id="avGrid">
+              <thead>
+                <tr>
+                  <th></th>
+                  {% if room %}
+                    {% for d in selected_dates %}
+                    <th>
+                      <div>{{ d.strftime('%a') }}</div>
+                      <div style="opacity:.65;font-weight:600;">{{ d.strftime('%d %b') }}</div>
+                    </th>
+                    {% endfor %}
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% if room %}
+                  {% for slot in time_slots %}
+                  <tr class="{{ 'hour-start' if ':00 ' in slot else '' }}">
+                    <td class="time-lbl">{{ slot }}</td>
+                    {% for d in selected_dates %}
+                      {% set key = d.strftime('%Y-%m-%d') + ' ' + slot %}
+                      {% set prev_status = existing.get(key, 'empty') %}
+                      <td class="tile t-{{ prev_status }}" data-slot="{{ slot }}" data-date="{{ d.strftime('%Y-%m-%d') }}"></td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {# ── Response progress ── #}
+      <div class="response-bar mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-800" style="font-size:.88rem;">
+            <i class="bi bi-people me-2" style="color:var(--p2);"></i>Responses so far
+          </span>
+          <span class="fw-900" style="color:var(--p2);">
+            {% if room %}
+              {{ room.participants | selectattr('status', 'equalto', 'awaiting') | list | length }} / {{ room.participants | length }} participants
+            {% else %}4 / 5 participants{% endif %}
+          </span>
+        </div>
+        <div class="response-track">
+          <div class="response-fill" style="width:{% if room and room.participants | length > 0 %}{{ ((room.participants | selectattr('status', 'equalto', 'awaiting') | list | length) / (room.participants | length) * 100) | int }}{% else %}80{% endif %}%;"></div>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column flex-sm-row gap-3 align-items-center justify-content-between">
+        <p class="text-muted small mb-0">
+          <i class="bi bi-info-circle me-1 text-primary"></i>
+          You can update your availability any time before the deadline.
+        </p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary rounded-pill fw-700 px-4" type="button" id="clearAllBtn">Clear All</button>
+          <button type="submit" class="btn-join">🎯 Submit Availability</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
+  let isDragging      = false;
+  let dragTargetState = null;
+  const tiles         = document.querySelectorAll("#avGrid td.tile");
+  const form          = document.querySelector("form");
+
+  function nextState(tile) {
+    const cur = STATES.find(s => tile.classList.contains(s)) || "t-empty";
+    return STATES[(STATES.indexOf(cur) + 1) % STATES.length];
+  }
+
+  function paintTile(tile, state) {
+    tile.classList.remove(...STATES);
+    tile.classList.add(state);
+    const { slot, date } = tile.dataset;
+    if (!slot || !date) return;
+    const key = "tile_" + date + "_" + slot.replace(/[: ]/g, "_");
+    let input = document.getElementById(key);
+    if (!input) {
+      input = Object.assign(document.createElement("input"), { type: "hidden", id: key, name: key });
+      form.appendChild(input);
+    }
+    input.value = state.replace("t-", "");
+  }
+
+  tiles.forEach(tile => {
+    tile.addEventListener("mousedown", e => {
+      e.preventDefault();
+      isDragging = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("mouseenter", () => {
+      if (isDragging) paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("touchstart", e => {
+      e.preventDefault();
+      isDragging = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    }, { passive: false });
+    tile.addEventListener("touchmove", e => {
+      e.preventDefault();
+      const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (el && el.classList.contains("tile")) paintTile(el, dragTargetState);
+    }, { passive: false });
+  });
+
+  document.addEventListener("mouseup",  () => { isDragging = false; dragTargetState = null; });
+  document.addEventListener("touchend", () => { isDragging = false; dragTargetState = null; });
+
+  // Seed hidden inputs for pre-existing tile states
+  tiles.forEach(tile => {
+    const state = STATES.find(s => tile.classList.contains(s)) || "t-empty";
+    if (state !== "t-empty") paintTile(tile, state);
+  });
+
+  // Clear all
+  document.getElementById("clearAllBtn").addEventListener("click", () => {
+    tiles.forEach(tile => {
+      tile.classList.remove(...STATES);
+      tile.classList.add("t-empty");
+      const { slot, date } = tile.dataset;
+      if (slot && date) {
+        const input = document.getElementById("tile_" + date + "_" + slot.replace(/[: ]/g, "_"));
+        if (input) input.remove();
+      }
+    });
+  });
+
+  // Pre-fill from personal schedule
+  const personalSchedule = {{ personal_schedule | tojson }};
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  document.getElementById("prefillBtn").addEventListener("click", function () {
+    document.querySelectorAll(".tile").forEach(tile => {
+      const { slot, date: dateStr } = tile.dataset;
+      if (!slot || !dateStr) return;
+      const day = DAY_NAMES[new Date(dateStr).getDay()];
+      const val = personalSchedule[day + '|' + slot];
+      if (val) tile.className = "tile t-" + val;
+    });
+    this.textContent = "✅ Pre-filled!";
+    this.classList.add("btn-confirm");
+    setTimeout(() => {
+      this.textContent = "📅 Pre-fill from Schedule";
+      this.classList.remove("btn-confirm");
+    }, 2000);
+  });
+})();
+</script>
+{% endblock %}

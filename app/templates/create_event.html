@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input %}
+
+{% block title %}SmartMeet – Create a Room{% endblock %}
+{% block nav_create %}active{% endblock %}
+
+{% block body %}
+
+  <div class="page-header">
+    <div class="container position-relative">
+      <div class="page-header-icon">✨</div>
+      <h2 class="pixel-title mb-2">Create a Room</h2>
+      <p class="mb-0" style="opacity:0.8;font-size:0.95rem;">Set up your meeting space and invite your crew.</p>
+    </div>
+  </div>
+
+  <div class="container py-5">
+    <div class="row g-4 justify-content-center">
+
+      {# ── Form column ── #}
+      <div class="col-lg-7">
+        <form method="POST" action="{{ url_for('main.create_event') }}">
+          {{ csrf_input() }}
+          <input type="hidden" name="selectedDates" id="selectedDates" />
+
+          {# Step progress #}
+          <div class="step-progress">
+            <div class="step-node">
+              <div class="step-circle active" id="sc1">1</div>
+              <div class="step-label active" id="sl1">Room Details</div>
+            </div>
+            <div class="step-connector" id="con1"></div>
+            <div class="step-node">
+              <div class="step-circle" id="sc2">2</div>
+              <div class="step-label" id="sl2">Dates &amp; Time</div>
+            </div>
+            <div class="step-connector" id="con2"></div>
+            <div class="step-node">
+              <div class="step-circle" id="sc3">3</div>
+              <div class="step-label" id="sl3">Your Info</div>
+            </div>
+          </div>
+
+          {# ── Step 1: Room Details ── #}
+          <div class="step-panel active" id="step1">
+            <div class="form-card">
+              <div class="form-card-header">🏠 Step 1 of 3 — Room Details</div>
+              <div class="form-card-body">
+                <div class="mb-4">
+                  <label class="form-label" for="roomName">Room Name</label>
+                  <input type="text" class="form-control" id="roomName" name="roomName" placeholder="e.g. Team Sprint Planning 🚀" />
+                  <div class="form-text text-muted small mt-1">Give your room a fun, memorable name.</div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" for="roomDesc">Room Description</label>
+                  <textarea class="form-control" id="roomDesc" name="roomDesc" rows="4" maxlength="200" placeholder="What's this meeting about?"></textarea>
+                  <div class="char-counter" id="charCount">0 / 200</div>
+                </div>
+                <div class="d-flex justify-content-end mt-4">
+                  <button type="button" class="btn-next" onclick="goToStep(2)">Next: Dates &amp; Time →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {# ── Step 2: Dates & Time ── #}
+          <div class="step-panel" id="step2">
+            <div class="form-card">
+              <div class="form-card-header">📅 Step 2 of 3 — Dates &amp; Time</div>
+              <div class="form-card-body">
+                <div class="row g-3 mb-3">
+                  <div class="col-sm-6">
+                    <label class="form-label" for="dateFrom">From</label>
+                    <input type="date" class="form-control" id="dateFrom" name="dateFrom" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label" for="dateTo">To</label>
+                    <input type="date" class="form-control" id="dateTo" name="dateTo" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label" for="deadline">Response Deadline <span class="text-muted small">(optional)</span></label>
+                    <input type="date" class="form-control" id="deadline" name="deadline" />
+                    <div class="form-text text-muted small mt-1">Last day participants can submit availability.</div>
+                  </div>
+                </div>
+                <p class="small text-muted mb-2">Selected dates:</p>
+                <div class="d-flex flex-wrap gap-2 mb-4" id="dateTilesContainer">
+                  <span class="text-muted small">Select a valid date range above.</span>
+                </div>
+                <div class="row g-3 mb-4">
+                  <div class="col-sm-4">
+                    <label class="form-label" for="timeStart">Earliest Start</label>
+                    <select class="form-select" id="timeStart" name="timeStart">
+                      <option>8:00 AM</option>
+                      <option selected>9:00 AM</option>
+                      <option>10:00 AM</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-4">
+                    <label class="form-label" for="timeEnd">Latest End</label>
+                    <select class="form-select" id="timeEnd" name="timeEnd">
+                      <option>4:00 PM</option>
+                      <option selected>5:00 PM</option>
+                      <option>6:00 PM</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-4">
+                    <label class="form-label" for="duration">Duration</label>
+                    <select class="form-select" id="duration" name="duration">
+                      <option>30 min</option>
+                      <option selected>1 hour</option>
+                      <option>1.5 hrs</option>
+                      <option>2 hrs</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="time-preview" id="timePreviewBox">
+                  <p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">
+                    ⏰ Slots from <strong>9:00 AM</strong> to <strong>5:00 PM</strong> · <strong>1 hour</strong> blocks
+                  </p>
+                </div>
+                <div class="d-flex justify-content-between mt-4 gap-2">
+                  <button type="button" class="btn-back" onclick="goToStep(1)">← Back</button>
+                  <button type="button" class="btn-next" onclick="goToStep(3)">Next: Your Info →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {# ── Step 3: Your Info ── #}
+          <div class="step-panel" id="step3">
+            <div class="form-card">
+              <div class="form-card-header">👤 Step 3 of 3 — Your Info</div>
+              <div class="form-card-body">
+                <div class="row g-3 mb-4">
+                  <div class="col-sm-6">
+                    <label class="form-label" for="orgName">Your Name</label>
+                    <input type="text" class="form-control" id="orgName" name="orgName"
+                      placeholder="Username or real name" value="{{ current_user.display_name }}" />
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label">Email</label>
+                    <div class="form-control form-control-purple fw-700" style="background:#f9fafb;color:var(--muted);">
+                      {{ current_user.email }}
+                    </div>
+                  </div>
+                </div>
+                <div class="room-summary-box mb-4">
+                  <p class="fw-900 mb-2 field-label">Room Summary</p>
+                  <div class="small fw-700">
+                    <p class="mb-1">🏠 <span id="summaryName">Untitled Room</span></p>
+                    <p class="mb-1" id="summaryDates">📅 — · 9:00 AM – 5:00 PM</p>
+                    <p class="mb-0" id="summaryDuration">⏱ 1 hour slots</p>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between gap-2 mb-3">
+                  <button type="button" class="btn-back" onclick="goToStep(2)">← Back</button>
+                  <button type="submit" class="btn-create flex-grow-1" id="createBtn">
+                    🎉 Create Room &amp; Get Link
+                  </button>
+                </div>
+                <p class="text-center text-muted small mb-0">A shareable link will be generated for your participants.</p>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      {# ── Sidebar preview ── #}
+      <div class="col-lg-4 d-none d-lg-flex flex-column gap-3" style="position:sticky;top:20px;align-self:flex-start;">
+        <div class="preview-card">
+          <div class="preview-card-banner">
+            <span class="fw-800 text-white me-auto" style="font-size:.9rem;" id="previewTitle">Untitled Room</span>
+            <span class="live-badge">● LIVE</span>
+          </div>
+          <div class="preview-body">
+            <p class="text-muted small fw-700 mb-3">Room preview updates as you type</p>
+            <div class="preview-row"><span class="preview-icon">📝</span><span class="preview-val" id="previewDesc">No description yet…</span></div>
+            <div class="preview-row"><span class="preview-icon">📅</span><span class="preview-val" id="previewDates">—</span></div>
+            <div class="preview-row"><span class="preview-icon">⏰</span><span class="preview-val" id="previewTime">9:00 AM – 5:00 PM · 1 hour</span></div>
+            <div class="preview-row"><span class="preview-icon">👤</span><span class="preview-val" id="previewOrg">{{ current_user.display_name }}</span></div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">💡 Tips</div>
+          <div class="tip-row"><span class="tip-icon">🏷️</span><span>Use a fun room name so participants know what it's for.</span></div>
+          <div class="tip-row"><span class="tip-icon">📅</span><span>Pick 3–7 candidate days for best results.</span></div>
+          <div class="tip-row"><span class="tip-icon">⏰</span><span>Choose a window that covers most people's work hours.</span></div>
+          <div class="tip-row"><span class="tip-icon">🔗</span><span>Share the link via Slack, Discord, or email.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const DAY_NAMES   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  const roomNameEl  = document.getElementById("roomName");
+  const roomDescEl  = document.getElementById("roomDesc");
+  const dateFromEl  = document.getElementById("dateFrom");
+  const dateToEl    = document.getElementById("dateTo");
+  const timeStartEl = document.getElementById("timeStart");
+  const timeEndEl   = document.getElementById("timeEnd");
+  const durationEl  = document.getElementById("duration");
+  const orgNameEl   = document.getElementById("orgName");
+  let excludedDates = new Set();
+
+  function parseTimeToHour(str) {
+    const [time, period] = str.split(" ");
+    let h = parseInt(time);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return h;
+  }
+
+  function parseDurationMins(val) {
+    if (val.includes("30"))  return 30;
+    if (val.includes("1.5")) return 90;
+    if (val.includes("2"))   return 120;
+    return 60;
+  }
+
+  function formatDateRange(from, to) {
+    if (!from || !to) return "—";
+    const f = new Date(from), t = new Date(to);
+    if (isNaN(f) || isNaN(t)) return "—";
+    return f.getMonth() === t.getMonth() && f.getFullYear() === t.getFullYear()
+      ? `${f.getDate()} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`
+      : `${f.getDate()} ${MONTH_NAMES[f.getMonth()]} – ${t.getDate()} ${MONTH_NAMES[t.getMonth()]} ${t.getFullYear()}`;
+  }
+
+  function activeDayCount() {
+    let count = 0;
+    if (dateFromEl.value && dateToEl.value) {
+      const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+      while (cur <= end) {
+        if (!excludedDates.has(cur.toISOString().split('T')[0])) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    return count;
+  }
+
+  function slotsPerDay() {
+    return Math.floor(
+      (parseTimeToHour(timeEndEl.value) - parseTimeToHour(timeStartEl.value)) * 60
+      / parseDurationMins(durationEl.value)
+    );
+  }
+
+  function updateSelectedDatesInput() {
+    if (!dateFromEl.value || !dateToEl.value) return;
+    const dates = [];
+    const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+    while (cur <= end) {
+      const ds = cur.toISOString().split('T')[0];
+      if (!excludedDates.has(ds)) dates.push(ds);
+      cur.setDate(cur.getDate() + 1);
+    }
+    document.getElementById("selectedDates").value = dates.join(',');
+  }
+
+  function updateDateTiles() {
+    const container = document.getElementById("dateTilesContainer");
+    if (!dateFromEl.value || !dateToEl.value || new Date(dateFromEl.value) > new Date(dateToEl.value)) {
+      container.innerHTML = '<span class="text-muted small">Select a valid date range above.</span>';
+      excludedDates.clear();
+      return;
+    }
+    const dates = [];
+    const cur = new Date(dateFromEl.value), end = new Date(dateToEl.value);
+    while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+    const shown = dates.slice(0, 14);
+    container.innerHTML = shown.map(d => {
+      const ds = d.toISOString().split('T')[0];
+      return `<span class="date-tile${excludedDates.has(ds) ? ' excluded' : ''}" data-date="${ds}">📅 ${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>`;
+    }).join("");
+    if (dates.length > 14)
+      container.innerHTML += `<span class="date-tile" style="opacity:.6">+${dates.length - 14} more</span>`;
+    container.querySelectorAll('.date-tile[data-date]').forEach(tile => {
+      tile.addEventListener('click', function () {
+        const ds = this.dataset.date;
+        if (excludedDates.has(ds)) { excludedDates.delete(ds); this.classList.remove('excluded'); }
+        else                        { excludedDates.add(ds);    this.classList.add('excluded'); }
+        updateSelectedDatesInput();
+        updateTimePreview();
+      });
+    });
+    updateSelectedDatesInput();
+  }
+
+  function updateTimePreview() {
+    const box   = document.getElementById("timePreviewBox");
+    const days  = activeDayCount();
+    const spd   = slotsPerDay();
+    const total = days * spd;
+    const timeText = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+    box.innerHTML = days === 0
+      ? `<p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">⏰ ${timeText}</p>`
+      : `<p class="mb-0 fw-700" style="color:var(--p2);font-size:.9rem;">⏰ Slots from <strong>${timeStartEl.value}</strong> to <strong>${timeEndEl.value}</strong> · <strong>${durationEl.value}</strong> blocks</p>
+         <p class="mb-0 small text-muted mt-1">${spd} time slots over ${days} day${days !== 1 ? "s" : ""} = ${total} total tiles</p>`;
+  }
+
+  function updatePreview() {
+    const name = roomNameEl.value || "Untitled Room";
+    const len  = roomDescEl.value.length;
+    document.getElementById("previewTitle").textContent = name;
+    document.getElementById("previewDesc").textContent  = roomDescEl.value || "No description yet…";
+    document.getElementById("charCount").textContent    = `${len} / 200`;
+    document.getElementById("charCount").classList.toggle("warn", len > 170);
+    document.getElementById("previewDates").textContent = formatDateRange(dateFromEl.value, dateToEl.value);
+    document.getElementById("previewTime").textContent  = `${timeStartEl.value} – ${timeEndEl.value} · ${durationEl.value}`;
+    document.getElementById("previewOrg").textContent   = orgNameEl.value || "—";
+  }
+
+  function updateSummary() {
+    document.getElementById("summaryName").textContent = roomNameEl.value || "Untitled Room";
+    const days = activeDayCount(), spd = slotsPerDay(), total = days * spd;
+    document.getElementById("summaryDates").textContent    = `📅 ${formatDateRange(dateFromEl.value, dateToEl.value)} · ${timeStartEl.value} – ${timeEndEl.value}`;
+    document.getElementById("summaryDuration").textContent = days > 0
+      ? `⏱ ${durationEl.value} slots · ${total} total tiles`
+      : `⏱ ${durationEl.value} slots`;
+  }
+
+  function goToStep(n) {
+    const current = [1,2,3].find(i => document.getElementById("step"+i).classList.contains("active")) || 1;
+    if (n > current) {
+      if (current === 1 && !roomNameEl.value.trim()) {
+        roomNameEl.style.borderColor = "#fca5a5";
+        roomNameEl.placeholder       = "Please enter a room name!";
+        roomNameEl.focus();
+        setTimeout(() => roomNameEl.style.borderColor = "", 2000);
+        return;
+      }
+      if (current === 2) {
+        const from = dateFromEl.value, to = dateToEl.value;
+        if (!from || !to || new Date(from) > new Date(to)) {
+          dateFromEl.style.borderColor = "#fca5a5";
+          dateToEl.style.borderColor   = "#fca5a5";
+          setTimeout(() => { dateFromEl.style.borderColor = ""; dateToEl.style.borderColor = ""; }, 2000);
+          return;
+        }
+      }
+    }
+    [1,2,3].forEach(i => {
+      document.getElementById("step"+i).classList.remove("active");
+      const sc = document.getElementById("sc"+i);
+      sc.classList.remove("active","done");
+      document.getElementById("sl"+i).classList.remove("active");
+      if (i < n)      { sc.classList.add("done"); sc.textContent = "✓"; }
+      else if (i===n) { sc.classList.add("active"); sc.textContent = i; document.getElementById("sl"+i).classList.add("active"); }
+      else             { sc.textContent = i; }
+      if (i < 3) document.getElementById("con"+i).classList.toggle("done", i < n);
+    });
+    document.getElementById("step"+n).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    updateSummary();
+  }
+
+  // Expose goToStep for inline onclick attributes
+  window.goToStep = goToStep;
+
+  roomNameEl.addEventListener("input",   updatePreview);
+  roomDescEl.addEventListener("input",   updatePreview);
+  orgNameEl.addEventListener("input",    updatePreview);
+  dateFromEl.addEventListener("change",  () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
+  dateToEl.addEventListener("change",    () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
+  timeStartEl.addEventListener("change", () => { updateTimePreview(); updatePreview(); });
+  timeEndEl.addEventListener("change",   () => { updateTimePreview(); updatePreview(); });
+  durationEl.addEventListener("change",  () => { updateTimePreview(); updatePreview(); });
+
+  updatePreview();
+  updateDateTiles();
+  updateTimePreview();
+})();
+</script>
+{% endblock %}
