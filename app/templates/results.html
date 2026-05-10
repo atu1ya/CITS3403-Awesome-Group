@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input, flash_info, flash_success %}
+
+{% block title %}SmartMeet – Results{% endblock %}
+
+{% block body %}
+
+  <div class="result-header">
+    <div class="container position-relative">
+      <div class="confetti-row">🎉 🏆 ✨ 🎊 ⭐</div>
+      {% if room and room.confirmed_slot %}
+        <h2 class="pixel-result mb-2">Time <span>Confirmed!</span></h2>
+        <p style="opacity:0.8;font-size:0.95rem;">The organiser has confirmed a meeting time.</p>
+      {% elif room and best_slots %}
+        <h2 class="pixel-result mb-2">Best Time <span>Found!</span></h2>
+        <p style="opacity:0.8;font-size:0.95rem;">SmartMeet has found the perfect slot for your team.</p>
+      {% else %}
+        <h2 class="pixel-result mb-2">Waiting for <span>Responses</span></h2>
+        <p style="opacity:0.8;font-size:0.95rem;">No availability submitted yet.</p>
+      {% endif %}
+
+      {% if room %}
+      <div class="d-flex justify-content-center mt-4 mb-2">
+        {% set colors = ['linear-gradient(135deg,#f472b6,#a78bfa)','linear-gradient(135deg,#22d3ee,#6d28d9)','linear-gradient(135deg,#4ade80,#0ea5e9)','linear-gradient(135deg,#fbbf24,#f472b6)'] %}
+        <div style="display:flex;align-items:center;">
+          {% for p in participants_data[:4] %}
+          <div class="group-avatar" style="background:{{ colors[loop.index0 % 4] }};{% if loop.index0 > 0 %}margin-left:-14px;{% endif %}z-index:{{ 4 - loop.index0 }};">
+            {{ p.user.avatar }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <p style="opacity:0.75;font-size:0.85rem;font-weight:700;">
+        {{ participants_data | selectattr('responded') | list | length }} of {{ participants_data | length }} participants responded 🎯
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container py-5" style="max-width:900px;">
+
+    {% if room and best_slots %}
+
+      {% if request.args.get('notified') %}
+        {{ flash_info('📩 Participants have been notified!') }}
+      {% endif %}
+      {% if request.args.get('reminded') %}
+        {{ flash_info('🔔 Reminder sent!') }}
+      {% endif %}
+      {% if room.confirmed_slot %}
+        {{ flash_success('🎉 Meeting time confirmed: ' ~ room.confirmed_slot) }}
+      {% endif %}
+
+      {# ── Best time card ── #}
+      <div class="best-card mb-4" id="bestCard">
+        <div class="row align-items-center g-3">
+          <div class="col-md-8">
+            <div class="best-time-label">🏆 Recommended Meeting Time</div>
+            {% set best_slot_str = top_slot[0] %}
+            {% set best_score    = top_slot[1] %}
+            <div class="best-time-main" id="bestDay">{{ best_slot_str.split(' ')[0] }}</div>
+            <div class="best-time-main" id="bestTime" style="color:#bbf7d0;">
+              {% if best_slot_str.split(' ') | length > 2 %}
+                {{ best_slot_str.split(' ')[1] }} {{ best_slot_str.split(' ')[2] }}
+              {% else %}
+                {{ best_slot_str }}
+              {% endif %}
+            </div>
+            <p class="mt-3 mb-0 fw-700" id="bestMeta" style="opacity:0.9;font-size:0.95rem;">
+              ✅ {{ best_score | int }} of {{ total_users }} available · {{ room.duration }}
+            </p>
+          </div>
+          <div class="col-md-4 d-flex flex-column gap-2">
+            {% if is_organiser %}
+              <form method="POST" action="{{ url_for('main.confirm_time', code=room.code) }}" id="confirmForm">
+                {{ csrf_input() }}
+                <input type="hidden" name="confirmed_slot" id="confirmedSlotInput" value="{{ top_slot[0] }}" />
+                {% if room.confirmed_slot %}
+                  <button type="submit" class="btn-confirm w-100 mb-2" id="confirmBtn" disabled style="background:linear-gradient(135deg,#16a34a,#4ade80);">✅ Confirmed!</button>
+                {% else %}
+                  <button type="submit" class="btn-confirm w-100 mb-2" id="confirmBtn">📅 Confirm &amp; Notify</button>
+                {% endif %}
+              </form>
+              <form method="POST" action="{{ url_for('main.notify_participants', code=room.code) }}" id="notifyForm">
+                {{ csrf_input() }}
+                <input type="hidden" name="notify_slot" id="notifySlotInput" value="{{ top_slot[0] }}" />
+                <button type="submit" class="btn-share w-100" id="notifyBtn">
+                  {% if room.confirmed_slot %}📩 Notify Again{% else %}📢 Notify Best Time{% endif %}
+                </button>
+              </form>
+            {% else %}
+              <div class="d-flex align-items-center justify-content-center text-center fw-800 p-3 rounded-3" style="background:var(--p2);color:#fff;font-size:.82rem;">
+                🔒 Only the organiser can confirm a time.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ── All options (organiser only) ── #}
+      {% if is_organiser %}
+      <p class="section-label">🏅 All Options</p>
+      <div class="d-flex flex-column gap-3 mb-5" id="allOptions">
+        {% set rank_labels = ['1st', '2nd', '3rd'] %}
+        {% set rank_colors = ['#ede9fe', '#fef3c7', '#fce7f3'] %}
+        {% set rank_text   = ['var(--p2)', '#92400e', '#9d174d'] %}
+        {% set bar_colors  = ['var(--p2)', '#22c55e', '#86efac'] %}
+        {% for slot, score in best_slots %}
+        {% set i           = loop.index0 %}
+        {% set is_selected = (slot == top_slot[0]) %}
+        <div class="runnerup-card" id="slot-{{ i+1 }}"
+          {% if is_selected %}style="border:2px solid #a78bfa;box-shadow:0 0 0 3px rgba(109,40,217,.15);"{% endif %}
+          data-slot="{{ slot }}">
+          <div class="runnerup-rank" style="background:{{ rank_colors[i] }};color:{{ rank_text[i] }};">{{ rank_labels[i] }}</div>
+          <div class="flex-grow-1">
+            <div class="runnerup-time">{{ slot }}</div>
+            <div class="runnerup-meta">{{ score | int }} of {{ total_users }} available</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="d-flex justify-content-between mb-1" style="font-size:.72rem;font-weight:800;color:var(--muted);">
+              <span>Score</span><span>{{ score | int }} / {{ total_users }}</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="width:{{ ((score / total_users) * 100) | int if total_users > 0 else 0 }}%;background:{{ bar_colors[i] }};"></div>
+            </div>
+          </div>
+          <button class="btn-confirm slot-select-btn" style="font-size:.82rem;padding:8px 18px;"{% if is_selected %} disabled{% endif %}>
+            {% if is_selected %}✅ Selected{% else %}Select{% endif %}
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    {% else %}
+    <div class="text-center py-5 text-muted fw-700">
+      <div style="font-size:3rem;margin-bottom:16px;">⏳</div>
+      No availability has been submitted yet. Share the room link to get responses.
+    </div>
+    {% endif %}
+
+    {% if room %}
+    {# ── Event summary ── #}
+    <div class="res-card mb-4">
+      <div class="res-card-hdr">📋 Event Summary</div>
+      <div class="res-card-body">
+        <div class="row g-3 small">
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Event</div>
+            <div class="text-muted">{{ room.title }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Organiser</div>
+            <div class="text-muted">{{ room.organiser.display_name }} {{ room.organiser.avatar }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Duration</div>
+            <div class="text-muted">{{ room.duration }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Date Range</div>
+            <div class="text-muted">{{ room.date_from.strftime('%d %b') }} – {{ room.date_to.strftime('%d %b %Y') }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Time Window</div>
+            <div class="text-muted">{{ room.time_start }} – {{ room.time_end }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="fw-900 mb-1">Responses</div>
+            <div class="text-muted">{{ participants_data | selectattr('responded') | list | length }} / {{ participants_data | length }} participants</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Heatmap ── #}
+    <div class="res-card mb-4">
+      <div class="res-card-hdr">🔥 Availability Heatmap</div>
+      <div class="res-card-body">
+        <div class="d-flex gap-3 small text-muted mb-3 flex-wrap align-items-center">
+          <span>Darker = more people free &nbsp;|&nbsp;</span>
+          <span><span class="heatmap-swatch h0"></span> 0</span>
+          <span><span class="heatmap-swatch h1"></span> 1</span>
+          <span><span class="heatmap-swatch h2"></span> 2</span>
+          <span><span class="heatmap-swatch h3"></span> 3+</span>
+          <span><span class="heatmap-swatch h4"></span> Best ★</span>
+        </div>
+        <div class="grid-outer">
+          <table class="av-table" id="rGrid">
+            <thead>
+              <tr>
+                <th></th>
+                {% for d in selected_dates %}
+                  <th>
+                    <div>{{ d.strftime('%a') }}</div>
+                    <div style="opacity:0.65;font-weight:600;">{{ d.strftime('%d %b') }}</div>
+                  </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% set best_slot = best_slots[0][0] if best_slots else '' %}
+              {% for slot in time_slots %}
+              <tr class="{{ 'hour-start' if ':00 ' in slot else '' }}">
+                <td class="time-lbl">{{ slot }}</td>
+                {% for d in selected_dates %}
+                  {% set key   = d.strftime('%Y-%m-%d') + ' ' + slot %}
+                  {% set score = heatmap.get(key, 0) | int %}
+                  {% set is_best = (key == best_slot) %}
+                  {% if is_best %}
+                    <td class="htile h4">{{ score }}★</td>
+                  {% elif score >= 3 %}
+                    <td class="htile h3">{{ score }}</td>
+                  {% elif score == 2 %}
+                    <td class="htile h2">{{ score }}</td>
+                  {% elif score == 1 %}
+                    <td class="htile h1">{{ score }}</td>
+                  {% else %}
+                    <td class="htile h0"></td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {# ── Participant overview (organiser only) ── #}
+    {% if is_organiser %}
+    <div class="res-card mb-5">
+      <div class="res-card-hdr">👥 Participant Overview</div>
+      <div class="res-card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0 part-table">
+            <thead>
+              <tr>
+                <th class="ps-4">Player</th>
+                <th>Role</th>
+                <th>Slots Free</th>
+                <th>Responded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in participants_data %}
+              <tr {% if not p.responded %}class="table-light"{% endif %}>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="mini-participant-avatar">{{ p.user.avatar }}</div>
+                    <div>
+                      <div class="fw-800 {% if not p.responded %}text-muted{% endif %}">{{ p.user.display_name }}</div>
+                      <div class="text-muted" style="font-size:.72rem;">@{{ p.user.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="text-muted small fw-700">{{ p.role }}</span></td>
+                <td>
+                  {% if p.responded %}<span class="fw-700">{{ p.free_count }}</span>
+                  {% else %}<span class="text-muted">–</span>{% endif %}
+                </td>
+                <td>
+                  {% if p.responded %}
+                    <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:.72rem;">✅ Yes</span>
+                  {% else %}
+                    <div class="d-flex align-items-center justify-content-between" style="max-width:180px;">
+                      <span class="badge rounded-pill" style="background:#fef3c7;color:#92400e;font-size:.72rem;">⏳ Pending</span>
+                      {% if p.role == 'Participant' %}
+                      <form method="POST" action="{{ url_for('main.remind_participant', code=room.code, user_id=p.user.id) }}">
+                        {{ csrf_input() }}
+                        <button type="submit" class="btn-remind">🔔 Remind</button>
+                      </form>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="d-flex justify-content-center">
+      <a href="{{ url_for('main.dashboard') }}" class="btn-room px-4 py-2">
+        <i class="bi bi-arrow-left me-2"></i>Back to My Space
+      </a>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+{% if is_organiser and room %}
+(function () {
+  const roomDuration = "{{ room.duration }}";
+  const isConfirmed  = {{ 'true' if room and room.confirmed_slot else 'false' }};
+
+  document.querySelectorAll(".slot-select-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      if (this.disabled) return;
+      const card  = this.closest(".runnerup-card");
+      const slot  = card.dataset.slot;
+      const score = card.querySelector(".runnerup-meta").textContent;
+
+      document.getElementById("confirmedSlotInput").value = slot;
+      document.getElementById("notifySlotInput").value    = slot;
+
+      const parts = slot.split(' ');
+      document.getElementById("bestDay").textContent  = parts[0];
+      document.getElementById("bestTime").textContent = parts.slice(1).join(' ');
+      document.getElementById("bestMeta").textContent = `✅ ${score} · ${roomDuration}`;
+
+      const confirmBtn = document.getElementById("confirmBtn");
+      if (confirmBtn && isConfirmed) {
+        confirmBtn.textContent      = "📅 Confirm & Notify";
+        confirmBtn.disabled         = false;
+        confirmBtn.style.background = "";
+        document.getElementById("confirmedBanner")?.remove();
+      }
+
+      document.querySelectorAll(".runnerup-card").forEach(c => {
+        c.style.opacity   = "0.45";
+        c.style.border    = "2px solid var(--p4)";
+        c.style.boxShadow = "";
+        const b = c.querySelector(".slot-select-btn");
+        b.textContent      = "Select";
+        b.disabled         = false;
+        b.style.background = "";
+      });
+
+      card.style.opacity   = "1";
+      card.style.border    = "2px solid #a78bfa";
+      card.style.boxShadow = "0 0 0 3px rgba(109,40,217,.15)";
+      this.textContent = "✅ Selected";
+      this.disabled    = true;
+    });
+  });
+})();
+{% endif %}
+</script>
+{% endblock %}
