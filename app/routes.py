@@ -424,13 +424,197 @@ def submit_availability(code):
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return redirect(url_for('main.index'))
+    cleanup_expired_rooms()
+    rooms_created = Room.query.filter_by(organiser_id=current_user.id).all()
+    created_ids   = [r.id for r in rooms_created]
+    rooms_invited = RoomParticipant.query.filter_by(
+        user_id=current_user.id
+    ).filter(
+        RoomParticipant.room_id.notin_(created_ids)
+    ).all()
+    return render_template('dashboard.html',
+                           user=current_user,
+                           rooms_created=rooms_created,
+                           rooms_invited=rooms_invited)
 
-# TODO: Replace with full results routes — Person 3 (feature/results)
+
+# ════════════════════════════════════════════════════════════════
+#  Results
+# ════════════════════════════════════════════════════════════════
+
 @main.route('/results')
+@main.route('/results/<code>')
 @login_required
-def results():
-    return redirect(url_for('main.index'))
+def results(code=None):
+    room              = None
+    heatmap           = {}
+    best_slots        = []
+    top_slot          = None
+    participants_data = []
+    is_organiser      = False
+    total_users       = 0
+    time_slots        = []
+    selected_dates    = []
+
+    if code:
+        room = Room.query.filter_by(code=code).first_or_404()
+
+        is_organiser   = room.organiser_id == current_user.id
+        is_participant = RoomParticipant.query.filter_by(
+            room_id=room.id, user_id=current_user.id
+        ).first() is not None
+
+        if not is_organiser and not is_participant:
+            abort(403)
+
+        time_slots = generate_time_slots(room.time_start, room.time_end)
+
+        if room.selected_dates:
+            selected_dates = [
+                datetime.strptime(d.strip(), '%Y-%m-%d').date()
+                for d in room.selected_dates.split(',')
+            ]
+
+        total_users = len(set(a.user_id for a in room.availabilities))
+
+        for a in room.availabilities:
+            heatmap.setdefault(a.time_slot, 0)
+            if a.status == 'free':
+                heatmap[a.time_slot] += 1
+            elif a.status == 'maybe':
+                heatmap[a.time_slot] += 0.5
+
+        def _slot_sort_key(item):
+            slot, score = item
+            try:
+                dt = datetime.strptime(slot, '%Y-%m-%d %I:%M %p')
+            except ValueError:
+                dt = datetime.max
+            return (-score, dt)
+
+        best_slots = sorted(heatmap.items(), key=_slot_sort_key)[:3]
+
+        selected_param = request.args.get('selected')
+        if room.confirmed_slot and room.confirmed_slot in heatmap:
+            top_slot = (room.confirmed_slot, heatmap[room.confirmed_slot])
+        elif room.suggested_slot and room.suggested_slot in heatmap:
+            top_slot = (room.suggested_slot, heatmap[room.suggested_slot])
+        elif selected_param and selected_param in heatmap:
+            top_slot = (selected_param, heatmap[selected_param])
+        elif best_slots:
+            top_slot = best_slots[0]
+
+        organiser       = User.query.get(room.organiser_id)
+        organiser_avail = Availability.query.filter_by(
+            room_id=room.id, user_id=room.organiser_id
+        ).all()
+        participants_data.append({
+            'user':       organiser,
+            'role':       'Organiser',
+            'responded':  len(organiser_avail) > 0,
+            'free_count': sum(1 for a in organiser_avail if a.status == 'free'),
+        })
+        for rp in room.participants:
+            if rp.user_id == room.organiser_id:
+                continue
+            user_avail = Availability.query.filter_by(
+                room_id=room.id, user_id=rp.user_id
+            ).all()
+            participants_data.append({
+                'user':       rp.user,
+                'role':       'Participant',
+                'responded':  rp.status in ('awaiting', 'confirmed'),
+                'free_count': sum(1 for a in user_avail if a.status == 'free'),
+            })
+
+    return render_template('results.html',
+                           user=current_user,
+                           room=room,
+                           heatmap=heatmap,
+                           best_slots=best_slots,
+                           top_slot=top_slot,
+                           participants_data=participants_data,
+                           is_organiser=is_organiser,
+                           total_users=total_users,
+                           time_slots=time_slots,
+                           selected_dates=selected_dates,
+                           timedelta=timedelta)
+
+
+# ════════════════════════════════════════════════════════════════
+#  Confirm Time
+# ════════════════════════════════════════════════════════════════
+
+@main.route('/results/<code>/confirm', methods=['POST'])
+@login_required
+def confirm_time(code):
+    room = Room.query.filter_by(code=code).first_or_404()
+    if room.organiser_id != current_user.id:
+        return redirect(url_for('main.results', code=code))
+
+    room.confirmed_slot = request.form.get('confirmed_slot')
+
+    for rp in room.participants:
+        rp.status = 'confirmed'
+        if rp.user.notif_best_time:
+            db.session.add(Notification(
+                user_id=rp.user_id, type='confirmed',
+                message=(f'A meeting time has been confirmed for'
+                         f' "{room.title}": {room.confirmed_slot}'),
+            ))
+
+    db.session.commit()
+    return redirect(url_for('main.results', code=code))
+
+
+# ════════════════════════════════════════════════════════════════
+#  Notify Participants
+# ════════════════════════════════════════════════════════════════
+
+@main.route('/results/<code>/notify', methods=['POST'])
+@login_required
+def notify_participants(code):
+    room = Room.query.filter_by(code=code).first_or_404()
+    if room.organiser_id != current_user.id:
+        return redirect(url_for('main.results', code=code))
+
+    notify_slot = request.form.get('notify_slot', room.confirmed_slot or '')
+
+    for rp in room.participants:
+        if rp.user.notif_best_time:
+            if room.confirmed_slot:
+                msg        = f'A meeting time has been confirmed for "{room.title}": {notify_slot}'
+                notif_type = 'confirmed'
+            else:
+                msg        = f'Best time found for "{room.title}"! Suggested time: {notify_slot}'
+                notif_type = 'best_time'
+            db.session.add(Notification(
+                user_id=rp.user_id, type=notif_type, message=msg
+            ))
+
+    room.suggested_slot = notify_slot
+    db.session.commit()
+    return redirect(url_for('main.results', code=code, notified=1, selected=notify_slot))
+
+
+# ════════════════════════════════════════════════════════════════
+#  Remind Participant
+# ════════════════════════════════════════════════════════════════
+
+@main.route('/results/<code>/remind/<int:user_id>', methods=['POST'])
+@login_required
+def remind_participant(code, user_id):
+    room = Room.query.filter_by(code=code).first_or_404()
+    if room.organiser_id != current_user.id:
+        return redirect(url_for('main.results', code=code))
+
+    db.session.add(Notification(
+        user_id=user_id, type='invite',
+        message=(f'⏰ Reminder: Please submit your availability for'
+                 f' "{room.title}" before it\'s too late!'),
+    ))
+    db.session.commit()
+    return redirect(url_for('main.results', code=code, reminded=1))
 
 # TODO: Replace with full friends routes — Person 4 (feature/social)
 @main.route('/friends')

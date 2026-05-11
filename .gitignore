@@ -2,18 +2,31 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
 # Virtual environment
 .venv/
 venv/
 env/
 
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
+
 # Environment variables
 .env
+.env.*
 
 # Database
 *.db
 *.sqlite3
+
+# Flask instance folder
+instance/
 
 # OS files
 .DS_Store

@@ -1,0 +1,278 @@
+{% extends 'base_sidebar.html' %}
+{% from '_macros.html' import csrf_input %}
+
+{% block title %}SmartMeet – My Space{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block sidebar_rooms %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <p class="section-sub">My Mini Space</p>
+    <h2 class="fw-900 mb-0" style="font-size:1.6rem;">Hey {{ user.display_name.split()[0] }}, welcome back! 🌟</h2>
+  </div>
+  <a href="{{ url_for('main.create_event') }}" class="btn-room py-2 px-4">✨ Create New Room</a>
+</div>
+
+{# ── Unread notifications bar ── #}
+{% set unread_notifs = user.notifications | selectattr('is_read', 'equalto', false) | list %}
+{% if unread_notifs %}
+<div class="notif-bar mb-4" id="notifBar">
+  <span style="font-size:1.4rem;">🔔</span>
+  <div class="flex-grow-1">
+    You have <strong>{{ unread_notifs | length }}</strong> unread notification{{ 's' if unread_notifs | length != 1 else '' }}.
+    <a href="{{ url_for('main.notifications') }}" style="color:var(--p2);font-weight:800;">View all →</a>
+  </div>
+</div>
+{% endif %}
+
+<p class="section-sub">Active Rooms</p>
+<div class="section-header d-flex align-items-center" id="roomsHeader">
+  Rooms You Created
+  <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">{{ rooms_created | length }}</span>
+</div>
+
+{# ── Filter bar (injected by JS) ── #}
+<div class="d-flex gap-2 mb-3 flex-wrap" id="filterBar">
+  <button type="button" class="filter-btn active" data-filter="all">All</button>
+  <button type="button" class="filter-btn" data-filter="awaiting">Awaiting</button>
+  <button type="button" class="filter-btn" data-filter="confirmed">Confirmed</button>
+  <button type="button" class="filter-btn" data-filter="invited">Invited</button>
+</div>
+
+<div class="row g-3" id="roomsGrid">
+  {% for room in rooms_created %}
+  {% set responded = room.participants | rejectattr('status', 'equalto', 'invited') | list | length %}
+  {% set total     = room.participants | length %}
+  {% set progress  = ((responded / total * 100) | int) if total > 0 else 0 %}
+  {% set confirmed = room.confirmed_slot != None %}
+
+  <div class="col-md-6 room-col">
+    <div class="room-card">
+      <div class="room-card-top" style="background:linear-gradient(90deg,#4c1d95,#7c3aed);">
+        <span style="color:#fff;font-weight:800;font-size:.9rem;">{{ room.title }}</span>
+        {% if confirmed %}
+          <span class="status-chip chip-done">Confirmed!</span>
+        {% else %}
+          <span class="status-chip chip-waiting">Awaiting</span>
+        {% endif %}
+      </div>
+      <div class="room-card-body">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <p class="text-muted small mb-0">{{ room.date_from.strftime('%d %b') }} – {{ room.date_to.strftime('%d %b %Y') }}</p>
+          {% if room.deadline %}
+            <span class="deadline-badge deadline-ok"><i class="bi bi-clock me-1"></i>Closes {{ room.deadline.strftime('%d %b') }}</span>
+          {% elif confirmed %}
+            <span class="deadline-badge deadline-closed"><i class="bi bi-lock me-1"></i>Closed</span>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+          <div>
+            {% for p in room.participants[:5] %}
+            <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">{{ p.user.avatar }}</span>
+            {% endfor %}
+          </div>
+          <span class="text-muted small fw-700">{{ responded }} / {{ total }} responded</span>
+        </div>
+        <div class="progress mb-3">
+          <div class="progress-bar" style="width:{{ progress }}%;background:{% if confirmed %}#22c55e{% else %}var(--yellow){% endif %};"></div>
+        </div>
+        <div class="d-flex gap-2">
+          {% if confirmed %}
+            <a href="{{ url_for('main.results', code=room.code) }}" class="btn-room flex-grow-1 text-center py-1">View Results</a>
+          {% else %}
+            <a href="{{ url_for('main.availability', code=room.code) }}" class="btn-room flex-grow-1 text-center py-1">View Grid</a>
+            <a href="{{ url_for('main.results', code=room.code) }}"     class="btn-room flex-grow-1 text-center py-1">Results</a>
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-700 px-3 share-btn"
+              aria-label="Copy room share link"
+              data-link="{{ request.host_url }}availability/{{ room.code }}" title="Copy share link">
+              <i class="bi bi-share" aria-hidden="true"></i>
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if rooms_created | length == 0 %}
+  <div class="col-12">
+    <p class="text-muted fw-700 text-center py-3">No rooms created yet. Create your first room!</p>
+  </div>
+  {% endif %}
+
+  <div class="col-md-6 room-col" id="ctaCard">
+    <a href="{{ url_for('main.create_event') }}" class="text-decoration-none">
+      <div class="room-card d-flex flex-column align-items-center justify-content-center py-5 room-card-cta">
+        <div style="font-size:2.5rem;margin-bottom:12px;">➕</div>
+        <div class="fw-800" style="color:var(--p2);">Create New Room</div>
+        <div class="text-muted small mt-1">Start planning your next meeting</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<hr class="section-divider" />
+
+<p class="section-sub">Invited Rooms</p>
+<div class="section-header">
+  Rooms You're Invited To
+  <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">{{ rooms_invited | length }}</span>
+</div>
+
+<div class="row g-3">
+  {% for participant in rooms_invited %}
+  {% set room      = participant.room %}
+  {% set responded = room.participants | rejectattr('status', 'equalto', 'invited') | list | length %}
+  {% set total     = room.participants | length %}
+  {% set progress  = ((responded / total * 100) | int) if total > 0 else 0 %}
+  {% set confirmed = room.confirmed_slot != None %}
+  {% set my_status = participant.status %}
+
+  <div class="col-md-6 room-col">
+    <div class="room-card">
+      <div class="room-card-top" style="background:linear-gradient(90deg,#134e4a,#0d9488);">
+        <span style="color:#fff;font-weight:800;font-size:.9rem;">{{ room.title }}</span>
+        {% if confirmed %}
+          <span class="status-chip chip-done">Confirmed!</span>
+        {% elif my_status == 'awaiting' %}
+          <span class="status-chip chip-waiting">Awaiting</span>
+        {% else %}
+          <span class="status-chip chip-invited">Invited</span>
+        {% endif %}
+      </div>
+      <div class="room-card-body">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <p class="text-muted small mb-0">{{ room.date_from.strftime('%d %b') }} – {{ room.date_to.strftime('%d %b %Y') }}</p>
+          {% if room.deadline %}
+            <span class="deadline-badge deadline-ok"><i class="bi bi-clock me-1"></i>Closes {{ room.deadline.strftime('%d %b') }}</span>
+          {% elif confirmed %}
+            <span class="deadline-badge deadline-closed"><i class="bi bi-lock me-1"></i>Closed</span>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+          <div>
+            {% for p in room.participants[:5] %}
+            <span class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">{{ p.user.avatar }}</span>
+            {% endfor %}
+          </div>
+          <span class="text-muted small fw-700">{{ responded }} / {{ total }} responded</span>
+        </div>
+        <div class="progress mb-1">
+          <div class="progress-bar" style="width:{{ progress }}%;background:{% if confirmed %}#22c55e{% else %}var(--yellow){% endif %};"></div>
+        </div>
+        <p class="text-muted small mb-3 mt-2">
+          <i class="bi bi-person me-1"></i>Organised by <strong>{{ room.organiser.display_name }}</strong>
+        </p>
+        <div class="d-flex gap-2">
+          {% if confirmed %}
+            <a href="{{ url_for('main.results', code=room.code) }}" class="btn-room flex-grow-1 text-center py-2">View Results</a>
+          {% elif my_status == 'awaiting' %}
+            <a href="{{ url_for('main.availability', code=room.code) }}" class="btn-room flex-grow-1 text-center py-1">View Grid</a>
+            <a href="{{ url_for('main.results', code=room.code) }}"      class="btn-room flex-grow-1 text-center py-1">Results</a>
+          {% else %}
+            <a href="{{ url_for('main.availability', code=room.code) }}" class="btn-room flex-grow-1 text-center py-2">✏️ Mark My Availability</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if rooms_invited | length == 0 %}
+  <div class="col-12">
+    <p class="text-muted fw-700 text-center py-3">You haven't been invited to any rooms yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  // ── Dismiss notification bar ──
+  const notifBar = document.getElementById("notifBar");
+  if (notifBar) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Dismiss notifications");
+    btn.innerHTML = '<i class="bi bi-x-lg"></i>';
+    btn.className = "notif-dismiss-btn";
+    notifBar.appendChild(btn);
+    btn.addEventListener("click", () => {
+      notifBar.style.transition = "opacity .3s";
+      notifBar.style.opacity = "0";
+      setTimeout(() => notifBar.remove(), 300);
+    });
+  }
+
+  // ── Filter tabs ──
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+
+      const filter   = this.dataset.filter;
+      const allCols  = document.querySelectorAll(".room-col");
+
+      allCols.forEach(col => {
+        if (col.id === "ctaCard") { col.style.display = ""; return; }
+        if (filter === "all")     { col.style.display = ""; return; }
+        const chip        = col.querySelector(".status-chip");
+        const isAwaiting  = chip?.classList.contains("chip-waiting");
+        const isConfirmed = chip?.classList.contains("chip-done");
+        const isInvited   = chip?.classList.contains("chip-invited");
+        col.style.display =
+          (filter === "awaiting"  && isAwaiting)  ||
+          (filter === "confirmed" && isConfirmed) ||
+          (filter === "invited"   && isInvited)
+            ? "" : "none";
+      });
+
+      document.getElementById("emptyState")?.remove();
+      const visible = [...allCols].filter(c => c.style.display !== "none" && c.id !== "ctaCard");
+      if (visible.length === 0) {
+        const empty = document.createElement("div");
+        empty.id = "emptyState";
+        empty.className = "text-center py-5";
+        empty.style.color = "var(--muted)";
+        empty.innerHTML = `<div style="font-size:2.5rem;margin-bottom:12px;">🔍</div><div class="fw-700">No ${filter} rooms found.</div>`;
+        document.getElementById("roomsGrid").appendChild(empty);
+      }
+    });
+  });
+
+  // ── Share link buttons ──
+  document.querySelectorAll(".share-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const link = this.dataset.link || "";
+      const writePromise = navigator.clipboard?.writeText
+        ? navigator.clipboard.writeText(link)
+        : Promise.reject(new Error("Clipboard API unavailable"));
+
+      writePromise.then(() => {
+        const orig = this.innerHTML;
+        this.innerHTML = '<i class="bi bi-check-lg"></i>';
+        this.classList.add("share-btn-success");
+        setTimeout(() => { this.innerHTML = orig; this.classList.remove("share-btn-success"); }, 2000);
+      }).catch(() => {
+        const input = document.createElement("input");
+        input.value = link;
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        try {
+          document.execCommand("copy");
+          this.innerHTML = '<i class="bi bi-check-lg"></i>';
+          this.classList.add("share-btn-success");
+          setTimeout(() => { this.innerHTML = '<i class="bi bi-share"></i>'; this.classList.remove("share-btn-success"); }, 2000);
+        } finally {
+          document.body.removeChild(input);
+        }
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}
