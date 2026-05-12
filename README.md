@@ -1,64 +1,158 @@
-# CITS3403-Awesome-Group
+# SmartMeet — CITS3403 Group Project
 
 ## Description
-This repository hosts the necessary files for the assessed project related to CITS3403. This project is a build of the website "SmartMeet", where people are allowed to collaborate and schedule meetings with each other based on their own individual schedules.
+
+SmartMeet is a collaborative scheduling web app that allows users to create meeting rooms, invite participants, collect availability via an interactive grid, and find the best meeting time. Built with Flask, SQLAlchemy and Bootstrap 5.
+
+---
 
 ## Members
 
-| Name           | Surname    | ID       | Role               |
-| -------------- | ---------- | -------- | ------------------ |
-| Muhammad Imran | Bin Ismail | 24277844 | Backend developer  |
-| Suhrid         | Pushan     | 24306853 | Frontend developer |
-| Hyun           | Lee        | 24182536 | Frontend developer |
-| Atulya         | Chaturvedi | 24225113 | Backend developer  |
-|                |            |          |                    |
+| UWA ID   | Name                          | GitHub Username |
+|----------|-------------------------------|-----------------|
+| 24306853 | Suhrid Mahmood Pushan         | suhrid07        |
+| 24277844 | Muhammad Imran Bin Ismail     | cereal-addict   |
+| 24225113 | Atulya Chaturvedi             | atu1ya          |
+| 24182536 | Hyun Lee                      | hyunl33         |
 
-*Note that the roles column does not imply the developer has only worked within that role; It outlines which category their most significant contributions fall under.
+---
+
+## Project Contributions
+
+The project was developed in two phases:
+
+**Phase 1 — UI Mockups**
+Suhrid and Hyun collaborated on the initial HTML/CSS mockups to establish the visual design and layout of the application before backend development began.
+
+**Phase 2 — Full Implementation**
+The full application was built across four feature branches:
+
+| Member | Branch | Responsibility |
+|---|---|---|
+| Suhrid | `feature/suhrid-scaffold-auth-base` | Project scaffold, database models, base templates, CSS, authentication system |
+| Imran | `feature/imran-rooms` | Room creation, availability grid, submit availability |
+| Atulya | `feature/atulya-dashboard-results` | Dashboard, results heatmap, confirm time, notify participants |
+| Hyun | `feature/hyun-social` | Friends, notifications, schedule, settings |
+
+---
 
 ## Getting Started
+
 Make sure Python 3.10+ is installed on your machine.
 
-1. Clone this repository and open it in VS Code (or your terminal).
-2. Create and activate a virtual environment.
-3. Install dependencies from `requirements.txt`.
-4. Add environment variables for email + secret key.
-5. Run the app.
+---
 
-### Windows quick setup
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-set SECRET_KEY=replace-with-a-random-secret
-set MAIL_USERNAME=your-email@gmail.com
-set MAIL_PASSWORD=your-app-password
-python run.py
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/atu1ya/CITS3403-Awesome-Group.git
+cd CITS3403-Awesome-Group
 ```
 
-### macOS/Linux quick setup
+---
+
+### 2. Create and activate a virtual environment
+
+**Windows:**
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Mac/Linux:**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+---
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-export SECRET_KEY='replace-with-a-random-secret'
-export MAIL_USERNAME='your-email@gmail.com'
-export MAIL_PASSWORD='your-app-password'
+```
+
+---
+
+### 4. Set up the database
+
+```bash
+flask db upgrade
+```
+
+---
+
+### 5. Create test accounts
+
+```bash
+python seed.py
+```
+
+This creates 4 pre-verified test accounts for testing the full workflow — creating rooms, inviting participants, submitting availability and confirming meeting times.
+
+| Username   | Password  | Display Name |
+|------------|-----------|--------------|
+| testuser1  | Test123!  | Alice        |
+| testuser2  | Test123!  | Bob          |
+| testuser3  | Test123!  | Charlie      |
+| testuser4  | Test123!  | Diana        |
+
+> Safe to run multiple times — skips accounts that already exist.
+
+---
+
+### 6. Run the application
+
+```bash
 python run.py
 ```
 
-### Notes
-- The local server URL is printed in the terminal after startup.
-- In development, the app reloads when files change.
-- Runtime errors and tracebacks are shown in the terminal.
+The app will be available at `http://127.0.0.1:5000/`
+
+---
+
+## Email Functionality
+
+The signup and password reset flows require email credentials to send verification codes. The `.env` file containing these credentials is not included in the repository.
+
+To test the full signup flow, contact a team member to obtain the `.env` file. Otherwise use the pre-seeded test accounts above which bypass email verification entirely.
+
+---
+
+## Running the Tests
+
+### Unit tests
+
+```bash
+python -m pytest tests/unit
+```
+
+### Selenium tests
+
+Make sure the app is running first, then:
+
+```bash
+python -m pytest tests/selenium
+```
+
+---
 
 ## Workflow
-The general workflow is outlined in steps below.
 
-1. Create a new branch for your feature/change.
-2. Activate your virtual environment (heavily recommended) using the command ``venv/Scripts/activate``.
-3. Make your changes and commit.
-4. Create a new PR on the repository.
+1. Create a new branch for your feature: `git checkout -b feature/your-feature`
+2. Activate your virtual environment
+3. Make changes and commit with meaningful messages following the convention: `feat(scope): description`
+4. Push your branch and open a Pull Request on GitHub
+5. Get at least one approval before merging into `main`
 
-You may not necessarily have to make all your changes in one commit. Instead you are recommended to separate your changes into different, meaningful commits. 
+Separate your changes into meaningful commits rather than one large commit. Every merge into `main` should leave the app in a working state.
 
-Creating a virtual environment is recommended (along with installing packages via requirements.txt) to ensure everyone has, and is using the same packages and their corresponding versions.
+---
+
+## Notes
+
+- Never commit `.env`, `*.db`, or `.venv/` — these are in `.gitignore`
+- Always commit the `migrations/` folder
+- The local server URL is printed in the terminal after startup
+- Runtime errors and tracebacks are shown in the terminal
