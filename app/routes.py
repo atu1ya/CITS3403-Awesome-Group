@@ -616,28 +616,255 @@ def remind_participant(code, user_id):
     db.session.commit()
     return redirect(url_for('main.results', code=code, reminded=1))
 
-# TODO: Replace with full friends routes — Person 4 (feature/social)
+# ════════════════════════════════════════════════════════════════
+#  Friends
+# ════════════════════════════════════════════════════════════════
+
 @main.route('/friends')
 @login_required
 def friends():
-    return redirect(url_for('main.index'))
+    accepted = Friendship.query.filter(
+        (Friendship.user1_id == current_user.id) | (Friendship.user2_id == current_user.id),
+        Friendship.status == 'accepted',
+    ).all()
+    pending_received = Friendship.query.filter_by(
+        user2_id=current_user.id, status='pending'
+    ).all()
+    pending_sent = Friendship.query.filter_by(
+        user1_id=current_user.id, status='pending'
+    ).all()
+    return render_template('friends.html',
+                           user=current_user,
+                           friends=accepted,
+                           pending_received=pending_received,
+                           pending_sent=pending_sent)
 
-# TODO: Replace with full notifications routes — Person 4 (feature/social)
+
+@main.route('/friends/add', methods=['POST'])
+@login_required
+def send_friend_request():
+    username = request.form.get('username', '').strip()
+    target   = User.query.filter_by(username=username).first()
+
+    if not target:
+        return redirect(url_for('main.friends', error='User not found.'))
+    if target.id == current_user.id:
+        return redirect(url_for('main.friends', error='You cannot add yourself.'))
+
+    existing = Friendship.query.filter(
+        ((Friendship.user1_id == current_user.id) & (Friendship.user2_id == target.id)) |
+        ((Friendship.user1_id == target.id)       & (Friendship.user2_id == current_user.id))
+    ).first()
+    if existing:
+        return redirect(url_for('main.friends', error='Friend request already exists.'))
+    if not target.allow_friend_requests:
+        return redirect(url_for('main.friends',
+                                error=f'{target.display_name} is not accepting friend requests.'))
+
+    db.session.add(Friendship(
+        user1_id=current_user.id, user2_id=target.id, status='pending'
+    ))
+    if target.notif_friend_requests:
+        db.session.add(Notification(
+            user_id=target.id, type='friend',
+            message=f'{current_user.display_name} sent you a friend request.',
+        ))
+    db.session.commit()
+    return redirect(url_for('main.friends', success=f'Friend request sent to {target.display_name}!'))
+
+
+@main.route('/friends/accept/<int:friendship_id>', methods=['POST'])
+@login_required
+def accept_friend(friendship_id):
+    friendship = Friendship.query.get_or_404(friendship_id)
+    if friendship.user2_id != current_user.id:
+        return redirect(url_for('main.friends'))
+
+    friendship.status = 'accepted'
+    if friendship.sender.notif_friend_requests:
+        db.session.add(Notification(
+            user_id=friendship.user1_id, type='friend',
+            message=f'{current_user.display_name} accepted your friend request!',
+        ))
+    db.session.commit()
+    return redirect(url_for('main.friends'))
+
+
+@main.route('/friends/decline/<int:friendship_id>', methods=['POST'])
+@login_required
+def decline_friend(friendship_id):
+    friendship = Friendship.query.get_or_404(friendship_id)
+    if friendship.user2_id != current_user.id:
+        return redirect(url_for('main.friends'))
+    db.session.delete(friendship)
+    db.session.commit()
+    return redirect(url_for('main.friends'))
+
+
+@main.route('/friends/cancel/<int:friendship_id>', methods=['POST'])
+@login_required
+def cancel_friend_request(friendship_id):
+    friendship = Friendship.query.get_or_404(friendship_id)
+    if friendship.user1_id != current_user.id:
+        return redirect(url_for('main.friends'))
+    db.session.delete(friendship)
+    db.session.commit()
+    return redirect(url_for('main.friends'))
+
+
+@main.route('/friends/remove/<int:friendship_id>', methods=['POST'])
+@login_required
+def remove_friend(friendship_id):
+    friendship = Friendship.query.get_or_404(friendship_id)
+    if friendship.user1_id != current_user.id and friendship.user2_id != current_user.id:
+        return redirect(url_for('main.friends'))
+    db.session.delete(friendship)
+    db.session.commit()
+    return redirect(url_for('main.friends'))
+
+
+@main.route('/users/search')
+@login_required
+def search_users():
+    query = request.args.get('q', '').strip()
+    if len(query) < 2:
+        return jsonify({'users': []})
+    users = User.query.filter(
+        (User.username.ilike(f'%{query}%')) | (User.display_name.ilike(f'%{query}%'))
+    ).filter(User.id != current_user.id).limit(8).all()
+    return jsonify({'users': [
+        {'username': u.username, 'display_name': u.display_name,
+         'avatar': u.avatar, 'public_profile': u.public_profile}
+        for u in users
+    ]})
+
+# ════════════════════════════════════════════════════════════════
+#  Notifications
+# ════════════════════════════════════════════════════════════════
+
 @main.route('/notifications')
 @login_required
 def notifications():
-    return redirect(url_for('main.index'))
+    return render_template('notifications.html', user=current_user)
 
-# TODO: Replace with full schedule routes — Person 4 (feature/social)
-@main.route('/schedule')
+
+@main.route('/notifications/mark-all-read', methods=['POST'])
 @login_required
-def schedule():
-    return redirect(url_for('main.index'))
+def mark_all_read():
+    for notif in current_user.notifications:
+        notif.is_read = True
+    db.session.commit()
+    return redirect(url_for('main.notifications'))
 
-# TODO: Replace with full settings routes — Person 4 (feature/social)
+
+@main.route('/notifications/<int:notif_id>/read', methods=['POST'])
+@login_required
+def mark_read(notif_id):
+    notif = Notification.query.get_or_404(notif_id)
+    if notif.user_id == current_user.id:
+        notif.is_read = True
+        db.session.commit()
+    return redirect(url_for('main.notifications'))
+
+# ════════════════════════════════════════════════════════════════
+#  Schedule
+# ════════════════════════════════════════════════════════════════
+
+@main.route('/schedule')
+@main.route('/schedule/<username>')
+@login_required
+def schedule(username=None):
+    viewed_user = None
+    target_user = current_user
+
+    if username:
+        viewed_user = User.query.filter_by(username=username).first_or_404()
+        target_user = viewed_user
+
+    existing = {
+        f"{e.day}|{e.time_slot}": e.status
+        for e in PersonalSchedule.query.filter_by(user_id=target_user.id).all()
+    }
+
+    return render_template('schedule.html',
+                           user=current_user,
+                           viewed_user=viewed_user,
+                           existing=existing)
+
+
+@main.route('/schedule/save', methods=['POST'])
+@login_required
+def save_schedule():
+    import json
+    entries = json.loads(request.form.get('schedule_data', '[]'))
+
+    PersonalSchedule.query.filter_by(user_id=current_user.id).delete()
+    for entry in entries:
+        db.session.add(PersonalSchedule(
+            user_id=current_user.id,
+            day=entry['day'],
+            time_slot=entry['slot'],
+            status=entry['status'],
+        ))
+
+    db.session.commit()
+    return redirect(url_for('main.schedule', saved=1))
+
+# ════════════════════════════════════════════════════════════════
+#  Settings
+# ════════════════════════════════════════════════════════════════
+
 @main.route('/settings')
 @login_required
 def settings():
+    return render_template('settings.html', user=current_user)
+
+
+@main.route('/settings/save', methods=['POST'])
+@login_required
+def save_profile():
+    current_user.display_name = request.form.get('display_name', '').strip()
+    current_user.bio          = request.form.get('bio', '').strip()
+    current_user.avatar       = request.form.get('avatar', '').strip()
+
+    new_username = request.form.get('username', '').strip()
+    if new_username != current_user.username:
+        if User.query.filter_by(username=new_username).first():
+            return redirect(url_for('main.settings', error='Username already taken'))
+        current_user.username = new_username
+
+    db.session.commit()
+    return redirect(url_for('main.settings', saved=1))
+
+
+@main.route('/settings/notifications', methods=['POST'])
+@login_required
+def save_notification_preferences():
+    current_user.notif_availability    = 'notif_availability'    in request.form
+    current_user.notif_best_time       = 'notif_best_time'       in request.form
+    current_user.notif_room_invites    = 'notif_room_invites'    in request.form
+    current_user.notif_friend_requests = 'notif_friend_requests' in request.form
+    current_user.notif_deadlines       = 'notif_deadlines'       in request.form
+    db.session.commit()
+    return redirect(url_for('main.settings', saved=1))
+
+
+@main.route('/settings/privacy', methods=['POST'])
+@login_required
+def save_privacy_preferences():
+    current_user.allow_friend_requests = 'allow_friend_requests' in request.form
+    current_user.public_profile        = 'public_profile'        in request.form
+    db.session.commit()
+    return redirect(url_for('main.settings', saved=1))
+
+
+@main.route('/settings/delete', methods=['POST'])
+@login_required
+def delete_account():
+    user = current_user._get_current_object()
+    logout_user()
+    db.session.delete(user)
+    db.session.commit()
     return redirect(url_for('main.index'))
 
 

@@ -1,0 +1,74 @@
+{% extends 'base_sidebar.html' %}
+{% from '_macros.html' import csrf_input %}
+
+{% block title %}SmartMeet – Notifications{% endblock %}
+{% block sidebar_notifications %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <p class="section-sub">Activity</p>
+    <h2 class="fw-900 mb-0" style="font-size:1.6rem;">🔔 Notifications</h2>
+  </div>
+  {% set unread_notifs = user.notifications | selectattr('is_read', 'equalto', false) | list %}
+  {% if unread_notifs %}
+  <form method="POST" action="{{ url_for('main.mark_all_read') }}">
+    {{ csrf_input() }}
+    <button type="submit" class="btn btn-outline-secondary rounded-pill fw-700 px-4" style="font-size:.85rem;">
+      <i class="bi bi-check-all me-1"></i>Mark all as read
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+<div id="notifList" class="d-flex flex-column gap-3">
+  {% set notifications = user.notifications | sort(attribute='created_at', reverse=True) %}
+  {% if notifications %}
+    {% for notif in notifications %}
+    <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+      <div class="notif-icon" style="background:linear-gradient(135deg,#a78bfa,#ec4899);">
+        {% if notif.type == 'availability' %}🗓️
+        {% elif notif.type == 'confirmed' %}✅
+        {% elif notif.type == 'best_time' %}🏆
+        {% elif notif.type == 'invite' %}📨
+        {% elif notif.type == 'friend' %}👥
+        {% else %}🔔
+        {% endif %}
+      </div>
+      <div class="flex-grow-1">
+        <div>{{ notif.message }}</div>
+        <div class="notif-meta">
+          <i class="bi bi-clock me-1"></i>
+          <span class="notif-time" data-utc="{{ notif.created_at.strftime('%Y-%m-%dT%H:%M:%S') }}Z"></span>
+        </div>
+      </div>
+      {% if not notif.is_read %}
+      <form method="POST" action="{{ url_for('main.mark_read', notif_id=notif.id) }}">
+        {{ csrf_input() }}
+        <button type="submit" class="notif-action" style="background:none;border:none;cursor:pointer;">Mark read</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-5">
+      <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
+      <div class="fw-800" style="font-size:1.1rem;color:var(--p2);">You're all caught up!</div>
+      <div class="text-muted small mt-1">No notifications yet.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.notif-time').forEach(el => {
+    const date = new Date(el.dataset.utc);
+    el.textContent = date.toLocaleDateString('en-AU', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    }) + ' · ' + date.toLocaleTimeString('en-AU', {
+      hour: '2-digit', minute: '2-digit', hour12: true
+    });
+  });
+</script>
+{% endblock %}

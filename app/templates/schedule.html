@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_input %}
+
+{% block title %}SmartMeet – {% if viewed_user %}{{ viewed_user.display_name }}'s Schedule{% else %}My Schedule{% endif %}{% endblock %}
+{% block nav_schedule %}{% if not viewed_user %}active{% endif %}{% endblock %}
+
+{% block body %}
+
+  <div class="page-header text-center">
+    <div class="container position-relative">
+      <div class="page-header-icon">🗓️</div>
+      {% if viewed_user %}
+        <h2 class="pixel-title mb-2">{{ viewed_user.display_name }}'s Schedule</h2>
+        <p style="opacity:0.8;font-size:0.95rem;max-width:520px;margin:0 auto;">
+          Viewing {{ viewed_user.display_name }}'s weekly availability.
+        </p>
+      {% else %}
+        <h2 class="pixel-title mb-2">My Schedule</h2>
+        <p style="opacity:0.8;font-size:0.95rem;max-width:520px;margin:0 auto;">
+          Set your general weekly availability. SmartMeet will use this to pre-fill your responses.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container py-5" style="max-width:1000px;">
+    <div class="row g-4">
+
+      {# ── Schedule grid ── #}
+      <div class="col-lg-8">
+
+        {% if viewed_user %}
+        <div class="sm-card mb-4">
+          <div class="sm-card-body d-flex align-items-center gap-3">
+            <div class="mini-participant-avatar" style="width:56px;height:56px;font-size:1.8rem;flex-shrink:0;">
+              {{ viewed_user.avatar }}
+            </div>
+            <div>
+              <div class="fw-900 fs-5">{{ viewed_user.display_name }}</div>
+              <div class="text-muted small fw-600">@{{ viewed_user.username }}</div>
+              {% if viewed_user.bio %}
+              <div class="text-muted small fst-italic mt-1">"{{ viewed_user.bio }}"</div>
+              {% endif %}
+            </div>
+            <div class="ms-auto">
+              <div class="d-inline-block px-3 py-1 rounded-pill level-badge">
+                ✨ {{ viewed_user.level_title }}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="sm-card">
+          <div class="sm-card-header" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <span><i class="bi bi-grid-3x3-gap me-2"></i>Weekly Availability</span>
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+              <span class="legend-chip"><span class="legend-swatch t-free"></span>Free</span>
+              <span class="legend-chip"><span class="legend-swatch t-maybe"></span>Maybe</span>
+              <span class="legend-chip"><span class="legend-swatch t-busy"></span>Busy</span>
+              <span class="legend-chip"><span class="legend-swatch t-empty"></span>Not set</span>
+            </div>
+          </div>
+          <div class="sm-card-body">
+            {% if not viewed_user %}
+            <div class="time-filter mb-3">
+              <span>Show hours:</span>
+              <select id="startTimeSelect">
+                <option>6:00 AM</option>
+                <option selected>8:00 AM</option>
+                <option>9:00 AM</option>
+              </select>
+              <span>to</span>
+              <select id="endTimeSelect">
+                <option>6:00 PM</option>
+                <option selected>8:00 PM</option>
+                <option>10:00 PM</option>
+              </select>
+              <span class="ms-auto text-muted" style="font-size:.75rem;">Click to cycle: Empty → Free → Maybe → Busy → Empty</span>
+            </div>
+            {% endif %}
+
+            <div class="grid-outer">
+              <table class="av-table" id="schedGrid">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
+                    <th style="color:var(--pink);">Sat</th>
+                    <th style="color:var(--pink);">Sun</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set days  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+                  {% set slots = [
+                    '8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM',
+                    '11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM',
+                    '2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM',
+                    '5:00 PM','5:30 PM','6:00 PM','6:30 PM','7:00 PM','7:30 PM'
+                  ] %}
+                  {% for slot in slots %}
+                  <tr class="{{ 'hour-start' if ':00 ' in slot else '' }}">
+                    <td class="time-lbl">{{ slot }}</td>
+                    {% for day in days %}
+                      {% set status = existing.get(day + '|' + slot, 'empty') %}
+                      <td class="tile t-{{ status }}" data-day="{{ day }}" data-slot="{{ slot }}"
+                        {% if viewed_user %}style="cursor:default;"{% endif %}></td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Sidebar ── #}
+      <div class="col-lg-4">
+        {% if not viewed_user %}
+        <div class="sm-card mb-4">
+          <div class="sm-card-header"><i class="bi bi-floppy me-2"></i>Save Schedule</div>
+          <div class="sm-card-body">
+            <p class="text-muted small fw-700 mb-3">
+              Your schedule is used to pre-fill your availability when you're invited to a room.
+            </p>
+            {% if request.args.get('saved') %}
+            <div class="alert-success mb-3">✅ Schedule saved!</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('main.save_schedule') }}" id="scheduleForm">
+              {{ csrf_input() }}
+              <input type="hidden" name="schedule_data" id="scheduleData" />
+              <button type="submit" class="btn-save w-100" id="saveBtn">💾 Save Schedule</button>
+            </form>
+            <button class="btn btn-outline-secondary rounded-pill fw-700 w-100 mt-2 py-2" id="clearAllBtn">
+              🧹 Clear All
+            </button>
+          </div>
+        </div>
+        {% else %}
+        <div class="sm-card mb-4">
+          <div class="sm-card-body d-flex flex-column gap-2">
+            {% set already_friends = namespace(value=False) %}
+            {% for f in current_user.friendships_sent %}
+              {% if f.user2_id == viewed_user.id %}{% set already_friends.value = True %}{% endif %}
+            {% endfor %}
+            {% for f in current_user.friendships_recv %}
+              {% if f.user1_id == viewed_user.id %}{% set already_friends.value = True %}{% endif %}
+            {% endfor %}
+            {% if not already_friends.value %}
+            <form method="POST" action="{{ url_for('main.send_friend_request') }}">
+              {{ csrf_input() }}
+              <input type="hidden" name="username" value="{{ viewed_user.username }}" />
+              <button type="submit" class="btn-room w-100 py-2">
+                <i class="bi bi-person-plus-fill me-1"></i>Add Friend
+              </button>
+            </form>
+            {% endif %}
+            <a href="{{ url_for('main.friends') }}" class="btn-room w-100 text-center py-2 d-block">
+              ← Back to Friends
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="tip-card mb-4">
+          <div class="fw-900 mb-3 field-label">💡 How it works</div>
+          <div class="tip-row"><span class="tip-icon">🗓️</span><span>Set your general weekly availability here once.</span></div>
+          <div class="tip-row"><span class="tip-icon">🪄</span><span>When invited to a room, you can pre-fill the grid with your saved schedule.</span></div>
+          <div class="tip-row"><span class="tip-icon">✏️</span><span>You can always tweak your availability for a specific event.</span></div>
+          <div class="tip-row"><span class="tip-icon">🔄</span><span>Update your schedule any time, it won't affect past submissions.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const STATES = ["t-empty", "t-free", "t-maybe", "t-busy"];
+  const tiles  = document.querySelectorAll("#schedGrid td.tile");
+
+  {% if not viewed_user %}
+  let isDragging      = false;
+  let dragTargetState = null;
+
+  function nextState(tile) {
+    const cur = STATES.find(s => tile.classList.contains(s)) || "t-empty";
+    return STATES[(STATES.indexOf(cur) + 1) % STATES.length];
+  }
+
+  function paintTile(tile, state) {
+    tile.classList.remove(...STATES);
+    tile.classList.add(state);
+  }
+
+  tiles.forEach(tile => {
+    tile.addEventListener("mousedown", e => {
+      e.preventDefault();
+      isDragging = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("mouseenter", () => {
+      if (isDragging) paintTile(tile, dragTargetState);
+    });
+    tile.addEventListener("touchstart", e => {
+      e.preventDefault();
+      isDragging = true;
+      dragTargetState = nextState(tile);
+      paintTile(tile, dragTargetState);
+    }, { passive: false });
+    tile.addEventListener("touchmove", e => {
+      e.preventDefault();
+      const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (el && el.classList.contains("tile")) paintTile(el, dragTargetState);
+    }, { passive: false });
+  });
+
+  document.addEventListener("mouseup",  () => { isDragging = false; dragTargetState = null; });
+  document.addEventListener("touchend", () => { isDragging = false; dragTargetState = null; });
+
+  document.getElementById("clearAllBtn").addEventListener("click", () => {
+    tiles.forEach(tile => { tile.classList.remove(...STATES); tile.classList.add("t-empty"); });
+  });
+
+  // Time range filter
+  const timeToHour  = { "6:00 AM":6, "8:00 AM":8, "9:00 AM":9, "6:00 PM":18, "8:00 PM":20, "10:00 PM":22 };
+  const startSelect = document.getElementById("startTimeSelect");
+  const endSelect   = document.getElementById("endTimeSelect");
+
+  function applyTimeFilter() {
+    const startHour = timeToHour[startSelect.value] ?? 0;
+    const endHour   = timeToHour[endSelect.value]   ?? 24;
+    document.querySelectorAll("#schedGrid tbody tr").forEach(row => {
+      const label = row.querySelector(".time-lbl");
+      if (!label) return;
+      const [time, period] = label.textContent.trim().split(" ");
+      let h = parseInt(time.split(":")[0]);
+      if (period === "PM" && h !== 12) h += 12;
+      if (period === "AM" && h === 12) h = 0;
+      row.style.display = h >= startHour && h < endHour ? "" : "none";
+    });
+  }
+  startSelect.addEventListener("change", applyTimeFilter);
+  endSelect.addEventListener("change",   applyTimeFilter);
+  applyTimeFilter();
+
+  // Serialize schedule on submit
+  document.getElementById("scheduleForm").addEventListener("submit", function () {
+    const data = [];
+    tiles.forEach(tile => {
+      const state = STATES.find(s => tile.classList.contains(s)) || "t-empty";
+      if (state !== "t-empty") data.push({ day: tile.dataset.day, slot: tile.dataset.slot, status: state.replace("t-", "") });
+    });
+    document.getElementById("scheduleData").value = JSON.stringify(data);
+  });
+  {% endif %}
+})();
+</script>
+{% endblock %}
