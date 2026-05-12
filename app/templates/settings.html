@@ -1,0 +1,182 @@
+{% extends 'base_sidebar.html' %}
+{% from '_macros.html' import csrf_input, flash_success %}
+
+{% block title %}SmartMeet – Settings{% endblock %}
+{% block sidebar_settings %}active{% endblock %}
+
+{% block modals %}
+<div id="deleteModal" class="sm-modal-overlay" style="display:none;">
+  <div class="sm-modal-box">
+    <div class="sm-modal-icon">⚠️</div>
+    <div class="sm-modal-title danger">Delete Account?</div>
+    <p class="sm-modal-body">
+      This will permanently delete your account and all your rooms.
+      <strong style="color:#dc2626;">This cannot be undone.</strong>
+    </p>
+    <div class="d-flex gap-3 justify-content-center">
+      <button id="cancelDeleteBtn" class="btn btn-secondary rounded-pill fw-800 px-4">Cancel</button>
+      <form method="POST" action="{{ url_for('main.delete_account') }}">
+        {{ csrf_input() }}
+        <button type="submit" class="btn btn-danger rounded-pill fw-800 px-4">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <p class="section-sub">Preferences</p>
+  <h2 class="fw-900 mb-0" style="font-size:1.6rem;">⚙️ Settings</h2>
+</div>
+
+{% if request.args.get('saved') %}
+  {{ flash_success('✅ Profile saved successfully!') }}
+{% endif %}
+
+{# ── Profile ── #}
+<div class="sm-card mb-4">
+  <div class="sm-card-header">👤 Profile</div>
+  <div class="sm-card-body">
+    <form method="POST" action="{{ url_for('main.save_profile') }}">
+      {{ csrf_input() }}
+      <input type="hidden" name="avatar" id="avatarInput" value="{{ user.avatar }}" />
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label field-label">Display Name</label>
+          <input type="text" name="display_name" class="form-control form-control-purple fw-700" value="{{ user.display_name }}" />
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label field-label">Username</label>
+          <input type="text" name="username" class="form-control form-control-purple fw-700" value="{{ user.username }}" />
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label field-label">Email</label>
+          <div class="form-control fw-700" style="border:2px solid #e5e7eb;border-radius:12px;background:#f9fafb;color:var(--muted);">{{ user.email }}</div>
+          <div class="text-muted mt-1" style="font-size:.75rem;font-weight:700;">Email cannot be changed.</div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label field-label">Avatar</label>
+          <div class="d-flex gap-2 flex-wrap mt-1">
+            {% for emoji in ['🐱','🦊','🐻','🐼','🐶','🐸','🦅','🧊','🎯','🦁','🐮','🐷'] %}
+            <span class="avatar-pick {% if user.avatar == emoji %}selected{% endif %}" data-emoji="{{ emoji }}">{{ emoji }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label field-label">Bio</label>
+          <input type="text" name="bio" class="form-control form-control-purple fw-700"
+            value="{{ user.bio or '' }}" placeholder="Tell us a bit about yourself..." />
+        </div>
+      </div>
+      <div class="mt-3">
+        <button type="submit" class="btn-room px-4">💾 Save Profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Notifications ── #}
+<div class="sm-card mb-4">
+  <div class="sm-card-header">🔔 Notifications</div>
+  <div class="sm-card-body">
+    <form method="POST" action="{{ url_for('main.save_notification_preferences') }}">
+      {{ csrf_input() }}
+      <div class="d-flex flex-column gap-3">
+        {% set notif_items = [
+          ('notif_availability',    user.notif_availability,    'Availability submitted',  'When someone responds to your room'),
+          ('notif_best_time',       user.notif_best_time,       'Best time found',         'When a perfect slot is found for your room'),
+          ('notif_room_invites',    user.notif_room_invites,    'Room invites',            'When a friend invites you to a room'),
+          ('notif_friend_requests', user.notif_friend_requests, 'Friend requests',         'When someone sends you a friend request'),
+          ('notif_deadlines',       user.notif_deadlines,       'Deadline reminders',      'Reminder before a room deadline closes'),
+        ] %}
+        {% for name, checked, label, sublabel in notif_items %}
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-800">{{ label }}</div>
+            <div class="text-muted small">{{ sublabel }}</div>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" name="{{ name }}" {% if checked %}checked{% endif %} style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+          </div>
+        </div>
+        {% if not loop.last %}<hr class="my-0" style="border-color:#ede9fe;" />{% endif %}
+        {% endfor %}
+      </div>
+      <div class="mt-3">
+        <button type="submit" class="btn-room px-4">💾 Save Notification Settings</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Privacy ── #}
+<div class="sm-card mb-4">
+  <div class="sm-card-header">🔒 Privacy</div>
+  <div class="sm-card-body">
+    <form method="POST" action="{{ url_for('main.save_privacy_preferences') }}">
+      {{ csrf_input() }}
+      <div class="d-flex flex-column gap-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-800">Allow friend requests</div>
+            <div class="text-muted small">Anyone can send you a friend request</div>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" name="allow_friend_requests" {% if user.allow_friend_requests %}checked{% endif %} style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+          </div>
+        </div>
+        <hr class="my-0" style="border-color:#ede9fe;" />
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-800">Public profile</div>
+            <div class="text-muted small">Your profile is visible to non-friends</div>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" name="public_profile" {% if user.public_profile %}checked{% endif %} style="width:2.5rem;height:1.3rem;cursor:pointer;" />
+          </div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button type="submit" class="btn-room px-4">💾 Save Privacy Settings</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Danger zone ── #}
+<div class="sm-card" style="border:2px solid #fca5a5;">
+  <div class="sm-card-header" style="color:#dc2626;">⚠️ Danger Zone</div>
+  <div class="sm-card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <div class="fw-800">Delete Account</div>
+        <div class="text-muted small">Permanently delete your account and all your rooms. This cannot be undone.</div>
+      </div>
+      <button id="deleteAccountBtn" class="btn btn-outline-danger rounded-pill fw-700 px-4">
+        <i class="bi bi-trash me-1"></i>Delete Account
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  document.querySelectorAll(".avatar-pick").forEach(avatar => {
+    avatar.addEventListener("click", function () {
+      document.querySelectorAll(".avatar-pick").forEach(a => a.classList.remove("selected"));
+      this.classList.add("selected");
+      document.getElementById("avatarInput").value         = this.dataset.emoji;
+      document.getElementById("sidebarAvatar").textContent = this.dataset.emoji;
+    });
+  });
+
+  const deleteModal = document.getElementById("deleteModal");
+  document.getElementById("deleteAccountBtn").addEventListener("click", () => deleteModal.style.display = "flex");
+  document.getElementById("cancelDeleteBtn").addEventListener("click",  () => deleteModal.style.display = "none");
+  deleteModal.addEventListener("click", e => { if (e.target === deleteModal) deleteModal.style.display = "none"; });
+})();
+</script>
+{% endblock %}

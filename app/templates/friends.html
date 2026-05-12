@@ -1,0 +1,215 @@
+{% extends 'base_sidebar.html' %}
+{% from '_macros.html' import csrf_input, flash_error, flash_success %}
+
+{% block title %}SmartMeet – Friends{% endblock %}
+{% block sidebar_friends %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <p class="section-sub">Social</p>
+    <h2 class="fw-900 mb-0" style="font-size:1.6rem;">👥 Friends</h2>
+  </div>
+</div>
+
+{% if request.args.get('error') %}
+  {{ flash_error(request.args.get('error')) }}
+{% endif %}
+{% if request.args.get('success') %}
+  {{ flash_success('✅ ' + request.args.get('success')) }}
+{% endif %}
+
+{# ── Add a friend ── #}
+<div class="sm-card mb-4" style="overflow:visible;">
+  <div class="sm-card-body">
+    <label class="fw-800 mb-2 field-label">ADD A FRIEND</label>
+    <form method="POST" action="{{ url_for('main.send_friend_request') }}" class="d-flex gap-2" id="addFriendForm">
+      {{ csrf_input() }}
+      <div style="position:relative;flex:1;">
+        <input type="text" name="username" id="friendSearch" class="form-control form-control-purple fw-700"
+          placeholder="Search by username…" autocomplete="off" />
+        <div id="searchDropdown" class="search-dropdown"></div>
+      </div>
+      <button type="submit" class="btn-room px-4" style="white-space:nowrap;">
+        <i class="bi bi-person-plus-fill me-1"></i>Add
+      </button>
+    </form>
+  </div>
+</div>
+
+{# ── Pending requests received ── #}
+{% if pending_received %}
+<div class="section-header mb-3">
+  Pending Requests
+  <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">{{ pending_received | length }}</span>
+</div>
+<div class="row g-3 mb-4">
+  {% for friendship in pending_received %}
+  {% set requester = friendship.sender %}
+  <div class="col-md-6">
+    <div class="friend-card pending">
+      <div class="part-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">
+        {{ requester.avatar }}
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-800">{{ requester.display_name }}</div>
+        <div class="text-muted small">@{{ requester.username }}</div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        {% if requester.public_profile %}
+        <a href="{{ url_for('main.schedule', username=requester.username) }}" class="btn-view-profile">👤 View Profile</a>
+        {% endif %}
+        <form method="POST" action="{{ url_for('main.accept_friend', friendship_id=friendship.id) }}">
+          {{ csrf_input() }}
+          <button type="submit" class="btn btn-sm rounded-pill fw-700" style="background:var(--p2);color:#fff;border:none;padding:4px 14px;">Accept</button>
+        </form>
+        <form method="POST" action="{{ url_for('main.decline_friend', friendship_id=friendship.id) }}">
+          {{ csrf_input() }}
+          <button type="submit" class="btn btn-sm rounded-pill fw-700 btn-muted-sm">Decline</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Pending requests sent ── #}
+{% if pending_sent %}
+<div class="section-header mb-3">
+  Sent Requests
+  <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">{{ pending_sent | length }}</span>
+</div>
+<div class="row g-3 mb-4">
+  {% for friendship in pending_sent %}
+  {% set recipient = friendship.receiver %}
+  <div class="col-md-6">
+    <div class="friend-card">
+      <div class="part-circle" style="background:linear-gradient(135deg,#22d3ee,#6d28d9);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">
+        {{ recipient.avatar }}
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-800">{{ recipient.display_name }}</div>
+        <div class="text-muted small">@{{ recipient.username }} · Pending</div>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        {% if recipient.public_profile %}
+        <a href="{{ url_for('main.schedule', username=recipient.username) }}" class="btn-view-profile">👤 View Profile</a>
+        {% endif %}
+        <form method="POST" action="{{ url_for('main.cancel_friend_request', friendship_id=friendship.id) }}">
+          {{ csrf_input() }}
+          <button type="submit" class="btn btn-sm rounded-pill fw-700 btn-muted-sm">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Friends list ── #}
+<div class="section-header mb-3">
+  Your Friends
+  <span class="badge rounded-pill ms-2" style="background:var(--p4);color:var(--p2);font-size:.75rem;">{{ friends | length }}</span>
+</div>
+
+<div class="mb-3">
+  <input type="text" id="filterFriends" class="form-control form-control-purple fw-700"
+    placeholder="Filter friends…" style="max-width:320px;" />
+</div>
+
+<div class="row g-3" id="friendsList">
+  {% if friends %}
+    {% for friendship in friends %}
+    {% set friend = friendship.receiver if friendship.user1_id == user.id else friendship.sender %}
+    <div class="col-md-6" data-name="{{ friend.display_name | lower }}">
+      <div class="friend-card">
+        <div class="part-circle" style="background:linear-gradient(135deg,#f472b6,#a78bfa);width:48px;height:48px;font-size:1.4rem;flex-shrink:0;">
+          {{ friend.avatar }}
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-800">{{ friend.display_name }}</div>
+          <div class="text-muted small">@{{ friend.username }}</div>
+        </div>
+        <div class="d-flex flex-row gap-2 align-items-center">
+          <a href="{{ url_for('main.schedule', username=friend.username) }}" class="btn-view-profile">View Profile</a>
+          <form method="POST" action="{{ url_for('main.remove_friend', friendship_id=friendship.id) }}">
+            {{ csrf_input() }}
+            <button type="submit" class="btn btn-sm rounded-pill fw-700 btn-danger-sm">Remove</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <p class="text-muted fw-700 text-center py-3">No friends yet. Add someone above!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  // ── Filter friends ──
+  document.getElementById("filterFriends").addEventListener("input", function () {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll("#friendsList .col-md-6").forEach(col => {
+      col.style.display = (col.dataset.name || "").includes(q) ? "" : "none";
+    });
+  });
+
+  // ── Username search dropdown ──
+  const friendSearch       = document.getElementById("friendSearch");
+  const searchDropdown     = document.getElementById("searchDropdown");
+  let selectedFromDropdown = false;
+
+  friendSearch.addEventListener("input", async function () {
+    const q = this.value.trim();
+    selectedFromDropdown = false;
+    if (q.length < 2) { searchDropdown.style.display = "none"; return; }
+    const data = await fetch(`/users/search?q=${encodeURIComponent(q)}`).then(r => r.json());
+    if (!data.users.length) { searchDropdown.style.display = "none"; return; }
+    searchDropdown.innerHTML = data.users.map(u => `
+      <div class="search-result-item" data-username="${u.username}" data-public-profile="${u.public_profile}">
+        <span style="font-size:1.2rem;">${u.avatar}</span>
+        <div>
+          <div style="font-size:.9rem;">${u.display_name}</div>
+          <div style="font-size:.75rem;color:#9ca3af;">@${u.username}</div>
+        </div>
+      </div>
+    `).join("");
+    searchDropdown.style.display = "block";
+
+    searchDropdown.querySelectorAll(".search-result-item").forEach(item => {
+      item.addEventListener("click", () => {
+        friendSearch.value = item.dataset.username;
+        searchDropdown.style.display = "none";
+        selectedFromDropdown = true;
+        document.getElementById("viewProfileBtn")?.remove();
+        if (item.dataset.publicProfile === "true") {
+          const btn = Object.assign(document.createElement("a"), {
+            id: "viewProfileBtn",
+            href: "/schedule/" + item.dataset.username,
+            textContent: "👤 View Profile",
+            className: "btn-view-profile",
+          });
+          document.getElementById("addFriendForm").appendChild(btn);
+        }
+      });
+    });
+  });
+
+  friendSearch.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !selectedFromDropdown) e.preventDefault();
+  });
+
+  document.addEventListener("click", e => {
+    if (!friendSearch.contains(e.target) && !searchDropdown.contains(e.target)) {
+      searchDropdown.style.display = "none";
+    }
+  });
+})();
+</script>
+{% endblock %}
