@@ -75,13 +75,14 @@ This applies all existing migrations and creates the database tables automatical
 python seed.py
 ```
 
-This creates a pre-verified test account. Safe to run multiple times — skips automatically if the account already exists.
+This creates 4 pre-verified test accounts for testing the full workflow. Safe to run multiple times — skips accounts that already exist.
 
-```
-Username: testuser
-Password: Test123!
-```
-
+| Username   | Password  | Display Name |
+|------------|-----------|--------------|
+| testuser1  | Test123!  | Alice        |
+| testuser2  | Test123!  | Bob          |
+| testuser3  | Test123!  | Charlie      |
+| testuser4  | Test123!  | Diana        |
 ---
 
 ## ▶️ 6. Run the Application
