@@ -10,7 +10,7 @@
     <p class="section-sub">Activity</p>
     <h2 class="fw-900 mb-0" style="font-size:1.6rem;">🔔 Notifications</h2>
   </div>
-  {% set unread_notifs = user.notifications | selectattr('is_read', 'equalto', false) | list %}
+  {% set unread_notifs = notifications | selectattr('is_read', 'equalto', false) | list %}
   {% if unread_notifs %}
   <form method="POST" action="{{ url_for('main.mark_all_read') }}">
     {{ csrf_input() }}
@@ -22,7 +22,6 @@
 </div>
 
 <div id="notifList" class="d-flex flex-column gap-3">
-  {% set notifications = user.notifications | sort(attribute='created_at', reverse=True) %}
   {% if notifications %}
     {% for notif in notifications %}
     <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
