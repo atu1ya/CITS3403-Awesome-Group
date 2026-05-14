@@ -329,6 +329,12 @@
       : `⏱ ${durationEl.value} slots`;
   }
 
+  function updateDeadlineBounds() {
+    const deadlineEl = document.getElementById("deadline");
+    if (dateFromEl.value) deadlineEl.min = dateFromEl.value;
+    if (dateToEl.value)   deadlineEl.max = dateToEl.value;
+  }
+
   function goToStep(n) {
     const current = [1,2,3].find(i => document.getElementById("step"+i).classList.contains("active")) || 1;
     if (n > current) {
@@ -370,8 +376,8 @@
   roomNameEl.addEventListener("input",   updatePreview);
   roomDescEl.addEventListener("input",   updatePreview);
   orgNameEl.addEventListener("input",    updatePreview);
-  dateFromEl.addEventListener("change",  () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
-  dateToEl.addEventListener("change",    () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); });
+  dateFromEl.addEventListener("change",  () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); updateDeadlineBounds(); });
+  dateToEl.addEventListener("change",    () => { excludedDates.clear(); updateDateTiles(); updateTimePreview(); updatePreview(); updateDeadlineBounds(); });
   timeStartEl.addEventListener("change", () => { updateTimePreview(); updatePreview(); });
   timeEndEl.addEventListener("change",   () => { updateTimePreview(); updatePreview(); });
   durationEl.addEventListener("change",  () => { updateTimePreview(); updatePreview(); });
@@ -379,6 +385,7 @@
   updatePreview();
   updateDateTiles();
   updateTimePreview();
+  updateDeadlineBounds();
 })();
 </script>
 {% endblock %}
