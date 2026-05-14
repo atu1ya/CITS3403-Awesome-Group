@@ -176,7 +176,7 @@ def login():
             return render_template('login.html', error='Invalid username or password.')
 
         login_user(user, remember=request.form.get('remember') == 'on')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     return render_template('login.html')
 
