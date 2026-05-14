@@ -274,6 +274,10 @@ def create_event():
         deadline_str = request.form.get('deadline')
         deadline     = (datetime.strptime(deadline_str, '%Y-%m-%d').date()
                         if deadline_str else None)
+        date_from_d  = datetime.strptime(date_from, '%Y-%m-%d').date()
+        date_to_d    = datetime.strptime(date_to,   '%Y-%m-%d').date()
+        if deadline and not (date_from_d <= deadline <= date_to_d):
+            deadline = date_to_d
 
         selected_dates = request.form.get('selectedDates', '')
         if not selected_dates:
@@ -288,8 +292,8 @@ def create_event():
         room = Room(
             title          = title,
             description    = description,
-            date_from      = datetime.strptime(date_from, '%Y-%m-%d').date(),
-            date_to        = datetime.strptime(date_to,   '%Y-%m-%d').date(),
+            date_from      = date_from_d,
+            date_to        = date_to_d,
             time_start     = time_start,
             time_end       = time_end,
             duration       = duration,
@@ -745,7 +749,12 @@ def search_users():
 @main.route('/notifications')
 @login_required
 def notifications():
-    return render_template('notifications.html', user=current_user)
+    notifications = (Notification.query
+                     .filter_by(user_id=current_user.id)
+                     .order_by(Notification.created_at.desc())
+                     .limit(50)
+                     .all())
+    return render_template('notifications.html', user=current_user, notifications=notifications)
 
 
 @main.route('/notifications/mark-all-read', methods=['POST'])
