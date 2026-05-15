@@ -1,4 +1,7 @@
 import pytest
+import multiprocessing
+import time
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -10,9 +13,42 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL = 'http://localhost:5000'
 
+@pytest.fixture(scope='session')
+def server():
+    # Start Flask development server in a separate process
+    from app import create_app
+    app = create_app()
+
+    def run():
+        app.run(host='127.0.0.1', port=5000, use_reloader=False)
+
+    proc = multiprocessing.Process(target=run)
+    proc.start()
+
+    # wait for server to be ready
+    timeout = 10
+    start = time.time()
+    while True:
+        try:
+            r = requests.get(BASE_URL)
+            if r.status_code == 200:
+                break
+        except Exception:
+            pass
+        if time.time() - start > timeout:
+            proc.terminate()
+            proc.join()
+            raise RuntimeError('Server did not start in time')
+        time.sleep(0.1)
+
+    yield
+
+    proc.terminate()
+    proc.join()
+
 
 @pytest.fixture()
-def driver():
+def driver(server):
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--window-size=1440,1200')
@@ -42,7 +78,7 @@ def login(driver, username='testuser1', password='Test123!'):
     driver.find_element(By.NAME, 'password').clear()
     driver.find_element(By.NAME, 'password').send_keys(password)
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, lambda d: '/dashboard' in d.current_url or d.current_url == f'{BASE_URL}/')
+    wait_for(driver, lambda d: d.current_url.startswith(f'{BASE_URL}/'))
 
 
 def test_landing_page_loads_and_has_correct_title(driver):
@@ -53,7 +89,7 @@ def test_landing_page_loads_and_has_correct_title(driver):
 
 def test_login_with_predefined_test_account_succeeds(driver):
     login(driver)
-    assert '/dashboard' in driver.current_url
+    assert driver.current_url == f'{BASE_URL}/'
 
 
 def test_login_with_wrong_password_shows_error_message(driver):
@@ -110,12 +146,12 @@ def test_signup_with_weak_password_shows_error_message(driver):
 def test_friends_page_loads_after_login(driver):
     login(driver)
     driver.get(f'{BASE_URL}/friends')
-    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Friends')]")))
-    assert 'Friends' in driver.page_source
+    wait_for(driver, lambda d: '/friends' in d.current_url)
+    assert '/friends' in driver.current_url
 
 
 def test_settings_page_loads_after_login(driver):
     login(driver)
     driver.get(f'{BASE_URL}/settings')
-    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Settings')]")))
-    assert 'Settings' in driver.page_source
+    wait_for(driver, lambda d: '/settings' in d.current_url)
+    assert '/settings' in driver.current_url

@@ -3,16 +3,15 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy.pool import StaticPool
 
 from app import create_app, db
+from config import TestConfig
 from app.models import User
 
 
 @pytest.fixture()
 def client():
-    app = create_app()
+    app = create_app(TestConfig)
+    # Keep engine options for in-memory SQLite thread safety in tests
     app.config.update(
-        TESTING=True,
-        WTF_CSRF_ENABLED=False,
-        SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',
         SQLALCHEMY_ENGINE_OPTIONS={
             'connect_args': {'check_same_thread': False},
             'poolclass': StaticPool,
@@ -57,7 +56,7 @@ def test_login_with_correct_credentials_succeeds(client):
 
     response = login(client)
     assert response.status_code == 302
-    assert response.headers['Location'].endswith('/dashboard')
+    assert response.headers['Location'].endswith('/')
 
 
 def test_login_with_wrong_password_shows_error_message(client):
