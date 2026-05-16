@@ -130,13 +130,11 @@ python -m pytest tests/unit
 
 ### Selenium tests
 
-Make sure the app is running first, then:
-
 ```bash
 python -m pytest tests/selenium
 ```
 
----
+> Note: The Selenium tests automatically start and stop the server — no need to run the app manually beforehand.
 
 ## Workflow
 

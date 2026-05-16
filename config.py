@@ -15,7 +15,7 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
 
 class TestConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     TESTING = True
-    WTF_CSRF_ENABLED = False   # disables CSRF so test form submissions work
-    MAIL_SUPPRESS_SEND = True  # stops emails actually sending during tests
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False
+    MAIL_SUPPRESS_SEND = True
