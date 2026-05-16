@@ -1,5 +1,5 @@
 import pytest
-import multiprocessing
+import threading
 import time
 import requests
 from selenium import webdriver
@@ -9,23 +9,37 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from werkzeug.security import generate_password_hash
+
+from app import create_app, db
+from app.models import User
+from config import TestConfig
 
 
 BASE_URL = 'http://localhost:5000'
 
+
 @pytest.fixture(scope='session')
 def server():
-    # Start Flask development server in a separate process
-    from app import create_app
-    app = create_app()
+    app = create_app(TestConfig)
 
-    def run():
-        app.run(host='127.0.0.1', port=5000, use_reloader=False)
+    with app.app_context():
+        db.create_all()
+        user = User(
+            username='testuser1',
+            email='test1@smartmeet.com',
+            password_hash=generate_password_hash('Test123!'),
+            display_name='Alice',
+        )
+        db.session.add(user)
+        db.session.commit()
 
-    proc = multiprocessing.Process(target=run)
-    proc.start()
+    thread = threading.Thread(
+        target=lambda: app.run(host='127.0.0.1', port=5000, use_reloader=False)
+    )
+    thread.daemon = True
+    thread.start()
 
-    # wait for server to be ready
     timeout = 10
     start = time.time()
     while True:
@@ -36,15 +50,10 @@ def server():
         except Exception:
             pass
         if time.time() - start > timeout:
-            proc.terminate()
-            proc.join()
             raise RuntimeError('Server did not start in time')
         time.sleep(0.1)
 
     yield
-
-    proc.terminate()
-    proc.join()
 
 
 @pytest.fixture()
@@ -54,7 +63,6 @@ def driver(server):
     options.add_argument('--window-size=1440,1200')
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
-
     chrome_driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()),
         options=options,
@@ -78,7 +86,7 @@ def login(driver, username='testuser1', password='Test123!'):
     driver.find_element(By.NAME, 'password').clear()
     driver.find_element(By.NAME, 'password').send_keys(password)
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, lambda d: d.current_url.startswith(f'{BASE_URL}/'))
+    wait_for(driver, lambda d: '/dashboard' in d.current_url or d.current_url == f'{BASE_URL}/')
 
 
 def test_landing_page_loads_and_has_correct_title(driver):
@@ -98,7 +106,8 @@ def test_login_with_wrong_password_shows_error_message(driver):
     driver.find_element(By.NAME, 'identifier').send_keys('testuser1')
     driver.find_element(By.NAME, 'password').send_keys('WrongPass1!')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Invalid username or password.')]")))
+    wait_for(driver, EC.presence_of_element_located(
+        (By.XPATH, "//*[contains(., 'Invalid username or password.')]")))
     assert 'Invalid username or password.' in driver.page_source
 
 
@@ -110,6 +119,7 @@ def test_dashboard_is_accessible_after_successful_login(driver):
 
 
 def test_dashboard_redirects_to_login_when_unauthenticated(driver):
+    driver.delete_all_cookies()
     driver.get(f'{BASE_URL}/dashboard')
     wait_for(driver, EC.presence_of_element_located((By.NAME, 'identifier')))
     assert '/login' in driver.current_url
@@ -118,7 +128,6 @@ def test_dashboard_redirects_to_login_when_unauthenticated(driver):
 def test_logout_works_and_protected_pages_redirect_to_login(driver):
     login(driver)
     wait_for(driver, EC.element_to_be_clickable((By.LINK_TEXT, 'Logout'))).click()
-
     driver.get(f'{BASE_URL}/dashboard')
     wait_for(driver, EC.presence_of_element_located((By.NAME, 'identifier')))
     assert '/login' in driver.current_url
@@ -139,19 +148,20 @@ def test_signup_with_weak_password_shows_error_message(driver):
     driver.find_element(By.NAME, 'password').send_keys('weak')
     driver.find_element(By.NAME, 'confirm').send_keys('weak')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Password must be at least 8 characters.')]")))
+    wait_for(driver, EC.presence_of_element_located(
+        (By.XPATH, "//*[contains(., 'Password must be at least 8 characters.')]")))
     assert 'Password must be at least 8 characters.' in driver.page_source
 
 
 def test_friends_page_loads_after_login(driver):
     login(driver)
     driver.get(f'{BASE_URL}/friends')
-    wait_for(driver, lambda d: '/friends' in d.current_url)
+    wait_for(driver, EC.url_contains('/friends'))
     assert '/friends' in driver.current_url
 
 
 def test_settings_page_loads_after_login(driver):
     login(driver)
     driver.get(f'{BASE_URL}/settings')
-    wait_for(driver, lambda d: '/settings' in d.current_url)
+    wait_for(driver, EC.url_contains('/settings'))
     assert '/settings' in driver.current_url
