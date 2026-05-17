@@ -2,7 +2,15 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    # SECRET_KEY must be provided in production via environment variable
+    _secret = os.environ.get('SECRET_KEY')
+    if _secret:
+        SECRET_KEY = _secret
+    else:
+        _env = (os.environ.get('FLASK_ENV') or os.environ.get('ENV') or 'development').lower()
+        if _env == 'production':
+            raise ValueError("No SECRET_KEY set for production environment!")
+        SECRET_KEY = 'dev-secret-key-change-in-production'
 
     _db_url = os.environ.get('DATABASE_URL')
     if _db_url:
@@ -15,10 +23,11 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
 
-    # Flask-Mail
-    MAIL_SERVER   = 'smtp.gmail.com'
-    MAIL_PORT     = 587
-    MAIL_USE_TLS  = True
+    # Flask-Mail (configurable via environment variables)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    # Ensure MAIL_PORT is an integer; default to 587
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
