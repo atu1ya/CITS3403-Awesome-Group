@@ -154,7 +154,7 @@ def login(driver, username='testuser1', password='Test123!'):
     driver.find_element(By.NAME, 'password').clear()
     driver.find_element(By.NAME, 'password').send_keys(password)
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, lambda d: d.current_url.startswith(BASE_URL))
+    wait_for(driver, lambda d: d.current_url != f'{BASE_URL}/login')
 
 
 def test_landing_page_loads_and_has_correct_title(driver):
@@ -182,7 +182,7 @@ def test_dashboard_is_accessible_after_successful_login(driver):
     login(driver)
     driver.get(f'{BASE_URL}/dashboard')
     wait_for(driver, EC.presence_of_element_located((By.TAG_NAME, 'h2')))
-    assert 'welcome back' in driver.page_source.lower()
+    assert 'Rooms You Created' in driver.page_source
 
 
 def test_dashboard_redirects_to_login_when_unauthenticated(driver):
@@ -268,8 +268,8 @@ def test_friends_interaction_workflow(driver, server):
     login(driver)
     driver.get(f'{BASE_URL}/friends')
 
-    wait_for(driver, EC.presence_of_element_located((By.NAME, 'username')))
-    _set_input_value(driver, By.NAME, 'username', server['friend_username'])
+    wait_for(driver, EC.presence_of_element_located((By.ID, 'friendSearch')))
+    _set_input_value(driver, By.ID, 'friendSearch', server['friend_username'])
     _click_element(driver, By.CSS_SELECTOR, '#addFriendForm button[type="submit"]')
 
     wait_for(driver, lambda d: 'Sent Requests' in d.page_source or '@bob' in d.page_source)
