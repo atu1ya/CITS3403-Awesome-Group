@@ -142,7 +142,7 @@ Tests end-to-end user workflows in a real browser including login, dashboard, ro
 python -m pytest tests/
 ```
 
-See [TESTING.md](TESTING.md) for full details on the test suite.
+See [TESTING.md](Testing.md) for full details on the test suite.
 
 > Note: The Selenium tests automatically start and stop the server — no need to run the app manually beforehand.
 
