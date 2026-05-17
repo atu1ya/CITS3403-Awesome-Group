@@ -1,38 +1,109 @@
-import pytest
+import os
+import re
+import tempfile
 import threading
 import time
+from datetime import date
+
+import pytest
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 from werkzeug.security import generate_password_hash
 
 from app import create_app, db
-from app.models import User
+from app.models import Availability, Room, RoomParticipant, User
 from config import TestConfig
 
 
 BASE_URL = 'http://localhost:5000'
 
 
-@pytest.fixture(scope='session')
-def server():
-    app = create_app(TestConfig)
+def _set_input_value(driver, by, selector, value):
+    element = driver.find_element(by, selector)
+    driver.execute_script(
+        """
+        const element = arguments[0];
+        const value = arguments[1];
+        element.value = value;
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+        """,
+        element,
+        value,
+    )
 
+
+def _click_element(driver, by, selector):
+    element = driver.find_element(by, selector)
+    driver.execute_script('arguments[0].click();', element)
+
+
+def _seed_selenium_database(app):
     with app.app_context():
         db.create_all()
-        user = User(
+
+        organizer = User(
             username='testuser1',
             email='test1@smartmeet.com',
             password_hash=generate_password_hash('Test123!'),
             display_name='Alice',
         )
-        db.session.add(user)
+        friend_target = User(
+            username='bob',
+            email='bob@example.com',
+            password_hash=generate_password_hash('Test123!'),
+            display_name='Bob',
+        )
+        db.session.add_all([organizer, friend_target])
+        db.session.flush()
+
+        room = Room(
+            title='Seeded Results Room',
+            description='Seed data for results workflow',
+            date_from=date(2026, 5, 17),
+            date_to=date(2026, 5, 17),
+            selected_dates='2026-05-17',
+            time_start='9:00 AM',
+            time_end='10:00 AM',
+            duration='30 min',
+            organiser_id=organizer.id,
+        )
+        db.session.add(room)
+        db.session.flush()
+
+        db.session.add(RoomParticipant(room_id=room.id, user_id=friend_target.id, status='awaiting'))
+        db.session.add_all([
+            Availability(room_id=room.id, user_id=organizer.id, time_slot='2026-05-17 9:00 AM', status='free'),
+            Availability(room_id=room.id, user_id=friend_target.id, time_slot='2026-05-17 9:00 AM', status='maybe'),
+            Availability(room_id=room.id, user_id=organizer.id, time_slot='2026-05-17 9:30 AM', status='free'),
+            Availability(room_id=room.id, user_id=friend_target.id, time_slot='2026-05-17 9:30 AM', status='busy'),
+        ])
         db.session.commit()
+
+        return {
+            'friend_username': friend_target.username,
+            'results_room_code': room.code,
+            'results_top_slot': '2026-05-17 9:00 AM',
+        }
+
+
+@pytest.fixture(scope='session')
+def server():
+    fd, db_path = tempfile.mkstemp(suffix='.sqlite')
+    os.close(fd)
+
+    class SeleniumTestConfig(TestConfig):
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_path}'
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'connect_args': {'check_same_thread': False},
+        }
+
+    app = create_app(SeleniumTestConfig)
+    seeded_state = _seed_selenium_database(app)
 
     thread = threading.Thread(
         target=lambda: app.run(host='127.0.0.1', port=5000, use_reloader=False)
@@ -44,8 +115,8 @@ def server():
     start = time.time()
     while True:
         try:
-            r = requests.get(BASE_URL)
-            if r.status_code == 200:
+            response = requests.get(BASE_URL)
+            if response.status_code == 200:
                 break
         except Exception:
             pass
@@ -53,7 +124,7 @@ def server():
             raise RuntimeError('Server did not start in time')
         time.sleep(0.1)
 
-    yield
+    yield seeded_state
 
 
 @pytest.fixture()
@@ -63,10 +134,7 @@ def driver(server):
     options.add_argument('--window-size=1440,1200')
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
-    chrome_driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=options,
-    )
+    chrome_driver = webdriver.Chrome(options=options)
     chrome_driver.implicitly_wait(0)
     try:
         yield chrome_driver
@@ -86,7 +154,7 @@ def login(driver, username='testuser1', password='Test123!'):
     driver.find_element(By.NAME, 'password').clear()
     driver.find_element(By.NAME, 'password').send_keys(password)
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, lambda d: '/dashboard' in d.current_url or d.current_url == f'{BASE_URL}/')
+    wait_for(driver, lambda d: d.current_url.startswith(BASE_URL))
 
 
 def test_landing_page_loads_and_has_correct_title(driver):
@@ -106,8 +174,7 @@ def test_login_with_wrong_password_shows_error_message(driver):
     driver.find_element(By.NAME, 'identifier').send_keys('testuser1')
     driver.find_element(By.NAME, 'password').send_keys('WrongPass1!')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, EC.presence_of_element_located(
-        (By.XPATH, "//*[contains(., 'Invalid username or password.')]")))
+    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Invalid username or password.')]")))
     assert 'Invalid username or password.' in driver.page_source
 
 
@@ -148,8 +215,7 @@ def test_signup_with_weak_password_shows_error_message(driver):
     driver.find_element(By.NAME, 'password').send_keys('weak')
     driver.find_element(By.NAME, 'confirm').send_keys('weak')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    wait_for(driver, EC.presence_of_element_located(
-        (By.XPATH, "//*[contains(., 'Password must be at least 8 characters.')]")))
+    wait_for(driver, EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Password must be at least 8 characters.')]")))
     assert 'Password must be at least 8 characters.' in driver.page_source
 
 
@@ -165,3 +231,61 @@ def test_settings_page_loads_after_login(driver):
     driver.get(f'{BASE_URL}/settings')
     wait_for(driver, EC.url_contains('/settings'))
     assert '/settings' in driver.current_url
+
+
+def test_create_event_and_availability_workflow(driver):
+    login(driver)
+    driver.get(f'{BASE_URL}/create-event')
+
+    wait_for(driver, EC.presence_of_element_located((By.NAME, 'roomName')))
+    _set_input_value(driver, By.NAME, 'roomName', 'Browser Workflow Room')
+    _set_input_value(driver, By.NAME, 'roomDesc', 'Created by Selenium')
+
+    _click_element(driver, By.XPATH, "//button[contains(., 'Next: Dates & Time')]")
+    wait_for(driver, EC.presence_of_element_located((By.NAME, 'dateFrom')))
+    _set_input_value(driver, By.NAME, 'dateFrom', '2026-05-20')
+    _set_input_value(driver, By.NAME, 'dateTo', '2026-05-21')
+    _set_input_value(driver, By.NAME, 'timeStart', '9:00 AM')
+    _set_input_value(driver, By.NAME, 'timeEnd', '5:00 PM')
+    _set_input_value(driver, By.NAME, 'duration', '1 hour')
+
+    _click_element(driver, By.XPATH, "//button[contains(., 'Next: Your Info')]")
+    wait_for(driver, EC.presence_of_element_located((By.ID, 'createBtn')))
+    _click_element(driver, By.ID, 'createBtn')
+
+    wait_for(driver, EC.url_contains('/availability/'))
+    assert '/availability/' in driver.current_url
+
+    wait_for(driver, EC.presence_of_element_located((By.CSS_SELECTOR, '#avGrid td.tile')))
+    _click_element(driver, By.CSS_SELECTOR, '#avGrid td.tile')
+    _click_element(driver, By.CSS_SELECTOR, 'button[type="submit"]')
+
+    wait_for(driver, EC.url_contains('/dashboard'))
+    assert '/dashboard' in driver.current_url
+
+
+def test_friends_interaction_workflow(driver, server):
+    login(driver)
+    driver.get(f'{BASE_URL}/friends')
+
+    wait_for(driver, EC.presence_of_element_located((By.NAME, 'username')))
+    _set_input_value(driver, By.NAME, 'username', server['friend_username'])
+    _click_element(driver, By.CSS_SELECTOR, '#addFriendForm button[type="submit"]')
+
+    wait_for(driver, lambda d: 'Sent Requests' in d.page_source or '@bob' in d.page_source)
+    assert 'Sent Requests' in driver.page_source
+    assert '@bob' in driver.page_source
+
+
+def test_results_presentation_workflow(driver, server):
+    login(driver)
+    driver.get(f"{BASE_URL}/results/{server['results_room_code']}")
+
+    wait_for(driver, EC.presence_of_element_located((By.ID, 'rGrid')))
+    assert 'Best Time' in driver.page_source
+    assert 'Found!' in driver.page_source
+    assert 'Availability Heatmap' in driver.page_source
+
+    first_card = re.search(r'id="slot-1".*?data-slot="([^"]+)"', driver.page_source, re.S)
+    assert first_card is not None
+    assert first_card.group(1) == server['results_top_slot']
