@@ -118,8 +118,6 @@ The signup and password reset flows require email credentials to send verificati
 
 To test the full signup flow, contact a team member to obtain the `.env` file. Otherwise use the pre-seeded test accounts above which bypass email verification entirely.
 
----
-
 ## Running the Tests
 
 ### Unit tests
@@ -128,11 +126,23 @@ To test the full signup flow, contact a team member to obtain the `.env` file. O
 python -m pytest tests/unit
 ```
 
+Tests core application logic including authentication, form validation, and database security — no browser or running server required.
+
 ### Selenium tests
 
 ```bash
 python -m pytest tests/selenium
 ```
+
+Tests end-to-end user workflows in a real browser. The server starts and stops automatically — no need to run the app manually beforehand. Requires Google Chrome to be installed.
+
+### Run all tests
+
+```bash
+python -m pytest tests/
+```
+
+See [TESTING.md](TESTING.md) for full details on the test suite.
 
 > Note: The Selenium tests automatically start and stop the server — no need to run the app manually beforehand.
 
