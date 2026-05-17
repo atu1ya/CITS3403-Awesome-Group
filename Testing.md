@@ -5,10 +5,9 @@ SmartMeet uses two types of automated tests: unit tests and Selenium system test
 ---
 
 ## Test Structure
-
 tests/
 ├── unit/
-│   └── test_routes.py       # Unit tests for authentication and validation logic
+│   └── test_routes.py       # Unit tests for authentication, validation, rooms, friends and results
 └── selenium/
 └── test_workflow.py     # End-to-end browser tests for user workflows
 
@@ -70,12 +69,22 @@ class TestConfig(Config):
 | `test_dashboard_redirects_to_login_when_not_authenticated` | Protected route redirects unauthenticated users |
 | `test_results_page_redirects_to_login_when_not_authenticated` | Protected route redirects unauthenticated users |
 | `test_user_password_is_hashed_in_database` | Passwords are never stored in plaintext |
+| `test_create_event_saves_room_and_redirects_to_availability` | Room creation saves to database and redirects correctly |
+| `test_unassociated_user_cannot_submit_availability` | Unauthorised users cannot submit availability (403) |
+| `test_successful_availability_submission_creates_rows_and_updates_status` | Availability submission saves correctly and updates participant status |
+| `test_add_friend_creates_pending_friendship` | Friend request creates a pending friendship |
+| `test_accept_friend_marks_friendship_accepted` | Accepting a friend request updates status to accepted |
+| `test_remove_friend_deletes_friendship_row` | Removing a friend deletes the friendship row |
+| `test_user_search_returns_matching_users` | User search returns correct results |
+| `test_results_page_aggregates_scores_and_orders_best_slots` | Results heatmap scores and orders slots correctly |
+| `test_confirm_time_records_confirmed_slot` | Confirming a time saves the confirmed slot |
+| `test_notify_participants_records_suggested_slot` | Notifying participants saves the suggested slot |
 
 ---
 
 ## Selenium Tests
 
-Selenium tests use a real Chrome browser to test end-to-end user workflows. The test suite automatically starts a Flask server using `TestConfig` before the tests run and shuts it down after.
+Selenium tests use a real Chrome browser to test end-to-end user workflows. The test suite automatically starts a Flask server before the tests run and shuts it down after.
 
 ### Requirements
 
@@ -97,13 +106,16 @@ thread.start()
 
 `threading` is used instead of `multiprocessing` for cross-platform compatibility — `multiprocessing` with local functions causes a `PicklingError` on Windows.
 
-### Test user
+### Test database
 
-A single test user is seeded into the in-memory database before the tests run:
+The Selenium tests use a temporary file-based SQLite database (instead of in-memory) to allow the server thread to share state with the test setup. The following users and data are seeded before the tests run:
 
-| Username | Password | Display Name |
-|----------|----------|--------------|
-| testuser1 | Test123! | Alice |
+| Username | Password | Display Name | Role |
+|----------|----------|--------------|------|
+| testuser1 | Test123! | Alice | Organiser / main test user |
+| bob | Test123! | Bob | Friend target |
+
+A seeded room with availability data is also created for the results workflow tests.
 
 ### What is tested
 
@@ -119,6 +131,9 @@ A single test user is seeded into the in-memory database before the tests run:
 | `test_signup_with_weak_password_shows_error_message` | Weak password shows error |
 | `test_friends_page_loads_after_login` | Friends page loads after login |
 | `test_settings_page_loads_after_login` | Settings page loads after login |
+| `test_create_event_and_availability_workflow` | Full room creation and availability submission end-to-end |
+| `test_friends_interaction_workflow` | Sending a friend request in the browser |
+| `test_results_presentation_workflow` | Results page loads heatmap and displays correct best slot |
 
 ### Notes
 

@@ -126,7 +126,7 @@ To test the full signup flow, contact a team member to obtain the `.env` file. O
 python -m pytest tests/unit
 ```
 
-Tests core application logic including authentication, form validation, and database security — no browser or running server required.
+Tests core application logic including authentication, form validation, database security, room creation, availability submission, friends and results — no browser or running server required.
 
 ### Selenium tests
 
@@ -134,7 +134,7 @@ Tests core application logic including authentication, form validation, and data
 python -m pytest tests/selenium
 ```
 
-Tests end-to-end user workflows in a real browser. The server starts and stops automatically — no need to run the app manually beforehand. Requires Google Chrome to be installed.
+Tests end-to-end user workflows in a real browser including login, dashboard, room creation, availability, friends and results. The server starts and stops automatically — no need to run the app manually beforehand. Requires Google Chrome to be installed.
 
 ### Run all tests
 
